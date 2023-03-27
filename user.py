@@ -1,5 +1,7 @@
 from Metricas import *
 from Metas import *
+from PlanEntrenamiento import *
+from WrongNumberOfArguments import *
 
 
 class User:
@@ -32,17 +34,26 @@ class User:
         return self.seguidores
 
 
+def no_of_argu(*args):
+    return len(args)
+
+
 class Trainer(User):
     def __init__(self, name, lastname, age, mail, password):
         super().__init__(name, lastname, age, mail, password)
         self.entrenamientos = []
         self.certificado_entrenador_reconocido = False
 
-    def creacion_entrenamiento(self):
-        pass
+    def creacion_plan_entrenamiento(self, titulo, descripcion, tipo_entrenamiento, dificultad, multimedia, metas, otros=False):
+        if no_of_argu(titulo, descripcion, tipo_entrenamiento, dificultad, multimedia, metas, otros=False) < 6:
+            raise WrongNumberOfArguments
+            # ver cuando trae un dato erroneo
 
-    def edicion_plan_entrenamiento(self):
+        self.entrenamientos.append(PlanEntrenamiento(titulo, descripcion, tipo_entrenamiento, dificultad, multimedia, metas, otros))
+
+    def edicion_plan_entrenamiento(self, entrenamiento):
         pass
+        #   editar un entrenamiento y verificar los datos
 
     def get_listado_entrenamiento(self):
         return self.entrenamientos
