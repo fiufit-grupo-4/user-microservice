@@ -1,6 +1,7 @@
 from Metricas import *
 from Metas import *
 
+
 class User:
     def __init__(self, name, lastname, age, mail, password):
         self.name = name
@@ -9,13 +10,26 @@ class User:
         self.mail = mail
         self.password = password
         self.training = []
-        self.usuarios_seguidos = 0
+        self.usuarios_seguidos = []
+        self.seguidores = []
 
     def getName(self, ):
         return self.name + ' ' + self.last_name
 
     def getAge(self):
         return self.age
+
+    def seguir_usuairio(self, usuario):
+        self.usuarios_seguidos.append(usuario)
+
+    def dejar_seguir_usuario(self, usuario):
+        self.usuarios_seguidos.remove(usuario)
+
+    def usuarios_seguidos(self):
+        return self.usuarios_seguidos
+
+    def seguidores(self):
+        return self.seguidores
 
 
 class Trainer(User):
@@ -51,6 +65,19 @@ class Athlete(User):
 
     def eliminar_meta(self, meta):
         self.metas.remove(meta)
+
+    def listar_metas(self):
+        return [meta.titulo for meta in self.metas]
+
+    def visualizar_meta(self, meta):
+        return meta.visualizar()
+
+    def meta_cumplida(self, meta):
+        meta.cumplida()
+
+
+
+
 
 # Tema perfil, se puede no hacer
 
