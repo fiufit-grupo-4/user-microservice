@@ -1,8 +1,13 @@
+from fastapi import FastAPI
 from user import *
-#ver la posibilidad de que el usuario reciba un perfil con todos sus datos
-perfil = Profile("Juan Perez", 20)
-# usuario = User("Juan Perez", 20)
-usuario = User(perfil)
 
-print(usuario.getAge())
-print(usuario.getName())
+app = FastAPI()
+
+
+@app.get("/")
+def read_root():
+    return User("Tizziana", "Mazza", 25, "tizzianamazza@gmail.com", "lala1")
+
+@app.get("/tizziana")
+def titi():
+    return {"Tizzi": "saluda"}
