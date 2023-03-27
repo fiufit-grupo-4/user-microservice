@@ -13,7 +13,7 @@ RUN pip install -r requirements.txt
 COPY . .
 
 # expose FastAPI app on specific port inside the container
-EXPOSE $SERVICE_PORT
+EXPOSE ${SERVICE_PORT}
 
 # command to start and run FastAPI app container
-CMD ["uvicorn", "app.api:app", "--host", "0.0.0.0", "--port", "2222"]
+CMD exec uvicorn app.api:app --host 0.0.0.0 --port ${SERVICE_PORT} 

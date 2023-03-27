@@ -1,0 +1,10 @@
+services:
+  service_example:
+    image: service_example
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - ${SERVICE_PORT}:${SERVICE_PORT}
