@@ -53,6 +53,7 @@ class Athlete(User):
         super().__init__(name, lastname, age, mail, password)
         self.metricas = Metricas()
         self.metas = []
+        self.entrenamientos = []
 
     def actualizar_metricas(self, distancia, tiempo, calorias, hitos, actividad):
         self.metricas.actualizar(distancia, tiempo, calorias, hitos, actividad)
@@ -75,7 +76,14 @@ class Athlete(User):
     def meta_cumplida(self, meta):
         meta.cumplida()
 
+    def agregar_entrenamiento_fav(self, entrenamiento):
+        self.entrenamientos.append(entrenamiento)
 
+    def eliminar_entrenamiento_fav(self, entrenamiento):
+        self.entrenamientos.remove(entrenamiento)
+
+    def entrenamientos_favoritos(self):
+        return self.entrenamientos
 
 
 
