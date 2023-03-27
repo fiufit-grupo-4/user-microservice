@@ -8,6 +8,7 @@ app = FastAPI()
 def read_root():
     return User("Tizziana", "Mazza", 25, "tizzianamazza@gmail.com", "lala1")
 
+
 @app.get("/tizziana")
 def titi():
     return {"Tizzi": "saluda"}

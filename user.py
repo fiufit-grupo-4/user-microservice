@@ -1,5 +1,4 @@
 
-
 class User(object):
     def __init__(self, name, lastname, age, mail, password):
         self.name = name
@@ -9,7 +8,7 @@ class User(object):
         self.password = password
         # self.profile = Profile()
 
-    def getName(self, param1):
+    def getName(self,):
         return self.name + ' ' + self.last_name
 
     def getAge(self):
