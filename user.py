@@ -5,19 +5,21 @@ from WrongNumberOfArguments import *
 
 
 class User:
-    def __init__(self, name, lastname, age, mail, password):
+    def __init__(self, user_id, name, mail):  #  lastname="", age="", mail="", password=""):
+        self.user_id = user_id
         self.name = name
-        self.last_name = lastname
-        self.age = age
         self.mail = mail
+        '''self.last_name = lastname
+        self.age = age
         self.password = password
         self.training = []
         self.usuarios_seguidos = []
         self.seguidores = []
+        '''
 
-    def getName(self, ):
-        return self.name + ' ' + self.last_name
-
+    def getName(self):
+        return self.name
+    '''
     def getAge(self):
         return self.age
 
@@ -45,11 +47,11 @@ class Trainer(User):
         self.certificado_entrenador_reconocido = False
 
     def creacion_plan_entrenamiento(self, titulo, descripcion, tipo_entrenamiento, dificultad, multimedia, metas, otros=False):
-        if no_of_argu(titulo, descripcion, tipo_entrenamiento, dificultad, multimedia, metas, otros=False) < 6:
-            raise WrongNumberOfArguments
+        pass
+        #if no_of_argu(titulo, descripcion, tipo_entrenamiento, dificultad, multimedia, metas, otros) < 6:
+          #  raise WrongNumberOfArguments
             # ver cuando trae un dato erroneo
-
-        self.entrenamientos.append(PlanEntrenamiento(titulo, descripcion, tipo_entrenamiento, dificultad, multimedia, metas, otros))
+        #self.entrenamientos.append(PlanEntrenamiento(titulo, descripcion, tipo_entrenamiento, dificultad, multimedia, metas, otros))
 
     def edicion_plan_entrenamiento(self, entrenamiento):
         pass
@@ -96,7 +98,7 @@ class Athlete(User):
     def entrenamientos_favoritos(self):
         return self.entrenamientos
 
-
+'''
 
 # Tema perfil, se puede no hacer
 
