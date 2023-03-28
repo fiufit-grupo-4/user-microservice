@@ -5,12 +5,13 @@ from WrongNumberOfArguments import *
 
 
 class User:
-    def __init__(self, user_id, name, mail):  #  lastname="", age="", mail="", password=""):
+    def __init__(self, user_id, name, lastname, age, mail): # password=""):
         self.user_id = user_id
         self.name = name
+        self.lastname = lastname
         self.mail = mail
-        '''self.last_name = lastname
         self.age = age
+        '''
         self.password = password
         self.training = []
         self.usuarios_seguidos = []
