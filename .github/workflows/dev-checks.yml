@@ -56,6 +56,11 @@ jobs:
           source .venv/bin/activate
           pytest tests/
           
+      - name: Build coverage file
+        run: |
+          source .venv/bin/activate
+          pytest --cache-clear --cov=app tests/ --cov-report=xml > pytest-coverage.txt
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
