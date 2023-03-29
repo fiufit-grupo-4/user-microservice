@@ -4,6 +4,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ./app:/root/app
     env_file:
       - .env
     ports:

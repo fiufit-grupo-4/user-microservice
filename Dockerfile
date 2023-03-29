@@ -1,5 +1,5 @@
 # set py 3.10 as base image to Docker Engine
-FROM python:3.10
+FROM python:3.9
 
 RUN pip install poetry
 
@@ -21,4 +21,4 @@ RUN poetry install
 EXPOSE ${SERVICE_PORT}
 
 # command to start and run FastAPI app container
-CMD exec poetry run uvicorn app.api:app --host 0.0.0.0 --port ${SERVICE_PORT}
+CMD exec poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port ${SERVICE_PORT}
