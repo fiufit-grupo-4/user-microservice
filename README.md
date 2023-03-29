@@ -32,7 +32,7 @@ Install Poetry:
 
 Run tests:
 
-```$ poetry pytest tests/```
+```$ poetry run pytest tests```
 
 Format check:
 
