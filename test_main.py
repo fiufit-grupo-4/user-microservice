@@ -1,42 +1,32 @@
 from fastapi.testclient import TestClient
-from main import app, UserResponse, UserRequest
-import uuid
-from fastapi import FastAPI, status, requests
-from pydantic.main import BaseModel
-from pydantic import EmailStr
+from main import *
+from fastapi import status
 from typing import List, Optional
 from starlette.responses import JSONResponse
-from user import *
+
+
 
 client = TestClient(app)
 
 fake_secret_token = "coneofsilence"
 
 fake_db = {
-            "1": {"user_id": "1", "name": "Lucas", "lastname": "Waisten", "mail": "ss@gmail.com", "age": "20"},
-            "2": {"user_id": "2", "name": "Juana", "lastname": "Sota", "mail": "sotajuana@gmail.com", "age": "20"},
-        }
+    "1": {"user_id": "1", "name": "Lucas", "lastname": "Waisten", "mail": "ss@gmail.com", "age": "20"},
+    "2": {"user_id": "2", "name": "Juana", "lastname": "Sota", "mail": "sotajuana@gmail.com", "age": "20"},
+}
 
-"""
-Mock de la FastApi
-"""
-def validate_username(username, users):
-    for user in users.values():
-        if user.name == username:
-            return False
-    return True
 
-def create_user(name: str, lastname: str, mail: str, age: str):
-    user_id = str(uuid.uuid4())
-    new_user = User(user_id=user_id, name=name, lastname=lastname, mail=mail, age=age)
-    fake_db[user_id] = new_user
-    return new_user
+##################################
+#####          Mock de la FastApi          #####
+##################################
+
 
 @app.post('/users', response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_users(user_request: UserRequest):
     if not validate_username(user_request.name, fake_db):
-        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=f'User {user_request.name} already exists',)
-    return create_user(user_request.name, user_request.lastname,user_request.mail, user_request.age)
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,
+                            content=f'User {user_request.name} already exists', )
+    return create_user(user_request.name, user_request.lastname, user_request.mail, user_request.age, fake_db)
 
 
 @app.get('/users', response_model=List[UserResponse], status_code=status.HTTP_200_OK)
@@ -61,7 +51,9 @@ async def get_user(user_id: str):
 def test_getAUserWithMail():
     response = client.get("/users?email_filter=ss@gmail.com")
     assert response.status_code == 200
-    assert response.json() == {"user_id": "1", "name": "Lucas", "lastname": "Waisten", "mail": "ss@gmail.com", "age": "20"}
+    assert response.json() == {"user_id": "1", "name": "Lucas", "lastname": "Waisten", "mail": "ss@gmail.com",
+                               "age": "20"}
+
 
 def test_getEmptyListOfUsers():
     response = client.get("/users")

@@ -28,25 +28,25 @@ class UserResponse(BaseModel):
         orm_mode = True
 
 
-def validate_username(username, users):
-    for user in users.values():
+def validate_username(username, data_base):
+    for user in data_base.values():
         if user.name == username:
             return False
     return True
 
 
-def create_user(name: str, lastname: str, mail: str, age: str):
+def create_user(name: str, lastname: str, mail: str, age: str, data_base):
     user_id = str(uuid.uuid4())
     new_user = User(user_id=user_id, name=name, lastname=lastname, mail=mail, age=age)
-    users[user_id] = new_user
+    data_base[user_id] = new_user
     return new_user
 
 
 @app.post('/users', response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_users(user_request: UserRequest):
-    if not validate_username(user_request.name, users):
+    if not validate_username(user_request.name, data_base=users):
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=f'User {user_request.name} already exists',)
-    return create_user(user_request.name, user_request.lastname,user_request.mail, user_request.age)
+    return create_user(user_request.name, user_request.lastname,user_request.mail, user_request.age, users)
 
 
 @app.get('/users', response_model=List[UserResponse], status_code=status.HTTP_200_OK)

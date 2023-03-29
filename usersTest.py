@@ -19,7 +19,6 @@ class TestUser(unittest.TestCase):
         self.assertEqual(user.getAge(), '25', 'La edad deberia ser: 25')
 
 
-
 if __name__ == '__main__':
     unittest.main()
 
