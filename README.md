@@ -1,8 +1,6 @@
 ## Base Microservices Infrastructure
 
-[![codecov](https://codecov.io/gh/fiufit-grupo-4/base-microservice/branch/develop/graph/badge.svg?token=TYSBTIXP4G)](https://codecov.io/gh/fiufit-grupo-4/base-microservice)
-
-[![Tests & Linters](https://github.com/fiufit-grupo-4/base-microservice/actions/workflows/checks.yml/badge.svg?branch=develop)](https://github.com/fiufit-grupo-4/base-microservice/actions/workflows/checks.yml)
+[![codecov](https://codecov.io/gh/fiufit-grupo-4/base-microservice/branch/develop/graph/badge.svg?token=TYSBTIXP4G)](https://codecov.io/gh/fiufit-grupo-4/base-microservice) [![Tests & Linters](https://github.com/fiufit-grupo-4/base-microservice/actions/workflows/checks.yml/badge.svg?branch=develop)](https://github.com/fiufit-grupo-4/base-microservice/actions/workflows/checks.yml)
 
 ### Docker
 
