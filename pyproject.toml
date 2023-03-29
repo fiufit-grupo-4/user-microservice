@@ -17,3 +17,10 @@ pytest-cov = "^2.11.1"
 httpx = "^0.23.0"
 pymongo = "^4.3.3"
 requests = "^2.28.2"
+flake8 = "^3.9.0"
+black = "^22.3.0"
+
+
+[tool.black]
+line-length = 88
+skip-string-normalization = true
