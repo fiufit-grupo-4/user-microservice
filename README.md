@@ -20,14 +20,22 @@ Remove multiple images:
 
 ### Tests
 
+After any change in *pyproject.toml* file:
+
+```$ poetry lock```
+
+Install Poetry:
+
+```$ poetry install```
+
 Run tests:
 
 ```$ poetry pytest tests/```
 
 Format check:
 
-```poetry run flake8 --max-line-length=88 app```
+```$ poetry run flake8 --max-line-length=88 app```
 
 Auto-format:
 
-```poetry run black --skip-string-normalization app```
+```$ poetry run black --skip-string-normalization app```
