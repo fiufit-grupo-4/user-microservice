@@ -9,7 +9,6 @@ from user import *
 app = FastAPI()
 users = {}
 
-
 class UserRequest(BaseModel):
     name: str
     lastname: str
@@ -21,8 +20,8 @@ class UserResponse(BaseModel):
     user_id: str
     name: str
     lastname: str
-    mail: Optional[EmailStr]
     age: str
+    mail: Optional[EmailStr]
 
     class Config:
         orm_mode = True
@@ -54,7 +53,7 @@ async def get_users(email_filter: Optional[str] = None):
     users_filtered = []
     for user_id, user in users.items():
         if email_filter:
-            if email_filter in user.mail:
+            if email_filter in user["mail"]:
                 users_filtered.append(user)
         else:
             users_filtered.append(user)
