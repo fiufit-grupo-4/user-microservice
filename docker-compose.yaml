@@ -1,4 +1,11 @@
 services:
+  mongodb:
+    image: mongo:5.0
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    volumes:
+      - ~/apps/mongo:/data/db
+
   service_example:
     image: service_example
     build:
@@ -11,3 +18,5 @@ services:
       - .env
     ports:
       - ${SERVICE_PORT}:${SERVICE_PORT}
+    depends_on:
+      - mongodb

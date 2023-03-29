@@ -8,10 +8,7 @@ WORKDIR /root
 ADD app/ app/
 
 # copy dependancies from host to container
-COPY pyproject.toml ./
-
-# generate dependancies file everytime dependancies are updated
-RUN poetry lock
+COPY poetry.lock pyproject.toml ./
 
 # install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
 ENV POETRY_VIRTUALENVS_IN_PROJECT true
