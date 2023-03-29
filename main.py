@@ -34,8 +34,6 @@ def validate_username(username, users):
             return False
     return True
 
-#  name, lastname, age, mail, password)
-
 
 def create_user(name: str, lastname: str, mail: str, age: str):
     user_id = str(uuid.uuid4())

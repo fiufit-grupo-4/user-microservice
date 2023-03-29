@@ -1,7 +1,6 @@
 from Metricas import *
 from Metas import *
 from PlanEntrenamiento import *
-from WrongNumberOfArguments import *
 
 
 class User:
@@ -19,11 +18,11 @@ class User:
         '''
 
     def getName(self):
-        return self.name
-    '''
+        return self.name + ' ' + self.lastname
+
     def getAge(self):
         return self.age
-
+    '''
     def seguir_usuairio(self, usuario):
         self.usuarios_seguidos.append(usuario)
 
