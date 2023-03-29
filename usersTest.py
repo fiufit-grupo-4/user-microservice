@@ -4,7 +4,7 @@ from user import *
 #  user_id, name, lastname, age, mail):
 
 
-class TestSum(unittest.TestCase):
+class TestUser(unittest.TestCase):
 
     def test_createUser(self):
         user = User('223442ddd', 'Juan', 'Perez', '25', 'juancitoperez@gmail.com')
@@ -22,3 +22,4 @@ class TestSum(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
