@@ -1,8 +1,8 @@
 import uuid
-from fastapi import FastAPI, status, requests
+from fastapi import FastAPI, status
 from pydantic.main import BaseModel
 from pydantic import EmailStr
-from typing import List, Optional
+from typing import Optional
 from starlette.responses import JSONResponse
 from user import *
 
@@ -28,6 +28,10 @@ class UserResponse(BaseModel):
         orm_mode = True
 
 
+class UpdateUserRequest(BaseModel):
+    mail: EmailStr
+
+
 def validate_username(username, data_base):
     for user in data_base.values():
         if user.name == username:
@@ -49,20 +53,22 @@ async def create_users(user_request: UserRequest):
     return create_user(user_request.name, user_request.lastname,user_request.mail, user_request.age, users)
 
 
+@app.get('/users/{user_id}', status_code=status.HTTP_200_OK)
+async def get_user(user_id: str):
+    if user_id not in users:
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=f'User {user_id} not found',)
+    return users[user_id]
+
+
 @app.get('/users', status_code=status.HTTP_200_OK)
-async def get_users(email_filter: Optional[str] = None):
+async def get_users(mail_filter: Optional[str] = None):
     users_filtered = []
     for user_id, user in users.items():
-        if email_filter:
-            if email_filter in user["mail"]:
+        if mail_filter:
+            if mail_filter in user.mail:
                 users_filtered.append(user)
         else:
             users_filtered.append(user)
     return users_filtered
 
 
-@app.get('/users/{user_id}', status_code=status.HTTP_200_OK)
-async def get_user(user_id: str):
-    if user_id not in users:
-        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=f'User {user_id} not found',)
-    return users[user_id]

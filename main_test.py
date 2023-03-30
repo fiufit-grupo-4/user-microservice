@@ -10,18 +10,6 @@ users["bar"] = User("bar", "Juana", "Waisten", "21", "xx@gmail.com")
 client = TestClient(app)
 
 
-def test_read_user():
-    response = client.get("/users/foo")
-    assert response.status_code == 200
-    assert response.json() == {
-        "user_id": "foo",
-        "name": "Lucas",
-        "lastname": "Waisten",
-        "age": "20",
-        "mail": "ss@gmail.com",
-    }
-
-
 def test_create_user():
     response = client.post(
         "/users/",
@@ -41,7 +29,7 @@ def test_create_user():
                                "mail": "ff@gmail.com"}
 
 
-def test_create_existing_user():
+def test_create_existing_user_error():
     response = client.post(
         "/users/",
         json={"user_id": "foo", "name": "Lucas",  "lastname": "Waisten", "age": "20","mail": "ss@gmail.com"},
@@ -51,8 +39,20 @@ def test_create_existing_user():
     assert response.json() == "User Lucas already exists"
 
 
-def test_getAUserWithMail():
-    response = client.get("/users") # "email_filter=ss@gmail.com")
+def test_get_user_by_user_id():
+    response = client.get("/users/foo")
+    assert response.status_code == 200
+    assert response.json() == {
+        "user_id": "foo",
+        "name": "Lucas",
+        "lastname": "Waisten",
+        "age": "20",
+        "mail": "ss@gmail.com",
+    }
+
+
+def test_get_all_users_by_mail_without_mail():
+    response = client.get("/users")
     assert response.status_code == 200
 
     assert response.json() == [{'age': '20',
@@ -67,11 +67,11 @@ def test_getAUserWithMail():
                               'name': 'Juana'}]
 
 
-def test_getAUserWithMail_whwj():
+def test_get_user_by_mail():
     response = client.get("/users?mail_filter=ss@gmail.com")
     assert response.status_code == 200
     assert response.json() == [{'age': '20',
-                              'id': 'foo',
+                              'user_id': 'foo',
                               'lastname': 'Waisten',
                               'mail': 'ss@gmail.com',
                               'name': 'Lucas'}]
