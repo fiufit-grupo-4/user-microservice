@@ -1,7 +1,4 @@
-from typing import List, Optional
-from fastapi import status
 from fastapi.testclient import TestClient
-from starlette.responses import JSONResponse
 from main import app, users
 from user import *
 
