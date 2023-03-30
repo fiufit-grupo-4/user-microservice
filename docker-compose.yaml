@@ -20,3 +20,4 @@ services:
       - ${SERVICE_PORT}:${SERVICE_PORT}
     depends_on:
       - mongodb
+    tty: true
