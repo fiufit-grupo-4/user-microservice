@@ -8,7 +8,6 @@ logconfig = {
             "()": "uvicorn.logging.DefaultFormatter",
             "fmt": "%(levelprefix)s %(asctime)s [%(filename)s:%(lineno)-d] %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
-
         },
     },
     "handlers": {
