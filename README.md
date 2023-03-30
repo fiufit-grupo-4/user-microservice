@@ -20,19 +20,25 @@ Remove multiple images:
 
 ```$ docker rmi <...> -f```
 
-### Tests
+### Dependencies
 
-After any change in *pyproject.toml* file:
+After any change in *pyproject.toml* file (always execute this before installing):
 
 ```$ poetry lock```
 
-Install Poetry:
+Install Poetry for DEV:
+
+```$ poetry install -E dev```
+
+Install Poetry for PROD:
 
 ```$ poetry install```
 
+### Tests
+
 Run tests:
 
-```$ poetry pytest tests/```
+```$ poetry run pytest tests```
 
 Format check:
 
