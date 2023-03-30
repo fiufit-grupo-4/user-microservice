@@ -75,3 +75,25 @@ def test_get_user_by_mail():
                               'lastname': 'Waisten',
                               'mail': 'ss@gmail.com',
                               'name': 'Lucas'}]
+
+
+def test_get_user_by_wrong_mail():
+    response = client.get("/users?mail_filter=sx@gmail.com")
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+"""
+def test_patch_user_mail():
+    request_body = {"mail" : "latylam@gmail.com"}
+    response = client.patch("/users/foo?update_user_request=latylam@gmail.com")
+    assert response.status_code == 200
+    assert response.json() == {
+            "user_id": "foo",
+            "name": "Lucas",
+            "lastname": "Waisten",
+            "age": "20",
+            "mail": "ss@gmail.com",
+    }
+"""

@@ -72,3 +72,11 @@ async def get_users(mail_filter: Optional[str] = None):
     return users_filtered
 
 
+@app.patch('/users/{user_id}', status_code=status.HTTP_202_ACCEPTED)
+async def update_users(user_id: str, update_user_request: UpdateUserRequest):
+    if user_id not in users:
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=f'User {user_id} not found',)
+    user = users[user_id]
+    user.mail = update_user_request.mail
+    users[user_id] = user
+    return user
