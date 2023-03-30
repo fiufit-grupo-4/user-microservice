@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "fast-api-example"
+version = "0.1.0"
+description = "Basic FastAPI service"
+authors = ["Federico Pacheco <fpacheco@fi.uba.ar>", "Martina Panetta <mpanetta@fi.uba.ar>"]
+packages = [
+    { include = "app" },
+    { include = "app/**/*.py" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.66.0" 
+uvicorn = "^0.14.0"
+pymongo = "^4.3.3"
+flake8 = "^3.9.0"
+black = "^22.3.0"
+pytest = { version = "^6.2.5",  optional = true }
+pytest-cov = { version = "^2.11.1", optional = true }
+httpx = { version = "^0.23.0", optional = true }
+requests = { version = "^2.28.2", optional = true }
+pydantic = {extras = ["email"], version = "^1.10.7"}
+
+[tool.poetry.extras]
+dev = ["pytest", "pytest-cov", "httpx", "requests"]
+
+[tool.black]
+line-length = 88
+skip-string-normalization = true

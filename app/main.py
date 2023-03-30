@@ -1,12 +1,14 @@
 import uuid
-from fastapi import FastAPI, status
+from fastapi import FastAPI, status,APIRouter
 from pydantic.main import BaseModel
 from pydantic import EmailStr
 from typing import Optional
 from starlette.responses import JSONResponse
-from user import *
+from app.user.user import *
+import pymongo
 
-app = FastAPI()
+
+app = FastAPI(tags=["user-microservice"])
 users = {}
 
 
@@ -45,22 +47,39 @@ def create_user(name: str, lastname: str, mail: str, age: str, data_base):
     data_base[user_id] = new_user
     return new_user
 
+@app.get("/", tags=["Home"])
+def get_root() -> dict:
+    return {"message": "OK"}
 
-@app.post('/users', status_code=status.HTTP_201_CREATED)
+@app.on_event("startup")
+async def startup_db_client():
+    try:
+        app.mongodb_client = pymongo.MongoClient("mongodb:27017")
+        print("Connected successfully!")
+    except Exception as e:  # !!!
+        print(e)
+        print("Could not connect to MongoDB")
+
+@app.on_event("shutdown")
+async def shutdown_db_client():
+    app.mongodb_client.close()
+
+
+@app.post('/users', status_code=status.HTTP_201_CREATED, tags=["User-Microservice"])
 async def create_users(user_request: UserRequest):
     if not validate_username(user_request.name, data_base=users):
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=f'User {user_request.name} already exists',)
     return create_user(user_request.name, user_request.lastname,user_request.mail, user_request.age, users)
 
 
-@app.get('/users/{user_id}', status_code=status.HTTP_200_OK)
+@app.get('/users/{user_id}', status_code=status.HTTP_200_OK, tags=["User-Microservice"])
 async def get_user(user_id: str):
     if user_id not in users:
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=f'User {user_id} not found',)
     return users[user_id]
 
 
-@app.get('/users', status_code=status.HTTP_200_OK)
+@app.get('/users', status_code=status.HTTP_200_OK, tags=["User-Microservice"])
 async def get_users(mail_filter: Optional[str] = None):
     users_filtered = []
     for user_id, user in users.items():
@@ -72,7 +91,7 @@ async def get_users(mail_filter: Optional[str] = None):
     return users_filtered
 
 
-@app.patch('/users/{user_id}', status_code=status.HTTP_202_ACCEPTED)
+@app.patch('/users/{user_id}', status_code=status.HTTP_202_ACCEPTED, tags=["User-Microservice"])
 async def update_users(user_id: str, update_user_request: UpdateUserRequest):
     if user_id not in users:
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=f'User {user_id} not found',)

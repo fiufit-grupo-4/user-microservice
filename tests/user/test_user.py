@@ -1,5 +1,5 @@
 import unittest
-from user import *
+from app.user.user import *
 
 #  user_id, name, lastname, age, mail):
 

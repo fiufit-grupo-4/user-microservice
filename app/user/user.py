@@ -1,6 +1,3 @@
-from Metricas import *
-from Metas import *
-from PlanEntrenamiento import *
 
 
 class User:
