@@ -8,8 +8,9 @@ class User:
         self.user_id = user_id
         self.name = name
         self.lastname = lastname
-        self.mail = mail
         self.age = age
+        self.mail = mail
+
         '''
         self.password = password
         self.training = []

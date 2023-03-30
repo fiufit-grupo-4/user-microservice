@@ -9,6 +9,7 @@ from user import *
 app = FastAPI()
 users = {}
 
+
 class UserRequest(BaseModel):
     name: str
     lastname: str
@@ -41,14 +42,14 @@ def create_user(name: str, lastname: str, mail: str, age: str, data_base):
     return new_user
 
 
-@app.post('/users', response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@app.post('/users', status_code=status.HTTP_201_CREATED)
 async def create_users(user_request: UserRequest):
     if not validate_username(user_request.name, data_base=users):
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=f'User {user_request.name} already exists',)
     return create_user(user_request.name, user_request.lastname,user_request.mail, user_request.age, users)
 
 
-@app.get('/users', response_model=List[UserResponse], status_code=status.HTTP_200_OK)
+@app.get('/users', status_code=status.HTTP_200_OK)
 async def get_users(email_filter: Optional[str] = None):
     users_filtered = []
     for user_id, user in users.items():
@@ -60,7 +61,7 @@ async def get_users(email_filter: Optional[str] = None):
     return users_filtered
 
 
-@app.get('/users/{user_id}', response_model=UserResponse, status_code=status.HTTP_200_OK)
+@app.get('/users/{user_id}', status_code=status.HTTP_200_OK)
 async def get_user(user_id: str):
     if user_id not in users:
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=f'User {user_id} not found',)
