@@ -40,10 +40,10 @@ jobs:
 
       - name: Install dependencies if cache does not exist
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root
+        run: poetry install -E dev --no-interaction --no-root
         
       - name: Install library
-        run: poetry install --no-interaction
+        run: poetry install -E dev --no-interaction
 
       - name: Run linters
         run: |
