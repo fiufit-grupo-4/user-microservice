@@ -11,9 +11,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    restart: always
     volumes:
-      - ./app:/root/app
+      - ./app:/app/app
     env_file:
       - .env
     ports:
