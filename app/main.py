@@ -37,17 +37,18 @@ async def startup_db_client():
     db = app.mongodb_client["example-db"]
     collection = db.example_collection
 
-    collection.delete_many({}) # Clear collection data
+    collection.delete_many({})  # Clear collection data
 
     # Add data to collection
-    person_1 = {"name":"Agustin","age":{"$numberInt":"99"}}
+    person_1 = {"name": "Agustin", "age": {"$numberInt": "99"}}
     logger.info("Added object with id: %s", collection.insert_one(person_1).inserted_id)
-    person_2 = {"name":"Alfonso","age":{"$numberInt":"10"}}
+    person_2 = {"name": "Alfonso", "age": {"$numberInt": "10"}}
     logger.info("Added object with id: %s", collection.insert_one(person_2).inserted_id)
 
     # Check all data in collection
     for p in collection.find():
         logger.warning(p)
+
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
