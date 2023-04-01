@@ -15,10 +15,10 @@ ENV POETRY_VIRTUALENVS_IN_PROJECT true
 RUN poetry install
 
 # expose FastAPI app on specific port inside the container
-EXPOSE ${SERVICE_PORT}
+EXPOSE ${PORT}
 
 # copy app from host to container
 ADD app/ app/
 
 # command to start and run FastAPI app container
-CMD exec poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port ${SERVICE_PORT}
+CMD exec poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port ${PORT}
