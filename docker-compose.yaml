@@ -16,7 +16,7 @@ services:
     env_file:
       - .env
     ports:
-      - ${SERVICE_PORT}:${SERVICE_PORT}
+      - ${PORT}:${PORT}
     depends_on:
       - mongodb
     tty: true
