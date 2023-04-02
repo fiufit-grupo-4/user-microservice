@@ -1,5 +1,14 @@
 class PlanEntrenamiento:
-    def __init__(self, titulo, descripcion, tipo_entrenamiento, dificultad, recursos_multimedia, metas, otros):
+    def __init__(
+        self,
+        titulo,
+        descripcion,
+        tipo_entrenamiento,
+        dificultad,
+        recursos_multimedia,
+        metas,
+        otros,
+    ):
         self.titulo = titulo
         self.descripcion = descripcion
         self.tipo = tipo_entrenamiento

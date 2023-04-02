@@ -3,10 +3,6 @@ name = "fast-api-example"
 version = "0.1.0"
 description = "Basic FastAPI service"
 authors = ["Federico Pacheco <fpacheco@fi.uba.ar>", "Martina Panetta <mpanetta@fi.uba.ar>"]
-packages = [
-    { include = "app" },
-    { include = "app/**/*.py" },
-]
 
 [tool.poetry.dependencies]
 python = "^3.9"

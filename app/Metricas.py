@@ -1,4 +1,4 @@
-class Metricas():
+class Metricas:
     def __init__(self):
         self.distancia_recorrida = 0
         self.tiempo = 0

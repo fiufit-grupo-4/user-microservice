@@ -11,12 +11,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    restart: always
     volumes:
-      - ./app:/root/app
+      - ./app:/app/app
     env_file:
       - .env
     ports:
-      - ${SERVICE_PORT}:${SERVICE_PORT}
+      - ${PORT}:${PORT}
     depends_on:
       - mongodb
+    tty: true

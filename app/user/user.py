@@ -1,7 +1,5 @@
-
-
 class User:
-    def __init__(self, user_id, name, lastname, age, mail): # password=""):
+    def __init__(self, user_id, name, lastname, age, mail):  # password=""):
         self.user_id = user_id
         self.name = name
         self.lastname = lastname
@@ -20,6 +18,7 @@ class User:
 
     def getAge(self):
         return self.age
+
     '''
     def seguir_usuairio(self, usuario):
         self.usuarios_seguidos.append(usuario)
@@ -97,6 +96,7 @@ class Athlete(User):
         return self.entrenamientos
 
 '''
+
 
 # Tema perfil, se puede no hacer
 

@@ -1,10 +1,11 @@
 from fastapi.testclient import TestClient
+import os
+os.environ["MONGODB_URI"] = "mongodb:27017" # TODO: Hardcoded .env file (!!!!!!)
 from app.main import app, users
 from app.user.user import *
 
 users["foo"] = User("foo", "Lucas", "Waisten", "20", "ss@gmail.com")
 users["bar"] = User("bar", "Juana", "Waisten", "21", "xx@gmail.com")
-
 
 # TEST
 client = TestClient(app)
@@ -20,8 +21,8 @@ def test_create_user():
         json={
               "name": "Foo Bar",
               "lastname": "pepe",
-              "age": "20",
-              "mail": "ff@gmail.com"},
+              "mail": "ff@gmail.com",
+              "age": "20"},
     )
     assert response.status_code == 201
     res = response.json()
