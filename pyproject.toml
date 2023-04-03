@@ -17,6 +17,7 @@ httpx = { version = "^0.23.0", optional = true }
 requests = { version = "^2.28.2", optional = true }
 pydantic = {extras = ["email"], version = "^1.10.7"}
 passlib = "^1.7.4"
+python-dotenv = "^0.17.1"
 
 [tool.poetry.extras]
 dev = ["pytest", "pytest-cov", "httpx", "requests"]

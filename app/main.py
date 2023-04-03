@@ -8,11 +8,12 @@ import pymongo
 from fastapi import FastAPI, HTTPException, status, APIRouter
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from passlib.context import CryptContext
-
 import logging
 from logging.config import dictConfig
 from .log_config import logconfig
 from os import environ
+from dotenv import load_dotenv
+load_dotenv()
 
 MONGODB_URI = environ["MONGODB_URI"]
 

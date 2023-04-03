@@ -1,6 +1,4 @@
 from fastapi.testclient import TestClient
-import os
-os.environ["MONGODB_URI"] = "mongodb:27017" # TODO: Hardcoded .env file (!!!!!!)
 from app.main import app, users
 from app.user.user import *
 
