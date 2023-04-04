@@ -1,3 +1,45 @@
+import uuid
+from typing import Optional, Collection
+
+from fastapi.encoders import jsonable_encoder
+from pydantic import BaseModel, EmailStr
+
+
+def validate_username(username, users):
+    for user in users.find():
+        if user.name == username:
+            return False
+    return True
+
+
+def create_user(name: str, lastname: str, mail: str, age: str, data_base : Collection):
+    user_id = str(uuid.uuid4())
+    new_user = User(user_id=user_id, name=name, lastname=lastname, mail=mail, age=age)
+    new_user = jsonable_encoder(new_user)
+    data_base.insert_one(new_user)
+    return new_user
+
+class UserRequest(BaseModel):
+    name: str
+    lastname: str
+    mail: Optional[EmailStr]
+    age: str
+
+
+class UserResponse(BaseModel):
+    user_id: str
+    name: str
+    lastname: str
+    age: str
+    mail: Optional[EmailStr]
+
+    class Config:
+        orm_mode = True
+
+
+class UpdateUserRequest(BaseModel):
+    mail: EmailStr
+
 class User:
     def __init__(self, user_id, name, lastname, age, mail):  # password=""):
         self.user_id = user_id
