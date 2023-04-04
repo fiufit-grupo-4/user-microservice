@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 from fastapi import APIRouter,Request
 from starlette import status
@@ -40,20 +41,22 @@ async def get_user(request: Request, user_id: str):
     return users[user_id]
 
 
-@router.get(' ', status_code=status.HTTP_200_OK)
+@router.get('/', status_code=status.HTTP_200_OK)
 async def get_users(request: Request,mail_filter: Optional[str] = None):
     users_filtered = []
+
     # How to build a collection
-    users = request.app.database["users"]
+    users = request.app.database.users
 
     for p in users.find():
         logger.info(p)
-    for user_id, user in users:
-        if mail_filter:
-            if mail_filter in user.mail:
-                users_filtered.append(user)
-        else:
-            users_filtered.append(user)
+        users_filtered.append(p)
+
+    # users_filtered = list(users.find())
+    #
+    # if mail_filter:
+    #    users_filtered = users.find({"mail": mail_filter})
+
     return users_filtered
 
 

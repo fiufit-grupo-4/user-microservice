@@ -41,13 +41,13 @@ async def startup_db_client():
 
     # How to build a collection
     app.database = app.mongodb_client["user_microservice"]
-    users = app.database
+    users = app.database.users
     users.delete_many({})  # Clear collection data
 
     # Add data to collection
-    person_1 = {"user_id":"foo", "name": "lucas", "lastname": "pepe","age": "20","mail": "pepe@gmail.com"}
+    person_1 = { "name": "lucas", "lastname": "pepe","age": "20","mail": "pepe@gmail.com"}
     logger.info("Added object with id: %s", users.insert_one(person_1).inserted_id)
-    person_2 = { "user_id":"bar", "name": "juan", "lastname": "papu","age": "20","mail": "juan@gmail.com"}
+    person_2 = { "name": "juan", "lastname": "papu","age": "20","mail": "juan@gmail.com"}
     logger.info("Added object with id: %s", users.insert_one(person_2).inserted_id)
 
     # Check all data in collection
