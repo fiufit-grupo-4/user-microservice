@@ -6,10 +6,10 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, EmailStr
 
 
-
 def create_user(name: str, lastname: str, mail: str, age: str):
     new_user = User(name=name, lastname=lastname, mail=mail, age=age)
     return new_user
+
 
 class UserRequest(BaseModel):
     name: str
@@ -18,12 +18,13 @@ class UserRequest(BaseModel):
     age: str
 
 
-class UserResponse(BaseModel):
-    user_id: str
-    name: str
-    lastname: str
-    age: str
-    mail: Optional[EmailStr]
+class UserResponse:
+    def __init__(self, user_id, name, lastname, age, mail):
+        self.user_id = user_id
+        self.name = name
+        self.lastname = lastname
+        self.age = age
+        self.mail = mail
 
     class Config:
         orm_mode = True
@@ -32,8 +33,9 @@ class UserResponse(BaseModel):
 class UpdateUserRequest(BaseModel):
     mail: EmailStr
 
+
 class User:
-    def __init__(self, name, lastname, age, mail):  # password=""):
+    def __init__(self, name, lastname, age, mail):
         self.name = name
         self.lastname = lastname
         self.age = age
@@ -45,13 +47,6 @@ class User:
         self.usuarios_seguidos = []
         self.seguidores = []
         '''
-
-    def getName(self):
-        return self.name + ' ' + self.lastname
-
-    def getAge(self):
-        return self.age
-
     '''
     def seguir_usuairio(self, usuario):
         self.usuarios_seguidos.append(usuario)
