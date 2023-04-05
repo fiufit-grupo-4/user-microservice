@@ -34,19 +34,23 @@ After any change in *pyproject.toml* file (always execute this before installing
 
 ```$ poetry lock```
 
-### Install Poetry for DEV:
+### Install Poetry for DEVELOPMENT:
 
 ```$ poetry install -E dev```
 
-### Install Poetry for PROD:
+### Install Poetry for PRODUCTION:
 
-```$ poetry install -E dev```
+```$ poetry install```
 
 # Tests
 
-### Run tests:
+### Run tests with pytest for unit tests (TDD)
 
 ```$ poetry run pytest tests```
+
+### Run tests with Cucumber (BDD)
+
+```$ poetry run behave tests/features```
 
 ### Format check:
 

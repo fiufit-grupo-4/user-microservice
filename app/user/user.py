@@ -16,7 +16,7 @@ class UserRequest(BaseModel):
 
 class UserResponse:
     def __init__(self, user_id, name, lastname, age, mail):
-        self.user_id = user_id
+        self._id = user_id
         self.name = name
         self.lastname = lastname
         self.age = age

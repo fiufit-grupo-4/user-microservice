@@ -1,11 +1,13 @@
 import logging
+from typing import Optional
 
 from bson import ObjectId
 from fastapi import APIRouter, Request
 from fastapi.encoders import jsonable_encoder
 from starlette import status
 from starlette.responses import JSONResponse
-from app.user.user import *
+
+from app.user.user import UpdateUserRequest, UserRequest, UserResponse, create_user
 
 logger = logging.getLogger('app')
 router = APIRouter()
@@ -55,14 +57,22 @@ async def get_user(request: Request, user_id: str):
 async def get_users(request: Request, mail_filter: Optional[str] = None):
     users = request.app.database["users"]
 
-    user = users.find_one({"mail": mail_filter}, {"_id": 0})
-    if user:
-        return user
-    else:
+    # uso las funciones de "agregacion" de Mongo! https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline/
+    pipeline = [{"$limit" : 100},  # leo 100 usuarios como maximo.. ¿o lo dejamos que lea y muestre todos?
+                {"$addFields": {"_id": {"$toString": "$_id"}}}  # convierto el ObjectID a string
+                ]
+
+    if mail_filter:
+        pipeline.append({"$match": {"mail": mail_filter}})
+
+    results = list(users.aggregate(pipeline))  # al aplicar la agregacion, internamente se hace el find()
+
+    if not results:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
-            content=f'{mail_filter} not found',
+            content="No users found with the specified filters.",
         )
+    return results
 
 
 @router.patch('/{user_id}', status_code=status.HTTP_200_OK)
