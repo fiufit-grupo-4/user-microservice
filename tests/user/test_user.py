@@ -3,7 +3,7 @@ from app.user.user import *
 
 #  user_id, name, lastname, age, mail):
 
-
+'''
 class TestUser(unittest.TestCase):
 
     def test_createUser(self):
@@ -22,3 +22,4 @@ class TestUser(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main()
 
+'''

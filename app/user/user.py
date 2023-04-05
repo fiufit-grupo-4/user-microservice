@@ -1,22 +1,14 @@
 import uuid
 from typing import Optional, Collection
 
+from bson import ObjectId
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, EmailStr
 
 
-def validate_username(username, users):
-    for user in users.find():
-        if user.name == username:
-            return False
-    return True
 
-
-def create_user(name: str, lastname: str, mail: str, age: str, data_base : Collection):
-    user_id = str(uuid.uuid4())
-    new_user = User(user_id=user_id, name=name, lastname=lastname, mail=mail, age=age)
-    new_user = jsonable_encoder(new_user)
-    data_base.insert_one(new_user)
+def create_user(name: str, lastname: str, mail: str, age: str):
+    new_user = User(name=name, lastname=lastname, mail=mail, age=age)
     return new_user
 
 class UserRequest(BaseModel):
@@ -41,8 +33,7 @@ class UpdateUserRequest(BaseModel):
     mail: EmailStr
 
 class User:
-    def __init__(self, user_id, name, lastname, age, mail):  # password=""):
-        self.user_id = user_id
+    def __init__(self, name, lastname, age, mail):  # password=""):
         self.name = name
         self.lastname = lastname
         self.age = age

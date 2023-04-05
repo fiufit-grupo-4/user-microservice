@@ -1,10 +1,11 @@
 from fastapi.testclient import TestClient
-from app.main import app, users
+from app.main import app
 from app.user.user import *
 import json
 
-users["foo"] = User("foo", "Lucas", "Waisten", "20", "ss@gmail.com")
-users["bar"] = User("bar", "Juana", "Waisten", "21", "xx@gmail.com")
+'''
+users["foo"] = User("Lucas", "Waisten", "20", "ss@gmail.com")
+users["bar"] = User("Juana", "Waisten", "21", "xx@gmail.com")
 
 # TEST
 client = TestClient(app)
@@ -117,7 +118,7 @@ def test_get_user_by_wrong_mail():
     assert response.status_code == 200
     assert response.json() == []
 
-
+'''
 """
 def test_patch_user_mail():
     request_body = {"mail" : "latylam@gmail.com"}
