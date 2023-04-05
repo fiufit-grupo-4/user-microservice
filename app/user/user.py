@@ -1,8 +1,4 @@
-import uuid
-from typing import Optional, Collection
-
-from bson import ObjectId
-from fastapi.encoders import jsonable_encoder
+from typing import Optional
 from pydantic import BaseModel, EmailStr
 
 

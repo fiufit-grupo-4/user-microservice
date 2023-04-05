@@ -1,6 +1,8 @@
 import logging
 
+from bson import ObjectId
 from fastapi import APIRouter, Request
+from fastapi.encoders import jsonable_encoder
 from starlette import status
 from starlette.responses import JSONResponse
 from app.user.user import *
@@ -63,8 +65,7 @@ async def get_users(request: Request, mail_filter: Optional[str] = None):
         )
 
 
-@router.patch(
-    '/{user_id}', status_code=status.HTTP_202_ACCEPTED)
+@router.patch('/{user_id}', status_code=status.HTTP_200_OK)
 async def update_users(request: Request, user_id: str, update_user_request: UpdateUserRequest):
     users = request.app.database["users"]
 
