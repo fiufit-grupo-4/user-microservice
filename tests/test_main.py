@@ -26,6 +26,7 @@ class TestMain(unittest.TestCase):
                 "age": "20"
             },
         )
+
         assert response.status_code == 201
         res = response.json()
         res.pop("user_id")
