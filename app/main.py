@@ -39,20 +39,20 @@ async def startup_db_client():
         logger.error(e)
         logger.error("Could not connect to MongoDB")
 
-    # How to build a collection
-    app.database = app.mongodb_client["user_microservice"]
-    users = app.database.users
-    users.delete_many({})  # Clear collection data
+    # # How to build a collection
+    # app.database = app.mongodb_client["user_microservice"]
+    # users = app.database.users
+    # users.delete_many({})  # Clear collection data
 
-    # Add data to collection
-    person_1 = { "name": "lucas", "lastname": "pepe","age": "20","mail": "pepe@gmail.com"}
-    logger.info("Added object with id: %s", users.insert_one(person_1).inserted_id)
-    person_2 = { "name": "juan", "lastname": "papu","age": "20","mail": "juan@gmail.com"}
-    logger.info("Added object with id: %s", users.insert_one(person_2).inserted_id)
+    # # Add data to collection
+    # person_1 = { "name": "lucas", "lastname": "pepe","age": "20","mail": "pepe@gmail.com"}
+    # logger.info("Added object with id: %s", users.insert_one(person_1).inserted_id)
+    # person_2 = { "name": "juan", "lastname": "papu","age": "20","mail": "juan@gmail.com"}
+    # logger.info("Added object with id: %s", users.insert_one(person_2).inserted_id)
 
-    # Check all data in collection
-    for p in users.find():
-        logger.warning(p)
+    # # Check all data in collection
+    # for p in users.find():
+    #     logger.warning(p)
 
 
 @app.on_event("shutdown")
