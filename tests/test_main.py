@@ -8,7 +8,6 @@ from app.main import app
 # TEST
 client = TestClient(app)
 
-
 # Mock MongoDB
 @pytest.fixture()
 def mongo_mock(monkeypatch):
@@ -30,34 +29,26 @@ def test_read_main():
 
 
 def test_create_user(mongo_mock):
-    response = client.post(
-        "/users/",
-        json={
+    user = {
             "name": "Foo Bar",
             "lastname": "pepe",
-            "mail": "ff@gmail.com",
-            "age": "20"
-        },
-    )
+            "age": "20",
+            "mail": "ff@gmail.com"
+        }
+
+    response = client.post("/users/", json=user)
     assert response.status_code == 201
+
     res = response.json()
     res.pop("_id")
-    assert res == {
-        "name": "Foo Bar",
-        "lastname": "pepe",
-        "age": "20",
-        "mail": "ff@gmail.com"
-    }
+    assert res == user
 
-    # Check new user and existing user in Mocked MongoDB.
     response = client.get("/users/")
-    assert response.status_code == 200
     res = response.json()
     for item in res:
         item.pop("_id")
-    assert all(item in res for item in [
-        {"name": "Foo Bar", "lastname": "pepe", "age": "20", "mail": "ff@gmail.com"},
-        {"name": "lucas", "lastname": "pepe", "age": "20", "mail": "pepe@gmail.com"}])
+
+    assert user in res
 
 
 def test_get_all_users(mongo_mock):
@@ -70,31 +61,20 @@ def test_get_all_users(mongo_mock):
         {"name": "lucas", "lastname": "pepe", "age": "20", "mail": "pepe@gmail.com"}])
 
 
-# def test_create_existing_user_error():
-#     response = client.post(
-#         "/users",
-#         json={
-#             "name": "lucas",
-#             "lastname": "pepe",
-#             "age": "20",
-#             "mail": "pepe@gmail.com"
-#         },
-#     )
+def test_create_existing_user_error():
+    user = {
+            "name": "lucas",
+            "lastname": "pepe",
+            "age": "20",
+            "mail": "pepe@gmail.com"
+        }
 
-#     assert response.status_code == 400
-#     assert response.json() == "User Lucas already exists"
+    client.post("/users/", json=user)
 
+    response = client.post("/users/", json=user)
 
-# def test_get_user_by_user_id():
-#     response = client.get("/users/foo")
-#     assert response.status_code == 200
-#     assert response.json() == {
-#         "_id": "foo",
-#         "name": "Lucas",
-#         "lastname": "Waisten",
-#         "age": "20",
-#         "mail": "ss@gmail.com",
-#     }
+    assert response.status_code == 400
+    assert response.json() == "User pepe@gmail.com already exists"
 
 
 # def test_get_all_users_by_mail_without_mail():

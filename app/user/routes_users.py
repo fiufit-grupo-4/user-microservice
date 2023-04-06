@@ -14,14 +14,16 @@ router = APIRouter()
 
 
 def user_already_exists(mail, users):
-    return not users.find_one({"mail": mail}) is None
+    results = list(users.aggregate([{"$addFields": {"_id": {"$toString": "$_id"}}}, {"$match": {"mail": mail}}]))
+    return len(results) > 0
 
 
 @router.post('/', response_description="Create a new user", status_code=status.HTTP_201_CREATED)
 async def create_users(request: Request, user_request: UserRequest):
     users = request.app.database["users"]
 
-    if user_already_exists(user_request.name, users=users):
+    if user_already_exists(user_request.mail, users=users):
+        print(user_request.mail)
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content=f'User {user_request.mail} already exists'
@@ -33,9 +35,6 @@ async def create_users(request: Request, user_request: UserRequest):
         user_request.age
     ))
     user_id = str(users.insert_one(new_user).inserted_id)
-
-    logger.info(new_user)
-
     return UserResponse(user_id, user_request.name, user_request.lastname, user_request.age, user_request.mail)
 
 
