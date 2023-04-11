@@ -2,10 +2,16 @@ from http.client import HTTPException
 from fastapi import APIRouter
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from passlib.context import CryptContext
+from starlette import status
+from starlette.responses import JSONResponse
+
+from app.domain.token_generator import UUIDTokenGenerator
 
 router = APIRouter()
 
 security = HTTPBasic()
+
+token_generator = UUIDTokenGenerator()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -30,12 +36,13 @@ def get_user(username: str):
     return None
 
 
-@router.post("/")
+@router.post("/", status_code=status.HTTP_200_OK)
 def login(credentials: HTTPBasicCredentials):
     user = get_user(credentials.username)
-    print("\n USUARIO" + user)
-    if not user:
-        raise HTTPException(status_code=401, detail="Invalid username")
-    if not verify_password(credentials.password, user["hashed_password"]):
-        raise HTTPException(status_code=401, detail="Invalid password")
-    return {"username": user["username"], "email": user["email"]}
+    if not user or not verify_password(credentials.password, user["hashed_password"]):
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content="Invalid credentials",
+        )
+    user.create_session(token_generator)
+    return {"sessionToken": user["session_token"]}
