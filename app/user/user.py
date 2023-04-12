@@ -39,4 +39,5 @@ class User:
         self.session_token = None
         self.encrypted_password = password
 
-    def create_session(self, token_generator): self.session_token = token_generator.generate_session_token()
+    def create_session(self, token_generator):
+        self.session_token = token_generator.generate_session_token()

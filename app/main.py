@@ -41,8 +41,8 @@ async def startup_db_client():
 
     # # How to build a collection
     app.database = app.mongodb_client["user_microservice"]
-    #users = app.database.users
-    #users.delete_many({})  # Clear collection data
+    # users = app.database.users
+    # users.delete_many({})  # Clear collection data
 
     # # Add data to collection
     # person_1 = { "name": "lucas", "lastname": "pepe","age": "20","mail": "pepe@gmail.com"}

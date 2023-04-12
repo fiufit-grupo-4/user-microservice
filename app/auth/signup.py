@@ -21,7 +21,7 @@ def signup(credentials: HTTPBasicCredentials, request: Request):
     if users.find_one({"mail": credentials.username}, {"_id": 0}):
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            content=f'User {credentials.username} already exists'
+            content=f'User {credentials.username} already exists',
         )
 
     users.insert_one(jsonable_encoder(user))

@@ -24,12 +24,14 @@ def login(credentials: HTTPBasicCredentials, request: Request):
     users = request.app.database["users"]
     user = users.find_one({"mail": credentials.username}, {"_id": 0})
 
-    if not user or not verify_password(credentials.password, user['encrypted_password']):
+    if not user or not verify_password(
+        credentials.password, user['encrypted_password']
+    ):
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
             content="Invalid credentials",
         )
 
     session_token = token_generator.generate_session_token()
-    #users.update_one({"mail": credentials.username}, {"$set": {"session_token": session_token}})
+    # users.update_one({"mail": credentials.username}, {"$set": {"session_token": session_token}})
     return {"sessionToken": session_token}
