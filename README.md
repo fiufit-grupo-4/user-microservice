@@ -1,8 +1,8 @@
-## User Microservice
+# User Microservice
 
 [![codecov](https://codecov.io/gh/fiufit-grupo-4/user-microservice/branch/main/graph/badge.svg?token=PG668CYNXE)](https://codecov.io/gh/fiufit-grupo-4/user-microservice) [![Dev Checks](https://github.com/fiufit-grupo-4/user-microservice/actions/workflows/dev-checks.yml/badge.svg)](https://github.com/fiufit-grupo-4/user-microservice/actions/workflows/dev-checks.yml)
 
-# Docker
+## Docker
 
 ### Build container:
 
@@ -28,21 +28,21 @@ Its **recommended** to run this command before ```docker-compose up``` to avoid 
 
 ```$ docker system prune -a --volumes```
 
-# Dependencies
+## Dependencies
 
 After any change in *pyproject.toml* file (always execute this before installing):
 
 ```$ poetry lock```
 
-### Install Poetry for DEVELOPMENT:
+### Install Poetry for DEV:
 
 ```$ poetry install -E dev```
 
-### Install Poetry for PRODUCTION:
+### Install Poetry for PROD:
 
 ```$ poetry install```
 
-# Tests
+## Tests
 
 ### Run tests with pytest for unit tests (TDD)
 
