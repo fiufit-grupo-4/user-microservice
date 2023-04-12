@@ -31,12 +31,12 @@ class UpdateUserRequest(BaseModel):
 
 
 class User:
-    def __init__(self, name, lastname, age, mail):
+    def __init__(self, mail, password, name=None, lastname=None, age=None):
         self.name = name
         self.lastname = lastname
         self.age = age
         self.mail = mail
         self.session_token = None
-        self.encrypted_password = None
+        self.encrypted_password = password
 
     def create_session(self, token_generator): self.session_token = token_generator.generate_session_token()

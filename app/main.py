@@ -1,14 +1,14 @@
 import pymongo
-from fastapi import FastAPI, HTTPException
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from passlib.context import CryptContext
+from fastapi import FastAPI
 import logging
 from logging.config import dictConfig
 from .log_config import logconfig
 from os import environ
 from dotenv import load_dotenv
 from app.user.routes_users import router as user_router
-from app.user.login_users import router as login_router
+from app.auth.login import router as login_router
+from app.auth.signup import router as signup_router
+
 
 load_dotenv()
 
@@ -41,8 +41,8 @@ async def startup_db_client():
 
     # # How to build a collection
     app.database = app.mongodb_client["user_microservice"]
-    # users = app.database.users
-    # users.delete_many({})  # Clear collection data
+    #users = app.database.users
+    #users.delete_many({})  # Clear collection data
 
     # # Add data to collection
     # person_1 = { "name": "lucas", "lastname": "pepe","age": "20","mail": "pepe@gmail.com"}
@@ -63,3 +63,4 @@ async def shutdown_db_client():
 
 app.include_router(user_router, tags=["users"], prefix="/users")
 app.include_router(login_router, tags=["login"], prefix="/login")
+app.include_router(signup_router, tags=["signup"], prefix="/signup")
