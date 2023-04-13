@@ -4,14 +4,14 @@ from passlib.context import CryptContext
 from starlette import status
 from starlette.responses import JSONResponse
 
-from app.user.user import User, FiuFitBasicCredentials
+from app.user.user import User, UserBasicCredentials
 
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 @router.post("/", status_code=status.HTTP_200_OK)
-def signup(credentials: FiuFitBasicCredentials, request: Request):
+def signup(credentials: UserBasicCredentials, request: Request):
     hashed_password = pwd_context.hash(credentials.password)
     user = User(credentials.mail, hashed_password)
 

@@ -8,7 +8,7 @@ from starlette import status
 from starlette.responses import JSONResponse
 from fastapi import APIRouter, Request
 from datetime import datetime, timedelta
-from app.user.user import FiuFitBasicCredentials
+from app.user.user import UserBasicCredentials
 
 load_dotenv()
 JWT_SECRET = environ["JWT_SECRET"]
@@ -36,7 +36,7 @@ def verify_password(plain_password, hashed_password):
 
 
 @router.post("/", status_code=status.HTTP_200_OK)
-def login(credentials: FiuFitBasicCredentials, request: Request):
+def login(credentials: UserBasicCredentials, request: Request):
     users = request.app.database["users"]
     user = users.find_one({"mail": credentials.mail})
 
