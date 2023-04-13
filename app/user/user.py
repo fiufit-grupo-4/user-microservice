@@ -7,6 +7,10 @@ def create_user(name: str, lastname: str, mail: str, age: str):
     return new_user
 
 
+class UserBasicCredentials(BaseModel):
+    mail: str
+    password: str
+
 class UserRequest(BaseModel):
     name: str
     lastname: str

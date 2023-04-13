@@ -1,14 +1,14 @@
 import logging
 import jwt
 from os import environ
-from bson import ObjectId
 from dotenv import load_dotenv
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi.security import HTTPBasic
 from passlib.context import CryptContext
 from starlette import status
 from starlette.responses import JSONResponse
 from fastapi import APIRouter, Request
 from datetime import datetime, timedelta
+from app.user.user import FiuFitBasicCredentials
 
 load_dotenv()
 JWT_SECRET = environ["JWT_SECRET"]
@@ -36,9 +36,9 @@ def verify_password(plain_password, hashed_password):
 
 
 @router.post("/", status_code=status.HTTP_200_OK)
-def login(credentials: HTTPBasicCredentials, request: Request):
+def login(credentials: FiuFitBasicCredentials, request: Request):
     users = request.app.database["users"]
-    user = users.find_one({"mail": credentials.username})
+    user = users.find_one({"mail": credentials.mail})
 
     if not user or not verify_password(
         credentials.password, user['encrypted_password']
@@ -49,5 +49,4 @@ def login(credentials: HTTPBasicCredentials, request: Request):
         )
 
     access_token = generate_token(str(user["_id"]), user["mail"])
-    # users.update_one({"mail": credentials.username}, {"$set": {"session_token": session_token}})
     return {"access_token": access_token, "token_type": "bearer"}
