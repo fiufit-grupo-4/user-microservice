@@ -11,6 +11,7 @@ class UserBasicCredentials(BaseModel):
     mail: str
     password: str
 
+
 class UserRequest(BaseModel):
     name: str
     lastname: str

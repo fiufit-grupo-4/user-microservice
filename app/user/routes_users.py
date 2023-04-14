@@ -12,6 +12,7 @@ logger = logging.getLogger('app')
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
 def user_already_exists(mail, users):
     results = list(
         users.aggregate(
@@ -80,15 +81,13 @@ async def update_users(
     users[user_id] = user
     return user
 
+
 @router.put("/{mail}", status_code=status.HTTP_200_OK)
 def update_user(mail: str, credentials: UserBasicCredentials, request: Request):
     hashed_password = pwd_context.hash(credentials.password)
 
     users = request.app.database["users"]
-    result = users.update_one(
-        {"mail": mail},
-        {"$set": {"password": hashed_password}}
-    )
+    result = users.update_one({"mail": mail}, {"$set": {"password": hashed_password}})
 
     if result.modified_count == 1:
         return JSONResponse(
@@ -100,6 +99,7 @@ def update_user(mail: str, credentials: UserBasicCredentials, request: Request):
             status_code=status.HTTP_404_NOT_FOUND,
             content=f'User {mail} not found',
         )
+
 
 @router.delete("/{mail}", status_code=status.HTTP_200_OK)
 def delete_user(mail: str, request: Request):
