@@ -1,17 +1,16 @@
 import logging
 from typing import Optional
-
 from bson import ObjectId
 from fastapi import APIRouter, Request
-from fastapi.encoders import jsonable_encoder
+from passlib.context import CryptContext
 from starlette import status
 from starlette.responses import JSONResponse
 
-from app.user.user import UpdateUserRequest, UserRequest, UserResponse, create_user
+from app.user.user import UpdateUserRequest, UserBasicCredentials
 
 logger = logging.getLogger('app')
 router = APIRouter()
-
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def user_already_exists(mail, users):
     results = list(
@@ -20,50 +19,6 @@ def user_already_exists(mail, users):
         )
     )
     return len(results) > 0
-
-
-@router.post(
-    '/', response_description="Create a new user", status_code=status.HTTP_201_CREATED
-)
-async def create_users(request: Request, user_request: UserRequest):
-    users = request.app.database["users"]
-
-    if user_already_exists(user_request.mail, users=users):
-        print(user_request.mail)
-        return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            content=f'User {user_request.mail} already exists',
-        )
-    new_user = jsonable_encoder(
-        create_user(
-            user_request.name,
-            user_request.lastname,
-            user_request.mail,
-            user_request.age,
-        )
-    )
-    user_id = str(users.insert_one(new_user).inserted_id)
-    return UserResponse(
-        user_id,
-        user_request.name,
-        user_request.lastname,
-        user_request.age,
-        user_request.mail,
-    )
-
-
-@router.get('/{user_id}', status_code=status.HTTP_200_OK)
-async def get_user(request: Request, user_id: str):
-    users = request.app.database["users"]
-
-    user = users.find_one({"_id": ObjectId(user_id)}, {"_id": 0})
-    if user:
-        return user
-    else:
-        return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content=f'{user_id} not found',
-        )
 
 
 @router.get('/', status_code=status.HTTP_200_OK)
@@ -95,6 +50,20 @@ async def get_users(request: Request, mail_filter: Optional[str] = None):
     return results
 
 
+@router.get('/{user_id}', status_code=status.HTTP_200_OK)
+async def get_user(request: Request, user_id: str):
+    users = request.app.database["users"]
+
+    user = users.find_one({"_id": ObjectId(user_id)}, {"_id": 0})
+    if user:
+        return user
+    else:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=f'{user_id} not found',
+        )
+
+
 @router.patch('/{user_id}', status_code=status.HTTP_200_OK)
 async def update_users(
     request: Request, user_id: str, update_user_request: UpdateUserRequest
@@ -110,3 +79,40 @@ async def update_users(
     user.mail = update_user_request.mail
     users[user_id] = user
     return user
+
+@router.put("/{mail}", status_code=status.HTTP_200_OK)
+def update_user(mail: str, credentials: UserBasicCredentials, request: Request):
+    hashed_password = pwd_context.hash(credentials.password)
+
+    users = request.app.database["users"]
+    result = users.update_one(
+        {"mail": mail},
+        {"$set": {"password": hashed_password}}
+    )
+
+    if result.modified_count == 1:
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=f'User {mail} updated successfully',
+        )
+    else:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=f'User {mail} not found',
+        )
+
+@router.delete("/{mail}", status_code=status.HTTP_200_OK)
+def delete_user(mail: str, request: Request):
+    users = request.app.database["users"]
+    result = users.delete_one({"mail": mail})
+
+    if result.deleted_count == 1:
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=f'User {mail} deleted successfully',
+        )
+    else:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=f'User {mail} not found',
+        )
