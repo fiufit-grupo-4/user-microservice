@@ -1,0 +1,8 @@
+# ..codecov.yml
+
+ignore:
+  # Excluir un archivo específico
+  - 'app/main.py'
+  - 'app/log_config.py'
+  # Excluir un directorio completo
+  - 'path/al/directorio/a/excluir/**'
