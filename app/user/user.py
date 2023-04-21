@@ -43,6 +43,14 @@ class UserResponse(BaseModel):
         return cls(**dict(user, id=id))
 
 
+class UpdatePutUserRequest(BaseModel):
+    name: Optional[str]
+    lastname: Optional[str]
+    age: Optional[str]
+    mail: Optional[EmailStr]
+    password: str
+
+
 class UpdateUserRequest(BaseModel):
     name: Optional[str]
     lastname: Optional[str]

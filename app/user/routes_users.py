@@ -6,7 +6,7 @@ from starlette import status
 from starlette.responses import JSONResponse
 from typing import List
 
-from app.user.user import QueryParamFilterUser, UpdateUserRequest, UserResponse
+from app.user.user import QueryParamFilterUser, UpdatePutUserRequest, UpdateUserRequest, UserResponse
 from app.user.utils import ObjectIdPydantic
 
 logger = logging.getLogger('app')
@@ -48,6 +48,11 @@ async def get_user(request: Request, user_id: ObjectIdPydantic):
         )
 
 
+@router.put('/{user_id}', status_code=status.HTTP_200_OK)
+async def update_put_users(request: Request, user_id: ObjectIdPydantic, update_user_request: UpdatePutUserRequest):
+    return await update_users(request, user_id, update_user_request)
+
+
 @router.patch('/{user_id}', status_code=status.HTTP_200_OK)
 async def update_users(
     request: Request, user_id: ObjectIdPydantic, update_user_request: UpdateUserRequest
@@ -82,10 +87,10 @@ async def update_users(
             content=f'User {user_id} updated successfully',
         )
     else:
-        logger.info(f'User {user_id} not updated to update')
+        logger.info(f'User {user_id} not updated')
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            content=f'User {user_id} not updated to update',
+            content=f'User {user_id} not updated',
         )
 
 
