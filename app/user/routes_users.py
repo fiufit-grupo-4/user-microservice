@@ -1,118 +1,113 @@
 import logging
-from typing import Optional
 from bson import ObjectId
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Query, Request
 from passlib.context import CryptContext
 from starlette import status
 from starlette.responses import JSONResponse
+from typing import List
 
-from app.user.user import UpdateUserRequest, UserBasicCredentials
+from app.user.user import QueryParamFilterUser, UpdatePutUserRequest, UpdateUserRequest, UserResponse
+from app.user.utils import ObjectIdPydantic
 
 logger = logging.getLogger('app')
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def user_already_exists(mail, users):
-    results = list(
-        users.aggregate(
-            [{"$addFields": {"_id": {"$toString": "$_id"}}}, {"$match": {"mail": mail}}]
-        )
+@router.get('/', response_model=List[UserResponse], status_code=status.HTTP_200_OK)
+async def get_users(
+    request: Request,
+    queries: QueryParamFilterUser = Depends(),
+    limit: int = Query(128, ge=1, le=1024),
+):
+    users = request.app.database["users"]
+
+    user_list = []
+    for user in users.find(queries.dict(exclude_none=True)).limit(limit):
+        user_list.append(UserResponse.from_mongo(user))
+
+    logger.info(
+        f'Return list of {len(user_list)} users, with query params: {queries.dict(exclude_none=True)}'
     )
-    return len(results) > 0
+    return user_list
 
 
-@router.get('/', status_code=status.HTTP_200_OK)
-async def get_users(request: Request, mail_filter: Optional[str] = None):
+@router.get('/{user_id}', response_model=UserResponse, status_code=status.HTTP_200_OK)
+async def get_user(request: Request, user_id: ObjectIdPydantic):
     users = request.app.database["users"]
+    user = users.find_one({"_id": user_id})
 
-    # uso las funciones de "agregacion" de Mongo! https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline/
-    pipeline = [
-        {
-            "$limit": 100
-        },  # leo 100 usuarios como maximo.. ¿o lo dejamos que lea y muestre todos?
-        {
-            "$addFields": {"_id": {"$toString": "$_id"}}
-        },  # convierto el ObjectID a string
-    ]
-
-    if mail_filter:
-        pipeline.append({"$match": {"mail": mail_filter}})
-
-    results = list(
-        users.aggregate(pipeline)
-    )  # al aplicar la agregacion, internamente se hace el find()
-
-    if not results:
-        return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content="No users found with the specified filters.",
-        )
-    return results
-
-
-@router.get('/{user_id}', status_code=status.HTTP_200_OK)
-async def get_user(request: Request, user_id: str):
-    users = request.app.database["users"]
-
-    user = users.find_one({"_id": ObjectId(user_id)}, {"_id": 0})
     if user:
-        return user
+        logger.info(f'Get a user {user_id}')
+        return UserResponse.from_mongo(user)
     else:
+        logger.info(f'User {user_id} not found to get')
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
-            content=f'{user_id} not found',
+            content=f'User {user_id} not found to get',
         )
+
+
+@router.put('/{user_id}', status_code=status.HTTP_200_OK)
+async def update_put_users(request: Request, user_id: ObjectIdPydantic, update_user_request: UpdatePutUserRequest):
+    return await update_users(request, user_id, update_user_request)
 
 
 @router.patch('/{user_id}', status_code=status.HTTP_200_OK)
 async def update_users(
-    request: Request, user_id: str, update_user_request: UpdateUserRequest
+    request: Request, user_id: ObjectIdPydantic, update_user_request: UpdateUserRequest
 ):
-    users = request.app.database["users"]
+    to_change = update_user_request.dict(exclude_none=True)
+    if not to_change or len(to_change) == 0:
+        logger.info('No values especified in body to update')
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content='No values especified to update',
+        )
 
-    if user_id not in users.find():
+    users = request.app.database["users"]
+    user = users.find_one({"_id": user_id})
+    if not user:
+        logger.info(f'User {user_id} not found to update')
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content=f'User {user_id} not found',
         )
-    user = users[user_id]
-    user.mail = update_user_request.mail
-    users[user_id] = user
-    return user
 
+    if 'password' in to_change:
+        to_change['encrypted_password'] = pwd_context.hash(to_change['password'])
+        to_change.pop('password')
 
-@router.put("/{mail}", status_code=status.HTTP_200_OK)
-def update_user(mail: str, credentials: UserBasicCredentials, request: Request):
-    hashed_password = pwd_context.hash(credentials.password)
+    result_update = users.update_one({"_id": user_id}, {"$set": to_change})
 
-    users = request.app.database["users"]
-    result = users.update_one({"mail": mail}, {"$set": {"password": hashed_password}})
-
-    if result.modified_count == 1:
+    if result_update.modified_count > 0:
+        logger.info(f'Updating user {user_id} a values of {list(to_change.keys())}')
         return JSONResponse(
             status_code=status.HTTP_200_OK,
-            content=f'User {mail} updated successfully',
+            content=f'User {user_id} updated successfully',
         )
     else:
+        logger.info(f'User {user_id} not updated')
         return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content=f'User {mail} not found',
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=f'User {user_id} not updated',
         )
 
 
-@router.delete("/{mail}", status_code=status.HTTP_200_OK)
-def delete_user(mail: str, request: Request):
+@router.delete("/{user_id}", status_code=status.HTTP_200_OK)
+def delete_user(request: Request, user_id: ObjectIdPydantic):
     users = request.app.database["users"]
-    result = users.delete_one({"mail": mail})
+    result = users.delete_one({"_id": user_id})
 
     if result.deleted_count == 1:
+        logger.info(f'Deleting user {user_id}')
         return JSONResponse(
             status_code=status.HTTP_200_OK,
-            content=f'User {mail} deleted successfully',
+            content=f'User {user_id} deleted successfully',
         )
     else:
+        logger.info(f'User {user_id} not found to delete')
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
-            content=f'User {mail} not found',
+            content=f'User {user_id} not found to delete',
         )

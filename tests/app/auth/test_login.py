@@ -2,6 +2,7 @@ from fastapi.testclient import TestClient
 import mongomock
 import pytest
 from app.main import app
+from app.main import logger
 
 # TEST
 client = TestClient(app)
@@ -11,7 +12,7 @@ encrypted_password = '$2b$12$T3HXmxRONP1sjTkk3Pqaq.9IYl5KNRhMHyJC4QxZPx0AqJpctDq
 lucas = {"name": "lucas", "lastname": "martinez", "age": "20", "mail": "lukitas@gmail.com",
          "encrypted_password": encrypted_password, "session_token": "token"}
 juan = {"name": "juan", "lastname": "ruiz", "age": "20", "mail": "juan@gmail.com",
-         "encrypted_password": encrypted_password, "session_token": "token"}
+        "encrypted_password": encrypted_password, "session_token": "token"}
 
 
 # Mock MongoDB
@@ -24,7 +25,9 @@ def mongo_mock(monkeypatch):
     col.insert_one(juan)
 
     app.database = db
+    app.logger = logger
     monkeypatch.setattr(app, "database", db)
+
 
 def testUserLucasLoginStatus200(mongo_mock):
     credentials = {
@@ -36,6 +39,7 @@ def testUserLucasLoginStatus200(mongo_mock):
     print(response)
     assert response.status_code == 200
 
+
 def testUserJuanLoginStatus200(mongo_mock):
     credentials = {
         "mail": juan['mail'],
@@ -46,6 +50,7 @@ def testUserJuanLoginStatus200(mongo_mock):
     print(response)
     assert response.status_code == 200
 
+
 def testUserUnregisteredLoginStatus401(mongo_mock):
     credentials = {
         "mail": "andy@gmail.com",
@@ -55,6 +60,7 @@ def testUserUnregisteredLoginStatus401(mongo_mock):
     response = client.post("/login/", json=credentials)
     print(response)
     assert response.status_code == 401
+    
 
 def testOtherUserUnregisteredLoginStatus401(mongo_mock):
     credentials = {

@@ -1,5 +1,10 @@
 from typing import Optional
-from pydantic import BaseModel, EmailStr
+from bson import InvalidDocument, ObjectId
+from fastapi import Query
+from pydantic import BaseConfig, BaseModel, EmailStr, Field
+from bson import ObjectId as BaseObjectId
+
+from app.user.utils import ObjectIdPydantic
 
 
 def create_user(name: str, lastname: str, mail: str, age: str):
@@ -8,8 +13,8 @@ def create_user(name: str, lastname: str, mail: str, age: str):
 
 
 class UserBasicCredentials(BaseModel):
-    mail: str
-    password: str
+    mail: EmailStr = Field(example="username@mail.com")
+    password: str = Field(example="secure")
 
 
 class UserRequest(BaseModel):
@@ -19,20 +24,45 @@ class UserRequest(BaseModel):
     age: str
 
 
-class UserResponse:
-    def __init__(self, user_id, name, lastname, age, mail):
-        self._id = user_id
-        self.name = name
-        self.lastname = lastname
-        self.age = age
-        self.mail = mail
+class UserResponse(BaseModel):
+    id: ObjectIdPydantic
+    name: Optional[str]
+    lastname: Optional[str]
+    age: Optional[str]
+    mail: EmailStr
 
-    class Config:
-        orm_mode = True
+    class Config(BaseConfig):
+        json_encoders = {ObjectId: lambda id: str(id)}  # convert ObjectId into str
+
+    @classmethod
+    def from_mongo(cls, user: dict):
+        """We must convert _id into "id" and"""
+        if not user:
+            return user
+        id = user.pop('_id', None)
+        return cls(**dict(user, id=id))
+
+
+class UpdatePutUserRequest(BaseModel):
+    name: Optional[str]
+    lastname: Optional[str]
+    age: Optional[str]
+    mail: Optional[EmailStr]
+    password: str
 
 
 class UpdateUserRequest(BaseModel):
-    mail: EmailStr
+    name: Optional[str]
+    lastname: Optional[str]
+    age: Optional[str]
+    mail: Optional[EmailStr]
+    password: Optional[str]
+
+
+class QueryParamFilterUser(BaseModel):
+    name: str = Query(None, min_length=1, max_length=256)
+    lastname: str = Query(None, min_length=1, max_length=256)
+    age: str = Query(None, min_length=1, max_length=3)
 
 
 class User:
@@ -41,8 +71,4 @@ class User:
         self.lastname = lastname
         self.age = age
         self.mail = mail
-        self.session_token = None
         self.encrypted_password = password
-
-    def create_session(self, token_generator):
-        self.session_token = token_generator.generate_session_token()

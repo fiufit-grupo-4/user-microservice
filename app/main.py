@@ -18,11 +18,6 @@ dictConfig(logconfig)
 app = FastAPI()
 logger = logging.getLogger("app")
 
-logger.error("Error message! - Level 3")
-logger.warning("Warning message! - Level 2")
-logger.info("Info message! - Level 1")
-logger.debug("Debug message! - Level 0")
-
 
 @app.get("/", tags=["Home"])
 def get_root() -> dict:
@@ -39,6 +34,7 @@ async def startup_db_client():
         logger.error(e)
         logger.error("Could not connect to MongoDB")
 
+    app.logger = logger
     # # How to build a collection
     app.database = app.mongodb_client["user_microservice"]
     # users = app.database.users

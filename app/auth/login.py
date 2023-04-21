@@ -18,12 +18,11 @@ security = HTTPBasic()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def generate_token(_id: str, mail: str) -> str:
+def generate_token(id: str) -> str:
     utcnow = datetime.utcnow()
     expires = utcnow + timedelta(hours=1)
     token_data = {
-        "_id": _id,
-        "mail": mail,
+        "id": id,
         "exp": expires,
         "iat": utcnow,
     }
@@ -43,10 +42,12 @@ def login(credentials: UserBasicCredentials, request: Request):
     if not user or not verify_password(
         credentials.password, user['encrypted_password']
     ):
+        request.app.logger.info(f"User failed to login: {credentials.mail}")
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
             content="Invalid credentials",
         )
 
-    access_token = generate_token(str(user["_id"]), user["mail"])
+    access_token = generate_token(str(user["_id"]))
+    request.app.logger.info(f"User logged in: {credentials.mail} | id: {user['_id']}")
     return {"access_token": access_token, "token_type": "bearer"}
