@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 
 def create_user(name: str, lastname: str, mail: str, age: str):
@@ -8,8 +8,8 @@ def create_user(name: str, lastname: str, mail: str, age: str):
 
 
 class UserBasicCredentials(BaseModel):
-    mail: str
-    password: str
+    mail: EmailStr = Field(example="username@mail.com")
+    password: str = Field(example="secure")
 
 
 class UserRequest(BaseModel):
@@ -19,13 +19,12 @@ class UserRequest(BaseModel):
     age: str
 
 
-class UserResponse:
-    def __init__(self, user_id, name, lastname, age, mail):
-        self._id = user_id
-        self.name = name
-        self.lastname = lastname
-        self.age = age
-        self.mail = mail
+class UserResponse(BaseModel):
+    id: str
+    name: Optional[str]
+    lastname: Optional[str]
+    age: Optional[int]
+    mail: EmailStr
 
     class Config:
         orm_mode = True
@@ -41,8 +40,4 @@ class User:
         self.lastname = lastname
         self.age = age
         self.mail = mail
-        self.session_token = None
         self.encrypted_password = password
-
-    def create_session(self, token_generator):
-        self.session_token = token_generator.generate_session_token()

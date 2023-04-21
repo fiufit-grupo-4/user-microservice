@@ -2,6 +2,7 @@ from fastapi.testclient import TestClient
 import mongomock
 import pytest
 from app.main import app
+from app.main import logger
 
 # TEST
 client = TestClient(app)
@@ -20,6 +21,7 @@ def mongo_mock(monkeypatch):
     col = db.get_collection("users")
     col.insert_one(juan)
     app.database = db
+    app.logger = logger
     monkeypatch.setattr(app, "database", db)
 
 
@@ -31,7 +33,8 @@ def testUserLucasSingUpStatus200(mongo_mock):
 
     response = client.post("/signup/", json=credentials)  # cambia la URL del endpoint aquí
     print(response)
-    assert response.status_code == 200
+    assert response.status_code == 201
+
 
 def testUserPepeSingUpStatus200(mongo_mock):
     credentials = {
@@ -41,7 +44,8 @@ def testUserPepeSingUpStatus200(mongo_mock):
 
     response = client.post("/signup/", json=credentials)  # cambia la URL del endpoint aquí
     print(response)
-    assert response.status_code == 200
+    assert response.status_code == 201
+
 
 def testExistedUserJuanSingUpStatus400(mongo_mock):
     credentials = {
@@ -51,4 +55,4 @@ def testExistedUserJuanSingUpStatus400(mongo_mock):
 
     response = client.post("/signup/", json=credentials)  # cambia la URL del endpoint aquí
     print(response)
-    assert response.status_code == 400
+    assert response.status_code == 409

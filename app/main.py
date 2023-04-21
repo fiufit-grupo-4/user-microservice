@@ -39,6 +39,7 @@ async def startup_db_client():
         logger.error(e)
         logger.error("Could not connect to MongoDB")
 
+    app.logger = logger
     # # How to build a collection
     app.database = app.mongodb_client["user_microservice"]
     # users = app.database.users
