@@ -41,6 +41,29 @@ def test_get_all_users(mongo_mock):
         {"name": "lucas", "lastname": "martinez", "age": "20", "mail": "lukitas@gmail.com"}])
 
 
+def test_modify_user(mongo_mock):
+    credentials = {
+        "mail": lucas['mail'],
+        "password": lastname
+    }
+    id_lucas = client.get("/users/").json()[0].get('id')
+
+    response = client.patch("/users/" + id_lucas, json=credentials)
+    assert response.status_code == 200
+    assert response.json() == "User " + id_lucas + " updated successfully"
+
+
+def test_modify_user_error(mongo_mock):
+    credentials = {
+        "mail": "sofia@gmail.com",
+        "password": lastname
+    }
+
+    response = client.patch("/users/644234298a2a9d5f3db8f511", json=credentials)
+    assert response.status_code == 404
+    assert response.json() == "User 644234298a2a9d5f3db8f511 not found"
+
+
 def test_delete_user(mongo_mock):
     credentials = {
         "mail": lucas['mail'],
