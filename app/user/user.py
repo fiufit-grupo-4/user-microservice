@@ -1,5 +1,6 @@
 from typing import Optional
 from bson import InvalidDocument, ObjectId
+from fastapi import Query
 from pydantic import BaseConfig, BaseModel, EmailStr, Field
 from bson import ObjectId as BaseObjectId
 
@@ -31,9 +32,7 @@ class UserResponse(BaseModel):
     mail: EmailStr
 
     class Config(BaseConfig):
-        json_encoders = {
-            ObjectId: lambda id: str(id)  # convert ObjectId into str
-        }
+        json_encoders = {ObjectId: lambda id: str(id)}  # convert ObjectId into str
 
     @classmethod
     def from_mongo(cls, user: dict):
@@ -45,7 +44,17 @@ class UserResponse(BaseModel):
 
 
 class UpdateUserRequest(BaseModel):
-    mail: EmailStr
+    name: Optional[str]
+    lastname: Optional[str]
+    age: Optional[str]
+    mail: Optional[EmailStr]
+    password: Optional[str]
+
+
+class QueryParamFilterUser(BaseModel):
+    name: str = Query(None, min_length=1, max_length=256)
+    lastname: str = Query(None, min_length=1, max_length=256)
+    age: str = Query(None, min_length=1, max_length=3)
 
 
 class User:

@@ -1,109 +1,105 @@
 import logging
-from typing import Optional
 from bson import ObjectId
 from fastapi import APIRouter, Depends, Query, Request
 from passlib.context import CryptContext
-from pydantic import BaseModel
 from starlette import status
 from starlette.responses import JSONResponse
 from typing import List
 
-from app.user.user import UpdateUserRequest, UserBasicCredentials, UserResponse
+from app.user.user import QueryParamFilterUser, UpdateUserRequest, UserResponse
+from app.user.utils import ObjectIdPydantic
 
 logger = logging.getLogger('app')
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def user_already_exists(mail, users):
-    results = list(
-        users.aggregate(
-            [{"$addFields": {"_id": {"$toString": "$_id"}}}, {"$match": {"mail": mail}}]
-        )
-    )
-    return len(results) > 0
-
-
-class QueryParamFilterUser(BaseModel):
-    name: str = Query(None, min_length=1, max_length=256)
-    lastname: str = Query(None, min_length=1, max_length=256)
-    age: str = Query(None, min_length=1, max_length=3)
-
-
 @router.get('/', response_model=List[UserResponse], status_code=status.HTTP_200_OK)
-async def get_users(request: Request, queries: QueryParamFilterUser = Depends(), limit: int = Query(128, ge=1, le=1024)):
+async def get_users(
+    request: Request,
+    queries: QueryParamFilterUser = Depends(),
+    limit: int = Query(128, ge=1, le=1024),
+):
     users = request.app.database["users"]
 
     user_list = []
     for user in users.find(queries.dict(exclude_none=True)).limit(limit):
         user_list.append(UserResponse.from_mongo(user))
 
-    logger.info(f'Return list of {len(user_list)} users, with query params: {queries.dict(exclude_none=True)}')
+    logger.info(
+        f'Return list of {len(user_list)} users, with query params: {queries.dict(exclude_none=True)}'
+    )
     return user_list
 
 
-@router.get('/{user_id}', status_code=status.HTTP_200_OK)
-async def get_user(request: Request, user_id: str):
+@router.get('/{user_id}', response_model=UserResponse, status_code=status.HTTP_200_OK)
+async def get_user(request: Request, user_id: ObjectIdPydantic):
     users = request.app.database["users"]
+    user = users.find_one({"_id": ObjectId(user_id)})
 
-    user = users.find_one({"_id": ObjectId(user_id)}, {"_id": 0})
     if user:
-        return user
+        logger.info(f'Get a user {user_id}')
+        return UserResponse.from_mongo(user)
     else:
+        logger.info(f'User {user_id} not found to get')
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
-            content=f'{user_id} not found',
+            content=f'User {user_id} not found to get',
         )
 
 
 @router.patch('/{user_id}', status_code=status.HTTP_200_OK)
 async def update_users(
-    request: Request, user_id: str, update_user_request: UpdateUserRequest
+    request: Request, user_id: ObjectIdPydantic, update_user_request: UpdateUserRequest
 ):
-    users = request.app.database["users"]
+    to_change = update_user_request.dict(exclude_none=True)
+    if not to_change or len(to_change) == 0:
+        logger.info('No values especified in body to update')
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content='No values especified to update',
+        )
 
-    if user_id not in users.find():
+    users = request.app.database["users"]
+    user = users.find_one({"_id": ObjectId(user_id)})
+    if not user:
+        logger.info(f'User {user_id} not found to update')
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content=f'User {user_id} not found',
         )
-    user = users[user_id]
-    user.mail = update_user_request.mail
-    users[user_id] = user
-    return user
 
+    if 'password' in to_change:
+        to_change['encrypted_password'] = pwd_context.hash(to_change['password'])
+        to_change.pop('password')
 
-@router.put("/{mail}", status_code=status.HTTP_200_OK)
-def update_user(mail: str, credentials: UserBasicCredentials, request: Request):
-    hashed_password = pwd_context.hash(credentials.password)
+    result_update = users.update_one({"_id": ObjectId(user_id)}, {"$set": to_change})
 
-    users = request.app.database["users"]
-    result = users.update_one({"mail": mail}, {"$set": {"password": hashed_password}})
-
-    if result.modified_count == 1:
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content=f'User {mail} updated successfully',
-        )
+    if result_update.modified_count > 0:
+        logger.info(f'Updating user {user_id} a values of {list(to_change.keys())}')
+        return {'message': f'User {user_id} updated successfully'}
     else:
+        logger.info(f'User {user_id} not updated to update')
         return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content=f'User {mail} not found',
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=f'User {user_id} not updated to update',
         )
 
 
-@router.delete("/{mail}", status_code=status.HTTP_200_OK)
-def delete_user(mail: str, request: Request):
+@router.delete("/{user_id}", status_code=status.HTTP_200_OK)
+def delete_user(request: Request, user_id: ObjectIdPydantic):
     users = request.app.database["users"]
-    result = users.delete_one({"mail": mail})
+    result = users.delete_one({"_id": ObjectId(user_id)})
 
     if result.deleted_count == 1:
+        logger.info(f'Deleting user {user_id}')
         return JSONResponse(
             status_code=status.HTTP_200_OK,
-            content=f'User {mail} deleted successfully',
+            content=f'User {user_id} deleted successfully',
         )
     else:
+        logger.info(f'User {user_id} not found to delete')
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
-            content=f'User {mail} not found',
+            content=f'User {user_id} not found to delete',
         )

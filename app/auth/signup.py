@@ -27,5 +27,7 @@ def signup(credentials: UserBasicCredentials, request: Request):
         )
 
     user_id = users.insert_one(jsonable_encoder(user)).inserted_id
-    request.app.logger.info(f"User {UserResponse(id=str(user_id), mail=user.mail)} successfully created")
+    request.app.logger.info(
+        f"User {UserResponse(id=str(user_id), mail=user.mail)} successfully created"
+    )
     return UserResponse(id=str(user_id), mail=user.mail)

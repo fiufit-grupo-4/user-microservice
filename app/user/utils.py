@@ -1,4 +1,3 @@
-from bson import InvalidDocument
 from bson import ObjectId as BaseObjectId
 
 
@@ -10,8 +9,8 @@ class ObjectIdPydantic(str):
         """Validate given str value to check if good for being ObjectId."""
         try:
             return BaseObjectId(str(value))
-        except InvalidDocument as e:
-            raise ValueError("Not a valid ObjectId") from e
+        except Exception as e:
+            raise ValueError("Not a valid user ID") from e
 
     @classmethod
     def __get_validators__(cls):
