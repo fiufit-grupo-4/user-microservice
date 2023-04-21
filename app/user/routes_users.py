@@ -1,12 +1,14 @@
 import logging
 from typing import Optional
 from bson import ObjectId
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Query, Request
 from passlib.context import CryptContext
+from pydantic import BaseModel
 from starlette import status
 from starlette.responses import JSONResponse
+from typing import List
 
-from app.user.user import UpdateUserRequest, UserBasicCredentials
+from app.user.user import UpdateUserRequest, UserBasicCredentials, UserResponse
 
 logger = logging.getLogger('app')
 router = APIRouter()
@@ -22,33 +24,22 @@ def user_already_exists(mail, users):
     return len(results) > 0
 
 
-@router.get('/', status_code=status.HTTP_200_OK)
-async def get_users(request: Request, mail_filter: Optional[str] = None):
+class QueryParamFilterUser(BaseModel):
+    name: str = Query(None, min_length=1, max_length=256)
+    lastname: str = Query(None, min_length=1, max_length=256)
+    age: str = Query(None, min_length=1, max_length=3)
+
+
+@router.get('/', response_model=List[UserResponse], status_code=status.HTTP_200_OK)
+async def get_users(request: Request, queries: QueryParamFilterUser = Depends(), limit: int = Query(128, ge=1, le=1024)):
     users = request.app.database["users"]
 
-    # uso las funciones de "agregacion" de Mongo! https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline/
-    pipeline = [
-        {
-            "$limit": 100
-        },  # leo 100 usuarios como maximo.. ¿o lo dejamos que lea y muestre todos?
-        {
-            "$addFields": {"_id": {"$toString": "$_id"}}
-        },  # convierto el ObjectID a string
-    ]
+    user_list = []
+    for user in users.find(queries.dict(exclude_none=True)).limit(limit):
+        user_list.append(UserResponse.from_mongo(user))
 
-    if mail_filter:
-        pipeline.append({"$match": {"mail": mail_filter}})
-
-    results = list(
-        users.aggregate(pipeline)
-    )  # al aplicar la agregacion, internamente se hace el find()
-
-    if not results:
-        return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content="No users found with the specified filters.",
-        )
-    return results
+    logger.info(f'Return list of {len(user_list)} users, with query params: {queries.dict(exclude_none=True)}')
+    return user_list
 
 
 @router.get('/{user_id}', status_code=status.HTTP_200_OK)
