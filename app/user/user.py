@@ -1,5 +1,9 @@
 from typing import Optional
-from pydantic import BaseModel, EmailStr, Field
+from bson import InvalidDocument, ObjectId
+from pydantic import BaseConfig, BaseModel, EmailStr, Field
+from bson import ObjectId as BaseObjectId
+
+from app.user.utils import ObjectIdPydantic
 
 
 def create_user(name: str, lastname: str, mail: str, age: str):
@@ -20,14 +24,24 @@ class UserRequest(BaseModel):
 
 
 class UserResponse(BaseModel):
-    id: str
+    id: ObjectIdPydantic
     name: Optional[str]
     lastname: Optional[str]
-    age: Optional[int]
+    age: Optional[str]
     mail: EmailStr
 
-    class Config:
-        orm_mode = True
+    class Config(BaseConfig):
+        json_encoders = {
+            ObjectId: lambda id: str(id)  # convert ObjectId into str
+        }
+
+    @classmethod
+    def from_mongo(cls, user: dict):
+        """We must convert _id into "id" and"""
+        if not user:
+            return user
+        id = user.pop('_id', None)
+        return cls(**dict(user, id=id))
 
 
 class UpdateUserRequest(BaseModel):
