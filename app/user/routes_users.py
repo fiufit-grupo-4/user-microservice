@@ -77,7 +77,10 @@ async def update_users(
 
     if result_update.modified_count > 0:
         logger.info(f'Updating user {user_id} a values of {list(to_change.keys())}')
-        return {'message': f'User {user_id} updated successfully'}
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=f'User {user_id} updated successfully',
+        )
     else:
         logger.info(f'User {user_id} not updated to update')
         return JSONResponse(
