@@ -35,7 +35,7 @@ async def get_users(
 @router.get('/{user_id}', response_model=UserResponse, status_code=status.HTTP_200_OK)
 async def get_user(request: Request, user_id: ObjectIdPydantic):
     users = request.app.database["users"]
-    user = users.find_one({"_id": ObjectId(user_id)})
+    user = users.find_one({"_id": user_id})
 
     if user:
         logger.info(f'Get a user {user_id}')
@@ -61,7 +61,7 @@ async def update_users(
         )
 
     users = request.app.database["users"]
-    user = users.find_one({"_id": ObjectId(user_id)})
+    user = users.find_one({"_id": user_id})
     if not user:
         logger.info(f'User {user_id} not found to update')
         return JSONResponse(
@@ -73,7 +73,7 @@ async def update_users(
         to_change['encrypted_password'] = pwd_context.hash(to_change['password'])
         to_change.pop('password')
 
-    result_update = users.update_one({"_id": ObjectId(user_id)}, {"$set": to_change})
+    result_update = users.update_one({"_id": user_id}, {"$set": to_change})
 
     if result_update.modified_count > 0:
         logger.info(f'Updating user {user_id} a values of {list(to_change.keys())}')
@@ -89,7 +89,7 @@ async def update_users(
 @router.delete("/{user_id}", status_code=status.HTTP_200_OK)
 def delete_user(request: Request, user_id: ObjectIdPydantic):
     users = request.app.database["users"]
-    result = users.delete_one({"_id": ObjectId(user_id)})
+    result = users.delete_one({"_id": user_id})
 
     if result.deleted_count == 1:
         logger.info(f'Deleting user {user_id}')
