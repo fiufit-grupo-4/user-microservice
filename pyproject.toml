@@ -22,6 +22,8 @@ behave = { version = "^1.2.6", optional = true }
 mongomock = { version = "^4.1.2", optional = true }
 bcrypt = "^4.0.1"
 pyjwt = "^2.6.0"
+sendgrid = "^6.10.0"
+twilio = "^8.1.0"
 
 [tool.poetry.extras]
 dev = ["flake8", "black", "passlib", "pytest", "pytest-cov", "httpx", "requests", "behave", "mongomock"]

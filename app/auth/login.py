@@ -1,10 +1,9 @@
 import logging
+import os
+
 from dotenv import load_dotenv
 from fastapi import APIRouter
 from datetime import datetime
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from datetime import timedelta
 import jwt
 from fastapi import Request, status
@@ -12,7 +11,10 @@ from fastapi.responses import JSONResponse
 from passlib.handlers.bcrypt import bcrypt
 from starlette.background import BackgroundTasks
 from app.user.user import UserBasicCredentials
-from app.settings.auth_settings import Settings, RESET_PASSWORD_EXPIRATION_MINUTES, JWT_SECRET, JWT_ALGORITHM, pwd_context
+from app.settings.auth_settings import Settings, JWT_SECRET, JWT_ALGORITHM, pwd_context
+from twilio.rest import Client
+from twilio.base.exceptions import TwilioRestException
+from sendgrid.helpers.mail import Mail
 
 load_dotenv()
 logger = logging.getLogger("app")
@@ -40,7 +42,7 @@ def login(credentials: UserBasicCredentials, request: Request):
     user = users.find_one({"mail": credentials.mail})
 
     if not user or not verify_password(
-        credentials.password, user['encrypted_password']
+            credentials.password, user['encrypted_password']
     ):
         request.app.logger.info(f"User failed to login: {credentials.mail}")
         return JSONResponse(
@@ -70,7 +72,7 @@ async def forgot_password(credentials: UserBasicCredentials, background_tasks: B
     reset_password_url = f"{request.url.scheme}://{request.url.hostname}/reset_password?token={reset_password_token}"
 
     background_tasks.add_task(
-        send_password_reset_email, to=user["mail"], reset_password_url=reset_password_url
+        send_password_reset_email, to_email=user["mail"], reset_password_url=reset_password_url
     )
 
     request.app.logger.info(f"Password reset link sent to: {user['mail']}")
@@ -78,40 +80,36 @@ async def forgot_password(credentials: UserBasicCredentials, background_tasks: B
 
 
 
-async def send_password_reset_email(to: str, reset_password_url: str):
-    smtp_server = "smtp.gmail.com"
-    port = 587  # TLS
-    sender_email = "waistenlucas@gmail.com" # dirección desde la que se enviará el correo
-    sender_password = "boroviski97" # contraseña del correo electrónico
 
-    message = MIMEMultipart()
-    message["Subject"] = "Password reset request"
-    message["From"] = sender_email
-    message["To"] = to
+def send_password_reset_email(to_email, reset_password_url):
 
-    # Create the HTML body of the email
-    html = f"""\
-    <html>
-      <body>
-        <p>Hi,</p>
-        <p>You have requested to reset your password.</p>
-        <p>Please follow the link below to reset your password:</p>
-        <p><a href="{reset_password_url}">{reset_password_url}</a></p>
-        <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>
-      </body>
-    </html>
-    """
+    message = Mail(
+        from_email='waistenlucas@gmail.com',
+        to_emails=to_email,
+        subject='Reset your password',
+        html_content=f'Click <a href="{reset_password_url}">here</a> to reset your password'
+    )
 
-    # Attach the HTML body to the email
-    message.attach(MIMEText(html, "html"))
+    try:
+        account_sid = os.environ['TWILIO_ACCOUNT_SID']
+        auth_token = os.environ['TWILIO_AUTH_TOKEN']
+        client = Client(account_sid, auth_token)
 
-    with smtplib.SMTP(smtp_server, port) as server:
-        server.ehlo()
-        server.starttls()
-        server.ehlo()
-        server.login(sender_email, sender_password)
-        server.sendmail(sender_email, to, message.as_string())
+        verification = client.verify \
+            .v2 \
+            .services('VA7d2f71f16e48ee0cb7e08d3af9358c3f') \
+            .verifications \
+            .create(channel_configuration={
+            'template_id': 'd-dff889c4a40d4b48b7be17edaf1ec577',
+            'from': 'lwaisten@fi.uba.ar',
+            'from_name': 'Lucas Waisten'
+        }, to=to_email, channel='email')
 
+        print(verification.sid)
+    except TwilioRestException as e:
+        print(e)
+    except Exception as e:
+        print(e)
 
 @router.post("/reset_password", status_code=status.HTTP_200_OK)
 async def reset_password(credentials: UserBasicCredentials, token: str, request: Request):
