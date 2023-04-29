@@ -27,7 +27,7 @@ async def forgot_password(credentials: UserBasicCredentials, background_tasks: B
 
     reset_password_token = generate_token(str(user["_id"]))
 
-    reset_password_url = f"{request.url.scheme}://{request.url.hostname}/reset_password?token={reset_password_token}"
+    reset_password_url = f"reset_password?token={reset_password_token}"
 
     background_tasks.add_task(
         send_password_reset_email, to_email=user["mail"], reset_password_url=reset_password_url
@@ -38,22 +38,23 @@ async def forgot_password(credentials: UserBasicCredentials, background_tasks: B
 
 
 def send_password_reset_email(to_email, reset_password_url):
-
+    path = os.environ.get('ENVIROMENT')
     message = Mail(
         from_email='lwaisten@fi.uba.ar',
         to_emails=to_email,
         subject='Reset your password',
-        html_content=f'Click <a href="{reset_password_url}">here</a> to reset your password'
+        html_content=f'Click <a href="{path}{reset_password_url}">here</a> to reset your password'
     )
     try:
 
-        sg = SendGridAPIClient(os.environ['SENDGRID_API_KEY'])
+        sg = SendGridAPIClient('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')
         response = sg.send(message)
         print(response.satus_code)
         print(response.body)
         print(response.headers)
     except Exception as e:
         print(e)
+
 
 @router.post("/reset_password", status_code=status.HTTP_200_OK)
 async def reset_password(credentials: UserBasicCredentials, token: str, request: Request):
@@ -91,5 +92,3 @@ async def reset_password(credentials: UserBasicCredentials, token: str, request:
 
     request.app.logger.info(f"Password reset for user: {user['mail']}")
     return {"detail": "Password reset successfully"}
-
-

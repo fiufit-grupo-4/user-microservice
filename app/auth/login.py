@@ -6,12 +6,24 @@ from fastapi.responses import JSONResponse
 from app.user.user import UserBasicCredentials
 from app.settings.auth_settings import Settings, pwd_context, generate_token
 from app.auth.password_reset import router as password_router
+from app.auth.google_login import router as google_login_router
 
 load_dotenv()
 logger = logging.getLogger("app")
 router = APIRouter()
-router.include_router(password_router, tags=["users"], prefix="")
 setting = Settings()
+
+router.include_router(
+    password_router,
+    tags=["users"],
+    prefix="")
+
+router.include_router(
+    google_login_router,
+    prefix="",
+    tags=["login"],
+)
+
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
