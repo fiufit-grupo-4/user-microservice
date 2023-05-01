@@ -41,4 +41,5 @@ async def shutdown_db_client():
     app.mongodb_client.close()
     logger.info("Shutdown APP")
 
+
 app.include_router(api_router)
