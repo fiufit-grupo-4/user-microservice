@@ -15,7 +15,7 @@ setting = Settings()
 
 router.include_router(
     password_router,
-    tags=["users"],
+    tags=["login"],
     prefix="")
 
 router.include_router(
