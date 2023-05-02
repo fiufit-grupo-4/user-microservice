@@ -14,11 +14,20 @@ router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
+def fail_if_no_changes(changes):
+    if not changes or len(changes) == 0:
+        logger.info('No values specified in body to update')
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content='No values specified to update',
+        )
+
+
 @router.get('/', response_model=List[UserResponse], status_code=status.HTTP_200_OK)
 async def get_users(
-    request: Request,
-    queries: QueryParamFilterUser = Depends(),
-    limit: int = Query(128, ge=1, le=1024),
+        request: Request,
+        queries: QueryParamFilterUser = Depends(),
+        limit: int = Query(128, ge=1, le=1024),
 ):
     users = request.app.database["users"]
 
@@ -48,21 +57,17 @@ async def get_user(request: Request, user_id: ObjectIdPydantic):
         )
 
 
-@router.put('/{user_id}', status_code=status.HTTP_200_OK)
-async def update_put_users(request: Request, user_id: ObjectIdPydantic, update_user_request: UpdatePutUserRequest):
-    return await update_users(request, user_id, update_user_request)
-
-
 @router.patch('/{user_id}', status_code=status.HTTP_200_OK)
 async def update_users(
-    request: Request, user_id: ObjectIdPydantic, update_user_request: UpdateUserRequest
+        request: Request, user_id: ObjectIdPydantic, update_user_request: UpdateUserRequest
 ):
     to_change = update_user_request.dict(exclude_none=True)
+
     if not to_change or len(to_change) == 0:
-        logger.info('No values especified in body to update')
+        logger.info('No values specified in body to update')
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            content='No values especified to update',
+            content='No values specified to update',
         )
 
     users = request.app.database["users"]
