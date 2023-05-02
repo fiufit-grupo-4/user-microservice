@@ -1,6 +1,8 @@
 from fastapi.testclient import TestClient
 import mongomock
 import pytest
+
+from app.domain.UserRoles import UserRoles
 from app.main import app
 from app.main import logger
 
@@ -28,7 +30,8 @@ def mongo_mock(monkeypatch):
 def testUserLucasSingUpStatus200(mongo_mock):
     credentials = {
         "mail": lucas['mail'],
-        "password": password
+        "password": password,
+        "role": UserRoles.ATLETA
     }
 
     response = client.post("/signup/", json=credentials)  # cambia la URL del endpoint aquí
@@ -39,7 +42,8 @@ def testUserLucasSingUpStatus200(mongo_mock):
 def testUserPepeSingUpStatus200(mongo_mock):
     credentials = {
         "mail": pepe['mail'],
-        "password": password
+        "password": password,
+        "role": UserRoles.TRAINER
     }
 
     response = client.post("/signup/", json=credentials)  # cambia la URL del endpoint aquí
@@ -50,7 +54,8 @@ def testUserPepeSingUpStatus200(mongo_mock):
 def testExistedUserJuanSingUpStatus400(mongo_mock):
     credentials = {
         "mail": juan['mail'],
-        "password": password
+        "password": password,
+        "role": UserRoles.ATLETA
     }
 
     response = client.post("/signup/", json=credentials)  # cambia la URL del endpoint aquí
