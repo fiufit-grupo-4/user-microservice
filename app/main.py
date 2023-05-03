@@ -7,7 +7,6 @@ from os import environ
 from dotenv import load_dotenv
 from .urls import api_router
 
-
 load_dotenv()
 
 MONGODB_URI = environ["MONGODB_URI"]
