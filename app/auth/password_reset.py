@@ -14,8 +14,11 @@ client_twilio = Client(account_sid, auth_token)
 
 
 @router.post("/forgot_password", status_code=status.HTTP_200_OK)
-async def forgot_password(credentials: UserForgotPasswordCredential, background_tasks: BackgroundTasks,
-                          request: Request):
+async def forgot_password(
+    credentials: UserForgotPasswordCredential,
+    background_tasks: BackgroundTasks,
+    request: Request,
+):
     users = request.app.database["users"]
     user = users.find_one({"mail": credentials.mail})
 
@@ -26,37 +29,36 @@ async def forgot_password(credentials: UserForgotPasswordCredential, background_
             content="User not found",
         )
 
-    background_tasks.add_task(
-        send_password_reset_email,
-        to_email=user["mail"]
-    )
+    background_tasks.add_task(send_password_reset_email, to_email=user["mail"])
 
     request.app.logger.info(f"Password reset link sent to: {user['mail']}")
     return {"detail": "Password reset link sent"}
 
 
 def send_password_reset_email(to_email):
-    verification = client_twilio.verify \
-        .v2 \
-        .services(os.environ.get('TWILIO_SERVICES')) \
-        .verifications \
-        .create(channel_configuration={
-        'template_id': os.environ.get('SENGRID_EMAIL_TEMPLATE_ID'),
-        'from': 'lwaisten@fi.uba.ar',
-        'from_name': 'Lucas Waisten'
-    }, to=to_email, channel='email')
+    verification = client_twilio.verify.v2.services(
+        os.environ.get('TWILIO_SERVICES')
+    ).verifications.create(
+        channel_configuration={
+            'template_id': os.environ.get('SENGRID_EMAIL_TEMPLATE_ID'),
+            'from': 'lwaisten@fi.uba.ar',
+            'from_name': 'Lucas Waisten',
+        },
+        to=to_email,
+        channel='email',
+    )
 
     print(verification)
 
 
 @router.post("/reset_password/{validation_token}", status_code=status.HTTP_200_OK)
-async def reset_password(credentials: UserResetPasswordCredential, validation_code: str, request: Request):
+async def reset_password(
+    credentials: UserResetPasswordCredential, validation_code: str, request: Request
+):
     try:
-        client_twilio.verify \
-            .v2 \
-            .services(os.environ.get('TWILIO_SERVICES')) \
-            .verification_checks \
-            .create(to=credentials.mail, code=validation_code)
+        client_twilio.verify.v2.services(
+            os.environ.get('TWILIO_SERVICES')
+        ).verification_checks.create(to=credentials.mail, code=validation_code)
     except Exception:
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -67,7 +69,9 @@ async def reset_password(credentials: UserResetPasswordCredential, validation_co
     user = users.find_one({"mail": credentials.mail})
 
     if not user:
-        request.app.logger.info(f"User not found for password reset: {credentials.mail}")
+        request.app.logger.info(
+            f"User not found for password reset: {credentials.mail}"
+        )
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content="User not found, email not registred",
