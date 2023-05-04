@@ -19,6 +19,15 @@ class UserBasicCredentials(BaseModel):
     role: UserRoles = Field(example=UserRoles.TRAINER)
 
 
+class UserForgotPasswordCredential(BaseModel):
+    mail: EmailStr = Field(example="username@mail.com")
+
+
+class UserResetPasswordCredential(BaseModel):
+    mail: EmailStr = Field(example="username@mail.com")
+    new_password: str = Field(example="secure")
+
+
 class UserRequest(BaseModel):
     name: str
     lastname: str
@@ -32,6 +41,7 @@ class UserResponse(BaseModel):
     lastname: Optional[str]
     age: Optional[str]
     mail: EmailStr
+    image: Optional[str]
 
     class Config(BaseConfig):
         json_encoders = {ObjectId: lambda id: str(id)}  # convert ObjectId into str
@@ -59,6 +69,7 @@ class UpdateUserRequest(BaseModel):
     age: Optional[str]
     mail: Optional[EmailStr]
     password: Optional[str]
+    image: Optional[str]
 
 
 class QueryParamFilterUser(BaseModel):
@@ -68,10 +79,11 @@ class QueryParamFilterUser(BaseModel):
 
 
 class User:
-    def __init__(self, mail, password, role=UserRoles.ATLETA, name=None, lastname=None, age=None):
+    def __init__(self, mail, password, role=UserRoles.ATLETA, name=None, lastname=None, age=None, image=None):
         self.name = name
         self.lastname = lastname
         self.age = age
         self.mail = mail
         self.encrypted_password = password
         self.role = role
+        self.image = image

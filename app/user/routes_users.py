@@ -1,17 +1,35 @@
 import logging
 from bson import ObjectId
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Query, Request, HTTPException
 from passlib.context import CryptContext
 from starlette import status
 from starlette.responses import JSONResponse
 from typing import List
+from app.settings.auth_settings import JWT_SECRET
+from app.settings.auth_baerer import JWTBearer
+import jwt
 
-from app.user.user import QueryParamFilterUser, UpdatePutUserRequest, UpdateUserRequest, UserResponse
+from app.user.user import (
+    QueryParamFilterUser,
+    UpdatePutUserRequest,
+    UpdateUserRequest,
+    UserResponse,
+)
 from app.user.utils import ObjectIdPydantic
 
 logger = logging.getLogger('app')
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+def get_user_id(token: str = Depends(JWTBearer())) -> ObjectId:
+    try:
+        token_data_user = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        return ObjectId(token_data_user["id"])
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token"
+        )
 
 
 @router.get('/', response_model=List[UserResponse], status_code=status.HTTP_200_OK)
@@ -32,6 +50,22 @@ async def get_users(
     return user_list
 
 
+@router.get('/me', response_model=UserResponse, status_code=status.HTTP_200_OK)
+async def get_me(request: Request, user_id: ObjectId = Depends(get_user_id)):
+    users = request.app.database["users"]
+    user = users.find_one({"_id": user_id})
+
+    if user:
+        logger.info(f'Get a user {user_id}')
+        return UserResponse.from_mongo(user)
+    else:
+        logger.info(f'User {user_id} not found to get')
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=f'User {user_id} not found to get',
+        )
+
+
 @router.get('/{user_id}', response_model=UserResponse, status_code=status.HTTP_200_OK)
 async def get_user(request: Request, user_id: ObjectIdPydantic):
     users = request.app.database["users"]
@@ -48,21 +82,17 @@ async def get_user(request: Request, user_id: ObjectIdPydantic):
         )
 
 
-@router.put('/{user_id}', status_code=status.HTTP_200_OK)
-async def update_put_users(request: Request, user_id: ObjectIdPydantic, update_user_request: UpdatePutUserRequest):
-    return await update_users(request, user_id, update_user_request)
-
-
 @router.patch('/{user_id}', status_code=status.HTTP_200_OK)
 async def update_users(
     request: Request, user_id: ObjectIdPydantic, update_user_request: UpdateUserRequest
 ):
     to_change = update_user_request.dict(exclude_none=True)
+
     if not to_change or len(to_change) == 0:
-        logger.info('No values especified in body to update')
+        logger.info('No values specified in body to update')
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            content='No values especified to update',
+            content='No values specified to update',
         )
 
     users = request.app.database["users"]
