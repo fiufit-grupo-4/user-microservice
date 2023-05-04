@@ -5,10 +5,7 @@ from logging.config import dictConfig
 from .log_config import logconfig
 from os import environ
 from dotenv import load_dotenv
-from app.user.routes_users import router as user_router
-from app.auth.login import router as login_router
-from app.auth.signup import router as signup_router
-
+from .urls import api_router
 
 load_dotenv()
 
@@ -35,20 +32,7 @@ async def startup_db_client():
         logger.error("Could not connect to MongoDB")
 
     app.logger = logger
-    # # How to build a collection
     app.database = app.mongodb_client["user_microservice"]
-    # users = app.database.users
-    # users.delete_many({})  # Clear collection data
-
-    # # Add data to collection
-    # person_1 = { "name": "lucas", "lastname": "pepe","age": "20","mail": "pepe@gmail.com"}
-    # logger.info("Added object with id: %s", users.insert_one(person_1).inserted_id)
-    # person_2 = { "name": "juan", "lastname": "papu","age": "20","mail": "juan@gmail.com"}
-    # logger.info("Added object with id: %s", users.insert_one(person_2).inserted_id)
-
-    # # Check all data in collection
-    # for p in users.find():
-    #     logger.warning(p)
 
 
 @app.on_event("shutdown")
@@ -57,6 +41,4 @@ async def shutdown_db_client():
     logger.info("Shutdown APP")
 
 
-app.include_router(user_router, tags=["users"], prefix="/users")
-app.include_router(login_router, tags=["login"], prefix="/login")
-app.include_router(signup_router, tags=["signup"], prefix="/signup")
+app.include_router(api_router)
