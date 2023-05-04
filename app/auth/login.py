@@ -13,10 +13,7 @@ logger = logging.getLogger("app")
 router = APIRouter()
 setting = Settings()
 
-router.include_router(
-    password_router,
-    tags=["login"],
-    prefix="")
+router.include_router(password_router, tags=["login"], prefix="")
 
 router.include_router(
     google_login_router,
@@ -35,7 +32,7 @@ def login(credentials: UserBasicCredentials, request: Request):
     user = users.find_one({"mail": credentials.mail})
 
     if not user or not verify_password(
-            credentials.password, user['encrypted_password']
+        credentials.password, user['encrypted_password']
     ):
         request.app.logger.info(f"User failed to login: {credentials.mail}")
         return JSONResponse(
