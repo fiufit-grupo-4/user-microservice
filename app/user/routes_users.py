@@ -51,7 +51,7 @@ async def get_users(
 
 
 @router.get('/me', response_model=UserResponse, status_code=status.HTTP_200_OK)
-async def get_user(request: Request, user_id: ObjectId = Depends(get_user_id)):
+async def get_me(request: Request, user_id: ObjectId = Depends(get_user_id)):
     users = request.app.database["users"]
     user = users.find_one({"_id": user_id})
 
