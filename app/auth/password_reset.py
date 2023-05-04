@@ -8,8 +8,8 @@ from app.settings.auth_settings import Settings, pwd_context
 
 router = APIRouter()
 setting = Settings()
-account_sid = os.environ['TWILIO_ACCOUNT_SID']
-auth_token = os.environ['TWILIO_AUTH_TOKEN']
+account_sid = os.environ.get('TWILIO_ACCOUNT_SID', '')
+auth_token = os.environ.get('TWILIO_AUTH_TOKEN', '')
 client_twilio = Client(account_sid, auth_token)
 
 
