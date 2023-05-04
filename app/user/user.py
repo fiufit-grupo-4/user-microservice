@@ -39,6 +39,7 @@ class UserResponse(BaseModel):
     lastname: Optional[str]
     age: Optional[str]
     mail: EmailStr
+    image: Optional[str]
 
     class Config(BaseConfig):
         json_encoders = {ObjectId: lambda id: str(id)}  # convert ObjectId into str
@@ -66,6 +67,7 @@ class UpdateUserRequest(BaseModel):
     age: Optional[str]
     mail: Optional[EmailStr]
     password: Optional[str]
+    image: Optional[str]
 
 
 class QueryParamFilterUser(BaseModel):
@@ -75,9 +77,10 @@ class QueryParamFilterUser(BaseModel):
 
 
 class User:
-    def __init__(self, mail, password, name=None, lastname=None, age=None):
+    def __init__(self, mail, password, name=None, lastname=None, age=None, image=None):
         self.name = name
         self.lastname = lastname
         self.age = age
         self.mail = mail
         self.encrypted_password = password
+        self.image = image
