@@ -17,6 +17,15 @@ class UserBasicCredentials(BaseModel):
     password: str = Field(example="secure")
 
 
+class UserForgotPasswordCredential(BaseModel):
+    mail: EmailStr = Field(example="username@mail.com")
+
+
+class UserResetPasswordCredential(BaseModel):
+    mail: EmailStr = Field(example="username@mail.com")
+    new_password: str = Field(example="secure")
+
+
 class UserRequest(BaseModel):
     name: str
     lastname: str

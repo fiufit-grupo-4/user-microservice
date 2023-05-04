@@ -1,33 +1,18 @@
 import logging
-import jwt
-from os import environ
 from dotenv import load_dotenv
-from fastapi.security import HTTPBasic
-from passlib.context import CryptContext
-from starlette import status
-from starlette.responses import JSONResponse
-from fastapi import APIRouter, Request
-from datetime import datetime, timedelta
+from fastapi import APIRouter
+from fastapi import Request, status
+from fastapi.responses import JSONResponse
 from app.user.user import UserBasicCredentials
+from app.settings.auth_settings import Settings, pwd_context, generate_token
+from app.auth.password_reset import router as password_router
 
 load_dotenv()
-JWT_SECRET = environ["JWT_SECRET"]
 logger = logging.getLogger("app")
 router = APIRouter()
-security = HTTPBasic()
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+setting = Settings()
 
-
-def generate_token(id: str) -> str:
-    utcnow = datetime.utcnow()
-    expires = utcnow + timedelta(hours=1)
-    token_data = {
-        "id": id,
-        "exp": expires,
-        "iat": utcnow,
-    }
-    token = jwt.encode(token_data, JWT_SECRET, algorithm="HS256")
-    return token
+router.include_router(password_router, tags=["login"], prefix="")
 
 
 def verify_password(plain_password, hashed_password):
@@ -49,5 +34,6 @@ def login(credentials: UserBasicCredentials, request: Request):
         )
 
     access_token = generate_token(str(user["_id"]))
+
     request.app.logger.info(f"User logged in: {credentials.mail} | id: {user['_id']}")
     return {"access_token": access_token, "token_type": "bearer"}
