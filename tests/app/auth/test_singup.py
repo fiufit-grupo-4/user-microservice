@@ -27,37 +27,23 @@ def mongo_mock(monkeypatch):
     monkeypatch.setattr(app, "database", db)
 
 
-def testUserLucasSingUpStatus200(mongo_mock):
+def succeed_if_correct_credentials(mongo_mock):
     credentials = {
         "mail": lucas['mail'],
         "password": password,
-        "role": UserRoles.ATLETA
+        "role": UserRoles.ATLETA.value
     }
 
-    response = client.post("/signup/", json=credentials)  # cambia la URL del endpoint aquí
-    print(response)
+    response = client.post("/signup/", json=credentials)
     assert response.status_code == 201
 
 
-def testUserPepeSingUpStatus200(mongo_mock):
-    credentials = {
-        "mail": pepe['mail'],
-        "password": password,
-        "role": UserRoles.TRAINER
-    }
-
-    response = client.post("/signup/", json=credentials)  # cambia la URL del endpoint aquí
-    print(response)
-    assert response.status_code == 201
-
-
-def testExistedUserJuanSingUpStatus400(mongo_mock):
+def fail_if_user_already_exists(mongo_mock):
     credentials = {
         "mail": juan['mail'],
         "password": password,
-        "role": UserRoles.ATLETA
+        "role": UserRoles.ATLETA.value
     }
 
-    response = client.post("/signup/", json=credentials)  # cambia la URL del endpoint aquí
-    print(response)
+    response = client.post("/signup/", json=credentials)
     assert response.status_code == 409

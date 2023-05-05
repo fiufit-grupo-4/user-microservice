@@ -1,8 +1,7 @@
 from typing import Optional
-from bson import InvalidDocument, ObjectId
+from bson import ObjectId
 from fastapi import Query
 from pydantic import BaseConfig, BaseModel, EmailStr, Field
-from bson import ObjectId as BaseObjectId
 
 from app.domain.UserRoles import UserRoles
 from app.user.utils import ObjectIdPydantic
@@ -16,7 +15,7 @@ def create_user(name: str, lastname: str, mail: str, age: str):
 class UserBasicCredentials(BaseModel):
     mail: EmailStr = Field(example="username@mail.com")
     password: str = Field(example="secure")
-    role: UserRoles = Field(example=UserRoles.TRAINER)
+    role: int = Field(example=3)
 
 
 class UserForgotPasswordCredential(BaseModel):
@@ -79,7 +78,7 @@ class QueryParamFilterUser(BaseModel):
 
 
 class User:
-    def __init__(self, mail, password, role=UserRoles.ATLETA, name=None, lastname=None, age=None, image=None):
+    def __init__(self, mail, password, role=UserRoles.ATLETA.value, name=None, lastname=None, age=None, image=None):
         self.name = name
         self.lastname = lastname
         self.age = age
