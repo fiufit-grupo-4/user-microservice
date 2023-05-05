@@ -27,7 +27,7 @@ def mongo_mock(monkeypatch):
     monkeypatch.setattr(app, "database", db)
 
 
-def succeed_if_credentials_are_correct(mongo_mock):
+def test_succeed_if_credentials_are_correct(mongo_mock):
     credentials = {
         "mail": atleta['mail'],
         "password": password,
@@ -38,7 +38,7 @@ def succeed_if_credentials_are_correct(mongo_mock):
     assert response.status_code == 200
 
 
-def fail_if_unregistered_user(mongo_mock):
+def test_fail_if_unregistered_user(mongo_mock):
     credentials = {
         "mail": "andy@gmail.com",
         "password": password,
@@ -49,7 +49,7 @@ def fail_if_unregistered_user(mongo_mock):
     assert response.status_code == 401
 
 
-def fail_if_wrong_password(mongo_mock):
+def test_fail_if_wrong_password(mongo_mock):
     credentials = {
         "mail": atleta['mail'],
         "password": "wrong_password",
@@ -60,7 +60,7 @@ def fail_if_wrong_password(mongo_mock):
     assert response.status_code == 401
 
 
-def fail_if_wrong_role(mongo_mock):
+def test_fail_if_wrong_role(mongo_mock):
     credentials = {
         "mail": atleta['mail'],
         "password": password,

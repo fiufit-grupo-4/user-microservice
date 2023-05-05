@@ -27,7 +27,7 @@ def mongo_mock(monkeypatch):
     monkeypatch.setattr(app, "database", db)
 
 
-def succeed_if_correct_credentials(mongo_mock):
+def test_succeed_if_correct_credentials(mongo_mock):
     credentials = {
         "mail": lucas['mail'],
         "password": password,
@@ -38,7 +38,7 @@ def succeed_if_correct_credentials(mongo_mock):
     assert response.status_code == 201
 
 
-def fail_if_user_already_exists(mongo_mock):
+def test_fail_if_user_already_exists(mongo_mock):
     credentials = {
         "mail": juan['mail'],
         "password": password,
