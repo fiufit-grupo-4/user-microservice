@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 import mongomock
 import pytest
+
 from app.main import app
 from app.main import logger
 
@@ -9,10 +10,8 @@ client = TestClient(app)
 password = 'titititi'
 encrypted_password = '$2b$12$T3HXmxRONP1sjTkk3Pqaq.9IYl5KNRhMHyJC4QxZPx0AqJpctDqeO'
 
-lucas = {"name": "lucas", "lastname": "martinez", "age": "20", "mail": "lukitas@gmail.com",
-         "encrypted_password": encrypted_password, "session_token": "token"}
-juan = {"name": "juan", "lastname": "ruiz", "age": "20", "mail": "juan@gmail.com",
-        "encrypted_password": encrypted_password, "session_token": "token"}
+atleta = {"name": "lucas", "lastname": "martinez", "age": "20", "mail": "lukitas@gmail.com",
+          "encrypted_password": encrypted_password, "session_token": "token", "role": 3}
 
 
 # Mock MongoDB
@@ -21,53 +20,52 @@ def mongo_mock(monkeypatch):
     mongo_client = mongomock.MongoClient()
     db = mongo_client.get_database("user_microservice")
     col = db.get_collection("users")
-    col.insert_one(lucas)
-    col.insert_one(juan)
+    col.insert_one(atleta)
 
     app.database = db
     app.logger = logger
     monkeypatch.setattr(app, "database", db)
 
 
-def testUserLucasLoginStatus200(mongo_mock):
+def test_succeed_if_credentials_are_correct(mongo_mock):
     credentials = {
-        "mail": lucas['mail'],
-        "password": password
+        "mail": atleta['mail'],
+        "password": password,
+        "role": 3
     }
 
     response = client.post("/login/", json=credentials)
-    print(response)
     assert response.status_code == 200
 
 
-def testUserJuanLoginStatus200(mongo_mock):
-    credentials = {
-        "mail": juan['mail'],
-        "password": password
-    }
-
-    response = client.post("/login/", json=credentials)
-    print(response)
-    assert response.status_code == 200
-
-
-def testUserUnregisteredLoginStatus401(mongo_mock):
+def test_fail_if_unregistered_user(mongo_mock):
     credentials = {
         "mail": "andy@gmail.com",
-        "password": password
+        "password": password,
+        "role": 3
     }
 
     response = client.post("/login/", json=credentials)
-    print(response)
     assert response.status_code == 401
-    
 
-def testOtherUserUnregisteredLoginStatus401(mongo_mock):
+
+def test_fail_if_wrong_password(mongo_mock):
     credentials = {
-        "mail": "mabel@gmail.com",
-        "password": password
+        "mail": atleta['mail'],
+        "password": "wrong_password",
+        "role": 3
     }
 
     response = client.post("/login/", json=credentials)
-    print(response)
+    assert response.status_code == 401
+
+
+def test_fail_if_wrong_role(mongo_mock):
+    credentials = {
+        "mail": atleta['mail'],
+        "password": password,
+        "role": 1
+    }
+
+    response = client.post("/login/", json=credentials)
     assert response.status_code == 401

@@ -11,7 +11,6 @@ import jwt
 
 from app.user.user import (
     QueryParamFilterUser,
-    UpdatePutUserRequest,
     UpdateUserRequest,
     UserResponse,
 )

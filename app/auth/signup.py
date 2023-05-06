@@ -12,7 +12,7 @@ setting = Settings()
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def signup(credentials: UserBasicCredentials, request: Request):
     hashed_password = pwd_context.hash(credentials.password)
-    user = User(credentials.mail, hashed_password)
+    user = User(credentials.mail, hashed_password, role=credentials.role)
 
     users = request.app.database["users"]
 
