@@ -28,12 +28,15 @@ def login_google(request: GoogleLoginRequest):
 
     except InvalidIdTokenError as e:
         # El token de acceso es inválido
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid access token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid access token"
+        )
     except Exception as e:
         # Ocurrió un error durante el proceso de inicio de sesión
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Login error")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Login error"
+        )
 
 
 # Inicializar Firebase Admin
 firebase_admin.initialize_app()
-

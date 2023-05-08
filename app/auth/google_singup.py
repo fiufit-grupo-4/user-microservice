@@ -57,4 +57,3 @@ def signup_with_google(token: str, request: Request):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content="Error signing up with Google",
         )
-
