@@ -41,6 +41,7 @@ class UserResponse(BaseModel):
     age: Optional[str]
     mail: EmailStr
     image: Optional[str]
+    blocked: Optional[bool]
 
     class Config(BaseConfig):
         json_encoders = {ObjectId: lambda id: str(id)}  # convert ObjectId into str
@@ -78,7 +79,8 @@ class QueryParamFilterUser(BaseModel):
 
 
 class User:
-    def __init__(self, mail, password, role=UserRoles.ATLETA.value, name=None, lastname=None, age=None, image=None):
+    def __init__(self, mail, password, role=UserRoles.ATLETA.value, name=None, lastname=None, age=None, image=None,
+                 blocked=False):
         self.name = name
         self.lastname = lastname
         self.age = age
@@ -86,3 +88,4 @@ class User:
         self.encrypted_password = password
         self.role = role
         self.image = image
+        self.blocked = blocked
