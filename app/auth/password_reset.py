@@ -3,13 +3,10 @@ import os
 from fastapi import Request, status, APIRouter
 from fastapi.responses import JSONResponse
 from starlette.background import BackgroundTasks
-
-from app.settings.config import pwd_context
+from app.settings.config import pwd_context, account_sid, auth_token
 from app.user.user import UserForgotPasswordCredential, UserResetPasswordCredential
 
 router = APIRouter()
-account_sid = os.environ.get('TWILIO_ACCOUNT_SID', 'ACe21e9a0fbce06dcd869f1ed2ff3248a5')
-auth_token = os.environ.get('TWILIO_AUTH_TOKEN', '816c7aa1c6ba5946cd4f493ef441e70a')
 client_twilio = Client(account_sid, auth_token)
 
 
