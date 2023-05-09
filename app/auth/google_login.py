@@ -1,10 +1,13 @@
+import logging
 import firebase_admin
 from firebase_admin import auth
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, HTTPException, status
 from firebase_admin.auth import InvalidIdTokenError
 from pydantic import BaseModel
+from starlette.responses import JSONResponse
 
 router = APIRouter()
+logger = logging.getLogger("app")
 
 
 class GoogleLoginRequest(BaseModel):
@@ -33,8 +36,10 @@ def login_google(request: GoogleLoginRequest):
         )
     except Exception as e:
         # Ocurrió un error durante el proceso de inicio de sesión
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Login error"
+        logger.error(f"Error login with Google: {str(e)}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content="Error login with Google",
         )
 
 

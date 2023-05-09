@@ -1,19 +1,13 @@
-import logging
-
 from dotenv import load_dotenv
 from fastapi import APIRouter, Request, status
 from fastapi.responses import JSONResponse
-from app.settings.auth_settings import Settings, pwd_context, generate_token
-from app.auth.password_reset import router as password_router
-from app.auth.google_login import router as google_login_router
+from app.settings.auth_settings import generate_token
 from firebase_admin import auth
 
 from app.user.user import UserResponse
 
 load_dotenv()
-logger = logging.getLogger("app")
 router = APIRouter()
-setting = Settings()
 
 
 @router.post("/google", status_code=status.HTTP_201_CREATED)
