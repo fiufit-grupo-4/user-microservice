@@ -36,8 +36,11 @@ def login(credentials: UserBasicCredentials, request: Request):
     users = request.app.database["users"]
     user = users.find_one({"mail": credentials.mail})
 
-    if not user or not is_password_valid(credentials.password, user['encrypted_password']) \
-            or not is_role_valid(credentials.role, user["role"]):
+    if (
+        not user
+        or not is_password_valid(credentials.password, user['encrypted_password'])
+        or not is_role_valid(credentials.role, user["role"])
+    ):
         request.app.logger.info(f"User failed to login: {credentials.mail}")
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
