@@ -1,13 +1,11 @@
 import logging
 from bson import ObjectId
-from fastapi import APIRouter, Depends, Query, Request, HTTPException
-from passlib.context import CryptContext
+from fastapi import APIRouter, Depends, Query, Request
 from starlette import status
 from starlette.responses import JSONResponse
 from typing import List
-from app.settings.auth_settings import JWT_SECRET
-from app.settings.auth_baerer import JWTBearer
-import jwt
+from app.settings.auth_settings import pwd_context
+from app.user.block_user import router as block_user, get_user_id
 
 from app.user.user import (
     QueryParamFilterUser,
@@ -18,24 +16,18 @@ from app.user.utils import ObjectIdPydantic
 
 logger = logging.getLogger('app')
 router = APIRouter()
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-
-def get_user_id(token: str = Depends(JWTBearer())) -> ObjectId:
-    try:
-        token_data_user = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
-        return ObjectId(token_data_user["id"])
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token"
-        )
+router.include_router(
+    block_user,
+    tags=["users"],
+    prefix="")
 
 
 @router.get('/', response_model=List[UserResponse], status_code=status.HTTP_200_OK)
 async def get_users(
-    request: Request,
-    queries: QueryParamFilterUser = Depends(),
-    limit: int = Query(128, ge=1, le=1024),
+        request: Request,
+        queries: QueryParamFilterUser = Depends(),
+        limit: int = Query(128, ge=1, le=1024),
 ):
     users = request.app.database["users"]
 
@@ -83,7 +75,7 @@ async def get_user(request: Request, user_id: ObjectIdPydantic):
 
 @router.patch('/{user_id}', status_code=status.HTTP_200_OK)
 async def update_users(
-    request: Request, user_id: ObjectIdPydantic, update_user_request: UpdateUserRequest
+        request: Request, user_id: ObjectIdPydantic, update_user_request: UpdateUserRequest
 ):
     to_change = update_user_request.dict(exclude_none=True)
 
