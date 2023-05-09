@@ -3,10 +3,10 @@ import jwt
 from bson import ObjectId
 from fastapi import Depends
 from pydantic import BaseSettings
-from datetime import datetime
+from datetime import datetime, timedelta
 from starlette import status
 from app.settings.auth_baerer import JWTBearer
-from app.settings.config import *
+from app.settings.config import JWT_SECRET, JWT_ALGORITHM, EXPIRES, pwd_context
 
 
 def get_user_id(token: str = Depends(JWTBearer())) -> ObjectId:
