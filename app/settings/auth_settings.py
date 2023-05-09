@@ -1,14 +1,22 @@
+from http.client import HTTPException
 import jwt
-from os import environ
-from passlib.context import CryptContext
+from bson import ObjectId
+from fastapi import Depends
 from pydantic import BaseSettings
-from datetime import timedelta, datetime
+from datetime import datetime
+from starlette import status
+from app.settings.auth_baerer import JWTBearer
+from app.settings.config import *
 
-JWT_SECRET = environ.get("JWT_SECRET", "mysecretkey")
-JWT_ALGORITHM = environ.get("JWT_ALGORITHM", "HS256")
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-RESET_PASSWORD_EXPIRATION_MINUTES = environ.get("RESET_PASSWORD_EXPIRATION_MINUTES", 60)
-EXPIRES = timedelta(minutes=int(RESET_PASSWORD_EXPIRATION_MINUTES))
+
+def get_user_id(token: str = Depends(JWTBearer())) -> ObjectId:
+    try:
+        token_data_user = jwt.decode(token, JWT_SECRET, algorithms=JWT_ALGORITHM)
+        return ObjectId(token_data_user["id"])
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token"
+        )
 
 
 def generate_token(id: str) -> str:

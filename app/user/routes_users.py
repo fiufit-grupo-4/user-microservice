@@ -4,8 +4,9 @@ from fastapi import APIRouter, Depends, Query, Request
 from starlette import status
 from starlette.responses import JSONResponse
 from typing import List
-from app.settings.auth_settings import pwd_context
-from app.user.block_user import router as block_user, get_user_id
+from app.settings.auth_settings import get_user_id
+from app.settings.config import pwd_context
+from app.user.block_user import router as block_user
 
 from app.user.user import (
     QueryParamFilterUser,
@@ -17,17 +18,14 @@ from app.user.utils import ObjectIdPydantic
 logger = logging.getLogger('app')
 router = APIRouter()
 
-router.include_router(
-    block_user,
-    tags=["users"],
-    prefix="")
+router.include_router(block_user, tags=["users"], prefix="")
 
 
 @router.get('/', response_model=List[UserResponse], status_code=status.HTTP_200_OK)
 async def get_users(
-        request: Request,
-        queries: QueryParamFilterUser = Depends(),
-        limit: int = Query(128, ge=1, le=1024),
+    request: Request,
+    queries: QueryParamFilterUser = Depends(),
+    limit: int = Query(128, ge=1, le=1024),
 ):
     users = request.app.database["users"]
 
@@ -75,7 +73,7 @@ async def get_user(request: Request, user_id: ObjectIdPydantic):
 
 @router.patch('/{user_id}', status_code=status.HTTP_200_OK)
 async def update_users(
-        request: Request, user_id: ObjectIdPydantic, update_user_request: UpdateUserRequest
+    request: Request, user_id: ObjectIdPydantic, update_user_request: UpdateUserRequest
 ):
     to_change = update_user_request.dict(exclude_none=True)
 

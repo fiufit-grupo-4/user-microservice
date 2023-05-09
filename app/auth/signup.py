@@ -2,11 +2,10 @@ from fastapi import APIRouter, Request
 from fastapi.encoders import jsonable_encoder
 from starlette import status
 from starlette.responses import JSONResponse
-from app.settings.auth_settings import Settings, pwd_context
+from app.settings.config import pwd_context
 from app.user.user import User, UserBasicCredentials, UserResponse
 
 router = APIRouter()
-setting = Settings()
 
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)

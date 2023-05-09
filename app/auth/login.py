@@ -4,15 +4,14 @@ from fastapi import APIRouter
 from fastapi import Request, status
 from fastapi.responses import JSONResponse
 
-from app.domain import UserRoles
+from app.settings.config import pwd_context
 from app.user.user import UserBasicCredentials
-from app.settings.auth_settings import Settings, pwd_context, generate_token
+from app.settings.auth_settings import generate_token
 from app.auth.password_reset import router as password_router
 
 load_dotenv()
 logger = logging.getLogger("app")
 router = APIRouter()
-setting = Settings()
 
 router.include_router(password_router, tags=["login"], prefix="")
 
@@ -30,8 +29,11 @@ def login(credentials: UserBasicCredentials, request: Request):
     users = request.app.database["users"]
     user = users.find_one({"mail": credentials.mail})
 
-    if not user or not is_password_valid(credentials.password, user['encrypted_password']) \
-            or not is_role_valid(credentials.role, user["role"]):
+    if (
+        not user
+        or not is_password_valid(credentials.password, user['encrypted_password'])
+        or not is_role_valid(credentials.role, user["role"])
+    ):
         request.app.logger.info(f"User failed to login: {credentials.mail}")
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
