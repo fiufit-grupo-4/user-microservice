@@ -1,7 +1,6 @@
 from dotenv import load_dotenv
 from fastapi import APIRouter, Request, status
 from fastapi.responses import JSONResponse
-from app.settings.auth_settings import generate_token
 from firebase_admin import auth
 
 from app.user.user import UserResponse
@@ -35,9 +34,6 @@ def signup_with_google(token: str, request: Request):
             # Otros datos del usuario que desees almacenar
         }
         user_id = users.insert_one(user).inserted_id
-
-        # Generar el token de acceso
-        access_token = generate_token(str(user_id))
 
         request.app.logger.info(
             f"User {UserResponse(id=str(user_id), mail=google_email)} successfully created"

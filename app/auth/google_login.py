@@ -6,6 +6,8 @@ from firebase_admin.auth import InvalidIdTokenError
 from pydantic import BaseModel
 from starlette.responses import JSONResponse
 
+from app.settings.auth_settings import generate_token
+
 router = APIRouter()
 logger = logging.getLogger("app")
 
@@ -25,12 +27,15 @@ def login_google(request: GoogleLoginRequest):
 
         # Aquí puedes realizar la lógica para autenticar al usuario en tu sistema y generar un token de acceso personalizado
         # Puedes generar el token de acceso utilizando JWT o cualquier otro método de autenticación personalizado
+        # Generar el token de acceso
+        access_token = generate_token(str(user_id))
 
         # Ejemplo de respuesta exitosa
-        return {"message": "Login successful", "user_id": user_id}
+        return {"access_token": access_token, "token_type": "bearer"}
 
     except InvalidIdTokenError as e:
         # El token de acceso es inválido
+        logger.error(f"Invalid access token with Google: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid access token"
         )
