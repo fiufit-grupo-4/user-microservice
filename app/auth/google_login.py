@@ -28,7 +28,7 @@ def login_google(request: GoogleLoginRequest):
         # Aquí puedes realizar la lógica para autenticar al usuario en tu sistema y generar un token de acceso personalizado
         # Puedes generar el token de acceso utilizando JWT o cualquier otro método de autenticación personalizado
         # Generar el token de acceso
-        access_token = generate_token(str(user_id))
+        access_token = generate_token(str(user_id),"TODO")
 
         # Ejemplo de respuesta exitosa
         return {"access_token": access_token, "token_type": "bearer"}

@@ -19,13 +19,14 @@ def get_user_id(token: str = Depends(JWTBearer())) -> ObjectId:
         )
 
 
-def generate_token(id: str) -> str:
+def generate_token(id: str, role) -> str:
     utcnow = datetime.utcnow()
     expires = utcnow + timedelta(hours=1)
     token_data = {
         "id": id,
         "exp": expires,
         "iat": utcnow,
+        "role": role
     }
     token = jwt.encode(token_data, JWT_SECRET, algorithm="HS256")
     return token
