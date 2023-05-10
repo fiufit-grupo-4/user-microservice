@@ -48,7 +48,7 @@ def send_password_reset_email(to_email):
     print(verification)
 
 
-@router.post("/reset_password/{validation_token}", status_code=status.HTTP_200_OK)
+@router.post("/reset_password/{validation_code}", status_code=status.HTTP_200_OK)
 async def reset_password(
     credentials: UserResetPasswordCredential, validation_code: str, request: Request
 ):
