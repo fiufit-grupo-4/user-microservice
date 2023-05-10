@@ -46,7 +46,7 @@ def login(credentials: UserBasicCredentials, request: Request):
             content="Invalid credentials",
         )
 
-    access_token = generate_token(str(user["_id"]))
+    access_token = generate_token(str(user["_id"]), user["role"])
 
     request.app.logger.info(f"User logged in: {credentials.mail} | id: {user['_id']}")
     return {"access_token": access_token, "token_type": "bearer"}
