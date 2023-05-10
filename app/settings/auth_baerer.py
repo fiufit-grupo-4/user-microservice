@@ -2,8 +2,8 @@
 
 from fastapi import Request, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from app.settings.auth_settings import JWT_SECRET, JWT_ALGORITHM
 import jwt
+from app.settings.config import JWT_SECRET, JWT_ALGORITHM
 
 
 class JWTBearer(HTTPBearer):

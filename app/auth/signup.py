@@ -1,18 +1,11 @@
+from fastapi import APIRouter, Request
 from fastapi.encoders import jsonable_encoder
-from app.settings.auth_settings import Settings, pwd_context
-from app.user.user import User, UserResponse, UserBasicCredentials
-from fastapi import APIRouter, Request, status
-from fastapi.responses import JSONResponse
-from app.auth.google_singup import router as google_singup_router
-
+from starlette import status
+from starlette.responses import JSONResponse
+from app.settings.config import pwd_context
+from app.user.user import User, UserBasicCredentials, UserResponse
 
 router = APIRouter()
-setting = Settings()
-router.include_router(
-    google_singup_router,
-    prefix="",
-    tags=["singup"],
-)
 
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
