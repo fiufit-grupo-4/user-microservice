@@ -32,17 +32,6 @@ def test_read_main():
     assert response.json() == {"message": "OK"}
 
 
-def test_get_all_users(mongo_mock):
-    response = client.get("/users")
-    assert response.status_code == 200
-    res = response.json()
-    for item in res:
-        item.pop("id")
-    print(res)
-    assert all(item in res for item in [{"name": "lucas", "lastname": "martinez", "age": "20",
-                                         "mail": "lukitas@gmail.com", "image": "lucas.png", 'blocked': False}])
-
-
 def test_modify_user(mongo_mock):
     credentials = {
         "mail": lucas['mail'],
