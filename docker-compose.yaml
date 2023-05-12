@@ -7,8 +7,7 @@ services:
     volumes:
       - ~/apps/mongo:/data/db
 
-  user_microservice:
-    image: user_microservice
+  user-microservice:
     build:
       context: .
       dockerfile: Dockerfile
@@ -21,3 +20,37 @@ services:
     depends_on:
       - mongodb
     tty: true
+
+# Si se quiere levantar junto a los otros microservicios, descomentar y tener en cuenta
+# que se debe clonar el proyecto de cada microservicio en la carpeta ../
+
+  # training-microservice:
+  #   image: training-microservice
+  #   build:
+  #     context: ../training-microservice
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ../training-microservice/app:/app/app
+  #   env_file:
+  #     - ../training-microservice/.env
+  #   ports:
+  #     - ${TRAINING_SERVICE_PORT}:${TRAINING_SERVICE_PORT}
+  #   depends_on:
+  #     - user-microservice
+  #     - mongodb
+  #   tty: true
+
+  # api-gateway:
+  #   build:
+  #     context: ../api-gateway
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ../api-gateway/app:/app/app
+  #   env_file:
+  #     - ../api-gateway/.env
+  #   ports:
+  #     - ${API_GATEWAY_PORT}:${API_GATEWAY_PORT}
+  #   depends_on:
+  #     - user-microservice
+  #     - training-microservice
+  #   tty: true
