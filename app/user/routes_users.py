@@ -1,12 +1,15 @@
 import logging
+import requests
 from bson import ObjectId
 from fastapi import APIRouter, Depends, Query, Request
 from starlette import status
 from starlette.responses import JSONResponse
 from typing import List
+from app.services import ServiceTrainers
 from app.settings.auth_settings import get_user_id
-from app.settings.config import pwd_context
+from app.settings.config import TRAINING_SERVICE_URL, pwd_context
 from app.user.block_user import router as block_user
+from app.user.training_small import TrainingResponse
 
 from app.user.user import (
     QueryParamFilterUser,
@@ -52,6 +55,93 @@ async def get_me(request: Request, user_id: ObjectId = Depends(get_user_id)):
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content=f'User {user_id} not found to get',
+        )
+
+
+@router.post(
+    '/me/trainings/{id_training}',
+    response_model=TrainingResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def add_favorite_training(
+    request: Request,
+    id_training: ObjectIdPydantic,
+    id_user: ObjectId = Depends(get_user_id),
+):
+    users = request.app.database["users"]
+    user = users.find_one({"_id": id_user})
+
+    if user:
+        if id_training in user['trainings']:
+            return JSONResponse(
+                status_code=status.HTTP_409_CONFLICT,
+                content=f'Training {id_training} already exists as favorite in user {id_user}',
+            )
+
+        training = ServiceTrainers.get(f'/trainings/{id_training}')
+        logger.warning(training)
+        if training.status_code == 200:
+            training = training.json()
+            result = users.update_one(
+                {"_id": id_user}, {"$push": {"trainings": id_training}}
+            )
+            if result.modified_count == 1:
+                logger.info(f'User {id_user} added favorite training {id_training}')
+                return TrainingResponse.from_mongo(training)
+
+        logger.info(f'Failed to add favorite training {id_training} to user {id_user}')
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content=f'Failed to add favorite training {id_training} to user {id_user}',
+        )
+    else:
+        logger.info(f'User {id_user} not found to add favorite training')
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=f'User {id_user} not found to add favorite training',
+        )
+
+
+@router.delete('/me/trainings/{id_training}', status_code=status.HTTP_200_OK)
+async def delete_favorite_training(
+    request: Request,
+    id_training: ObjectIdPydantic,
+    id_user: ObjectId = Depends(get_user_id),
+):
+    users = request.app.database["users"]
+    user = users.find_one({"_id": id_user})
+    logger.warning(user)
+    logger.warning(id_training)
+    if user:
+        if id_training in user['trainings']:
+            result = users.update_one(
+                {"_id": id_user}, {"$pull": {"trainings": id_training}}
+            )
+            if result.modified_count == 1:
+                logger.info(f'User {id_user} deleted favorite training {id_training}')
+                return JSONResponse(
+                    status_code=status.HTTP_200_OK,
+                    content=f'User {id_user} deleted favorite training {id_training}',
+                )
+            else:
+                logger.info(
+                    f'Failed to delete favorite training {id_training} from user {id_user}'
+                )
+                return JSONResponse(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    content=f'Failed to delete favorite training {id_training} from user {id_user}',
+                )
+        else:
+            logger.info(f'User {id_user} does not have favorite training {id_training}')
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content=f'User {id_user} does not have favorite training {id_training}',
+            )
+    else:
+        logger.info(f'User {id_user} not found to delete favorite training')
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=f'User {id_user} not found to delete favorite training',
         )
 
 

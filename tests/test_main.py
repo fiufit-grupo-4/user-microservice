@@ -10,8 +10,7 @@ lastname = 'titititi'
 encrypted_password = '$2b$12$T3HXmxRONP1sjTkk3Pqaq.9IYl5KNRhMHyJC4QxZPx0AqJpctDqeO'
 
 lucas = {"name": "lucas", "lastname": "martinez", "age": "20", "mail": "lukitas@gmail.com",
-         "encrypted_password": encrypted_password, "image": "lucas.png", 'blocked': False}
-
+         "encrypted_password": encrypted_password, "image": "lucas.png", 'blocked': False, 'trainings': []}
 
 # Mock MongoDB
 @pytest.fixture()
@@ -38,7 +37,8 @@ def test_get_all_users(mongo_mock):
     res = response.json()
     for item in res:
         item.pop("id")
-    print(res)
+        item.pop("trainings")
+        item.pop("role")
     assert all(item in res for item in [{"name": "lucas", "lastname": "martinez", "age": "20",
                                          "mail": "lukitas@gmail.com", "image": "lucas.png", 'blocked': False}])
 

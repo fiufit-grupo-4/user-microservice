@@ -1,9 +1,14 @@
+from enum import Enum
+from logging import Logger
+from time import sleep
 from typing import Optional
 from bson import ObjectId
-from fastapi import Query
+from fastapi import FastAPI, Query
 from pydantic import BaseConfig, BaseModel, EmailStr, Field
-
+import requests
 from app.domain.UserRoles import UserRoles
+from app.settings.config import TRAINING_SERVICE_URL
+from app.user.training_small import TrainingResponse
 from app.user.utils import ObjectIdPydantic
 
 
@@ -40,7 +45,9 @@ class UserResponse(BaseModel):
     lastname: Optional[str]
     age: Optional[str]
     mail: EmailStr
+    role: Optional[UserRoles]
     image: Optional[str]
+    trainings: Optional[list[TrainingResponse]]
     blocked: Optional[bool]
 
     class Config(BaseConfig):
@@ -51,8 +58,22 @@ class UserResponse(BaseModel):
         """We must convert _id into "id" and"""
         if not user:
             return user
-        id = user.pop('_id', None)
-        return cls(**dict(user, id=id))
+        id_user = user.pop('_id', None)
+
+        trainings = user.pop('trainings', None)
+        trainings = list(
+            filter(
+                lambda training: training is not None,
+                map(
+                    lambda id_training: TrainingResponse.from_service(
+                        id_user, id_training
+                    ),
+                    trainings,
+                ),
+            )
+        )
+
+        return cls(**dict(user, id=id_user, trainings=trainings))
 
 
 class UpdatePutUserRequest(BaseModel):
@@ -98,3 +119,4 @@ class User:
         self.role = role
         self.image = image
         self.blocked = blocked
+        self.trainings = []
