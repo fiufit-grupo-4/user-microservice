@@ -1,5 +1,4 @@
 import logging
-import requests
 from bson import ObjectId
 from fastapi import APIRouter, Depends, Query, Request
 from starlette import status
@@ -7,7 +6,7 @@ from starlette.responses import JSONResponse
 from typing import List
 from app.services import ServiceTrainers
 from app.settings.auth_settings import get_user_id
-from app.settings.config import TRAINING_SERVICE_URL, pwd_context
+from app.settings.config import pwd_context
 from app.user.block_user import router as block_user
 from app.user.training_small import TrainingResponse
 
@@ -19,8 +18,10 @@ from app.user.user import (
 )
 from app.user.utils import ObjectIdPydantic
 
+
 logger = logging.getLogger('app')
 router = APIRouter()
+
 
 router.include_router(block_user, tags=["users"], prefix="")
 
@@ -311,17 +312,25 @@ def upload_verification_video(
             content=f'User {user_id} not found to verify',
         )
 
+    if user["verification"]["verified"]:
+        logger.info(f'User {user_id} was already verified')
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=f'User {user_id} was already verified',
+        )
+
     result_update = users.update_one(
         {"_id": user_id}, {"$set": {"video": video_upload}}
     )
-    if result_update.modified_count > 0:
+    if result_update.matched_count > 0:
         logger.info(f'User {user_id} verification video was uploaded')
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content=f'User {user_id} verification video was uploaded',
         )
-    logger.info(f'User {user_id} verification video was not uploaded')
-    return JSONResponse(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        content=f'User {user_id} verification video was not uploaded',
-    )
+    else:
+        logger.critical(f'User {user_id} verification video was not uploaded')
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=f'User {user_id} verification video was not uploaded',
+        )

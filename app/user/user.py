@@ -105,7 +105,7 @@ class VerificationRequest(BaseModel):
 
 class Verification(BaseModel):
     verified: bool = False
-    video: Optional[str] = None
+    video: str = None
 
 
 class User:
