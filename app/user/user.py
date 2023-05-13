@@ -99,6 +99,15 @@ class QueryParamFilterUser(BaseModel):
     age: str = Query(None, min_length=1, max_length=3)
 
 
+class VerificationRequest(BaseModel):
+    video: str
+
+
+class Verification(BaseModel):
+    verified: bool = False
+    video: Optional[str] = None
+
+
 class User:
     def __init__(
         self,
@@ -120,3 +129,4 @@ class User:
         self.image = image
         self.blocked = blocked
         self.trainings = []
+        self.verification = Verification()

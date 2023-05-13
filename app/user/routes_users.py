@@ -15,6 +15,7 @@ from app.user.user import (
     QueryParamFilterUser,
     UpdateUserRequest,
     UserResponse,
+    VerificationRequest,
 )
 from app.user.utils import ObjectIdPydantic
 
@@ -22,6 +23,63 @@ logger = logging.getLogger('app')
 router = APIRouter()
 
 router.include_router(block_user, tags=["users"], prefix="")
+
+
+@router.patch('/{user_id}/verification/approve', status_code=status.HTTP_200_OK)
+def approve_verification_request(request: Request, user_id: ObjectIdPydantic):
+
+    users = request.app.database["users"]
+    user = users.find_one({"_id": user_id})
+
+    if not user:
+        logger.info(f'User {user_id} not found to verify')
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=f'User {user_id} not found to verify',
+        )
+    if not user['verification']:
+        logger.info(f'User {user_id} verification not found to verify')
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=f'User {user_id} verification not found to verify',
+        )
+    if user['verification']['verified']:
+        logger.info(f'User {user_id} already verified')
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=f'User {user_id} already verified',
+        )
+    result_update = users.update_one({"_id": user_id}, {"$set": {"verified": True}})
+    if result_update.modified_count > 0:
+        logger.info(f'User {user_id} verification was approved')
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=f'User {user_id} verification was approved',
+        )
+    logger.info(f'User {user_id} verification was not approved')
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content=f'User {user_id} verification was not approved',
+    )
+
+
+@router.get(
+    '/verification', response_model=List[UserResponse], status_code=status.HTTP_200_OK
+)
+def get_verification_requests(request: Request):
+    users = request.app.database["users"]
+    verification_requests = users.find(
+        {"verification.video": {"$ne": None}, "verification.verified": False}
+    )
+    if verification_requests:
+        logger.info('Verification requests found successfully')
+        return [UserResponse.from_mongo(user) for user in verification_requests]
+    else:
+        logger.info('No verification requests found')
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content='No verification requests found',
+        )
 
 
 @router.get('/', response_model=List[UserResponse], status_code=status.HTTP_200_OK)
@@ -110,8 +168,7 @@ async def delete_favorite_training(
 ):
     users = request.app.database["users"]
     user = users.find_one({"_id": id_user})
-    logger.warning(user)
-    logger.warning(id_training)
+
     if user:
         if id_training in user['trainings']:
             result = users.update_one(
@@ -220,3 +277,51 @@ def delete_user(request: Request, user_id: ObjectIdPydantic):
             status_code=status.HTTP_404_NOT_FOUND,
             content=f'User {user_id} not found to delete',
         )
+
+
+@router.post('/me/verification', status_code=status.HTTP_200_OK)
+def upload_verification_video(
+    request: Request,
+    request_body: VerificationRequest,
+    user_id: ObjectId = Depends(get_user_id),
+):
+    video_upload = request_body.dict(exclude_none=True)
+
+    if not video_upload or len(video_upload) != 1:
+        request.app.logger.info('Wrong request body to upload video'),
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content='Wrong request body to upload video',
+        )
+
+    if 'video' not in video_upload:
+        request.app.logger.info('No video in body to upload')
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content='No video in body to upload',
+        )
+
+    users = request.app.database["users"]
+    user = users.find_one({"_id": user_id})
+
+    if not user:
+        logger.info(f'User {user_id} not found to verify')
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=f'User {user_id} not found to verify',
+        )
+
+    result_update = users.update_one(
+        {"_id": user_id}, {"$set": {"video": video_upload}}
+    )
+    if result_update.modified_count > 0:
+        logger.info(f'User {user_id} verification video was uploaded')
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=f'User {user_id} verification video was uploaded',
+        )
+    logger.info(f'User {user_id} verification video was not uploaded')
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content=f'User {user_id} verification video was not uploaded',
+    )
