@@ -1,20 +1,18 @@
-from twilio.rest import Client
-import os
 from fastapi import Request, status, APIRouter
 from fastapi.responses import JSONResponse
 from starlette.background import BackgroundTasks
-from app.settings.config import pwd_context, account_sid, auth_token
+from app.settings.config import pwd_context
+from app.settings.twilio import send_password_reset_email, twilio_validation_code
 from app.user.user import UserForgotPasswordCredential, UserResetPasswordCredential
 
 router = APIRouter()
-client_twilio = Client(account_sid, auth_token)
 
 
 @router.post("/forgot_password", status_code=status.HTTP_200_OK)
 async def forgot_password(
-    credentials: UserForgotPasswordCredential,
-    background_tasks: BackgroundTasks,
-    request: Request,
+        credentials: UserForgotPasswordCredential,
+        background_tasks: BackgroundTasks,
+        request: Request,
 ):
     users = request.app.database["users"]
     user = users.find_one({"mail": credentials.mail})
@@ -32,30 +30,12 @@ async def forgot_password(
     return {"detail": "Password reset link sent"}
 
 
-def send_password_reset_email(to_email):
-    verification = client_twilio.verify.v2.services(
-        os.environ.get('TWILIO_SERVICES')
-    ).verifications.create(
-        channel_configuration={
-            'template_id': os.environ.get('SENGRID_EMAIL_TEMPLATE_ID'),
-            'from': 'lwaisten@fi.uba.ar',
-            'from_name': 'Lucas Waisten',
-        },
-        to=to_email,
-        channel='email',
-    )
-
-    print(verification)
-
-
 @router.post("/reset_password/{validation_code}", status_code=status.HTTP_200_OK)
 async def reset_password(
-    credentials: UserResetPasswordCredential, validation_code: str, request: Request
+        credentials: UserResetPasswordCredential, validation_code: str, request: Request
 ):
     try:
-        client_twilio.verify.v2.services(
-            os.environ.get('TWILIO_SERVICES')
-        ).verification_checks.create(to=credentials.mail, code=validation_code)
+        await twilio_validation_code(credentials.mail, validation_code)
     except Exception:
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,

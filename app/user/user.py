@@ -15,6 +15,7 @@ def create_user(name: str, lastname: str, mail: str, age: str):
 class UserBasicCredentials(BaseModel):
     mail: EmailStr = Field(example="username@mail.com")
     password: str = Field(example="secure")
+    phone_numer: str = Field(example="+543446570174")
     role: int = Field(example=3)
 
 
@@ -40,6 +41,7 @@ class UserResponse(BaseModel):
     lastname: Optional[str]
     age: Optional[str]
     mail: EmailStr
+    phone_number: Optional[str]
     image: Optional[str]
     blocked: Optional[bool]
 
@@ -83,12 +85,13 @@ class User:
         self,
         mail,
         password,
+        phone_number,
         role=UserRoles.ATLETA.value,
         name=None,
         lastname=None,
         age=None,
         image=None,
-        blocked=False,
+        blocked=False
     ):
         self.name = name
         self.lastname = lastname
@@ -98,3 +101,5 @@ class User:
         self.role = role
         self.image = image
         self.blocked = blocked
+        self.phone_number = phone_number
+
