@@ -10,7 +10,7 @@ client = TestClient(app)
 password = 'titititi'
 encrypted_password = '$2b$12$T3HXmxRONP1sjTkk3Pqaq.9IYl5KNRhMHyJC4QxZPx0AqJpctDqeO'
 
-atleta = {"name": "lucas", "lastname": "martinez", "age": "20", "mail": "lukitas@gmail.com",
+atleta = {"name": "lucas", "lastname": "martinez", "age": "20", "mail": "waistenlucas@gmail.com",
           "encrypted_password": encrypted_password, "session_token": "token", "role": 3}
 
 
