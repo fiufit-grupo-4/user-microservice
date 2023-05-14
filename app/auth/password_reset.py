@@ -10,9 +10,9 @@ router = APIRouter()
 
 @router.post("/forgot_password", status_code=status.HTTP_200_OK)
 async def forgot_password(
-        credentials: UserForgotPasswordCredential,
-        background_tasks: BackgroundTasks,
-        request: Request,
+    credentials: UserForgotPasswordCredential,
+    background_tasks: BackgroundTasks,
+    request: Request,
 ):
     users = request.app.database["users"]
     user = users.find_one({"mail": credentials.mail})
@@ -32,7 +32,7 @@ async def forgot_password(
 
 @router.post("/reset_password/{validation_code}", status_code=status.HTTP_200_OK)
 async def reset_password(
-        credentials: UserResetPasswordCredential, validation_code: str, request: Request
+    credentials: UserResetPasswordCredential, validation_code: str, request: Request
 ):
     try:
         await twilio_validation_code(credentials.mail, validation_code)

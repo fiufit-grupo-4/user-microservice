@@ -15,7 +15,9 @@ lucas = {
     "mail": "lukitas@gmail.com",
     "encrypted_password": encrypted_password,
     "image": "lucas.png",
-    'blocked': False
+    'blocked': False,
+    'phone_number': '+5493446570174',
+    'trainings': []
 }
 
 @pytest.fixture()

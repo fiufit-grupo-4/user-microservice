@@ -6,16 +6,18 @@ from app.main import app, logger
 # TEST
 client = TestClient(app)
 
+encrypted_password = '$2b$12$T3HXmxRONP1sjTkk3Pqaq.9IYl5KNRhMHyJC4QxZPx0AqJpctDqeO'
 # Mock users
 lucas = {
-    "_id": ObjectId(),
-    "name": "Lucas",
-    "lastname": "Martinez",
+    "name": "lucas",
+    "lastname": "martinez",
     "age": "20",
     "mail": "lukitas@gmail.com",
-    "encrypted_password": "$2b$12$T3HXmxRONP1sjTkk3Pqaq.9IYl5KNRhMHyJC4QxZPx0AqJpctDqeO",
+    "encrypted_password": encrypted_password,
     "image": "lucas.png",
-    "blocked": False
+    'blocked': False,
+    'phone_number': '+5493446570174',
+    'trainings': []
 }
 
 

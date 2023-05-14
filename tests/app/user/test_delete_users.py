@@ -15,7 +15,9 @@ lucas = {
     "mail": "lukitas@gmail.com",
     "encrypted_password": encrypted_password,
     "image": "lucas.png",
-    'blocked': False
+    'blocked': False,
+    'phone_number': '+5493446570174',
+    'trainings': []
 }
 
 @pytest.fixture()
@@ -31,6 +33,7 @@ def mongo_mock(monkeypatch):
 
 
 def test_delete_user(mongo_mock):
+    print("hola")
     id_lucas = client.get("/users/").json()[0].get('id')
     response = client.delete(f"/users/{id_lucas}")
     assert response.status_code == 200
