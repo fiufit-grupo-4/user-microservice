@@ -1,4 +1,5 @@
 import logging
+
 from dotenv import load_dotenv
 from fastapi import APIRouter
 from fastapi import Request, status
@@ -20,6 +21,34 @@ router.include_router(
     prefix="",
     tags=["login"],
 )
+
+
+class LoginResponse:
+    def __init__(
+        self,
+        mail,
+        phone_number,
+        role,
+        name,
+        lastname,
+        age,
+        image,
+        blocked,
+        trainings,
+        access_token,
+        token_type
+    ):
+        self.name = name
+        self.lastname = lastname
+        self.age = age
+        self.mail = mail
+        self.role = role
+        self.image = image
+        self.blocked = blocked
+        self.phone_number = phone_number
+        self.trainings = trainings
+        self.access_token = access_token
+        self.token_type = token_type
 
 
 def is_password_valid(plain_password, hashed_password):
@@ -49,4 +78,6 @@ def login(credentials: UserLoginCredentials, request: Request):
     access_token = generate_token(str(user["_id"]), user["role"])
 
     request.app.logger.info(f"User logged in: {credentials.mail} | id: {user['_id']}")
-    return {"access_token": access_token, "token_type": "bearer"}
+
+    return LoginResponse(user["mail"], user["phone_number"], user["role"], user["name"], user["lastname"], user["age"], user["image"],
+                         user["blocked"], user["trainings"], access_token, "bearer")
