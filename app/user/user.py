@@ -1,13 +1,8 @@
-from enum import Enum
-from logging import Logger
-from time import sleep
 from typing import Optional
 from bson import ObjectId
-from fastapi import FastAPI, Query
+from fastapi import Query
 from pydantic import BaseConfig, BaseModel, EmailStr, Field
-import requests
 from app.domain.UserRoles import UserRoles
-from app.settings.config import TRAINING_SERVICE_URL
 from app.user.training_small import TrainingResponse
 from app.user.utils import ObjectIdPydantic
 
@@ -20,6 +15,7 @@ def create_user(name: str, lastname: str, mail: str, age: str):
 class UserBasicCredentials(BaseModel):
     mail: EmailStr = Field(example="username@mail.com")
     password: str = Field(example="secure")
+    phone_number: str = Field(example="+543446570174")
     role: int = Field(example=3)
 
 
@@ -46,6 +42,7 @@ class UserResponse(BaseModel):
     age: Optional[str]
     mail: EmailStr
     role: Optional[UserRoles]
+    phone_number: Optional[str]
     image: Optional[str]
     trainings: Optional[list[TrainingResponse]]
     blocked: Optional[bool]
@@ -103,6 +100,7 @@ class User:
         self,
         mail,
         password,
+        phone_number,
         role=UserRoles.ATLETA.value,
         name=None,
         lastname=None,
@@ -118,4 +116,6 @@ class User:
         self.role = role
         self.image = image
         self.blocked = blocked
+        self.phone_number = phone_number
+
         self.trainings = []

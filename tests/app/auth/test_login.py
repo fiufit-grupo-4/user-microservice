@@ -10,8 +10,8 @@ client = TestClient(app)
 password = 'titititi'
 encrypted_password = '$2b$12$T3HXmxRONP1sjTkk3Pqaq.9IYl5KNRhMHyJC4QxZPx0AqJpctDqeO'
 
-atleta = {"name": "lucas", "lastname": "martinez", "age": "20", "mail": "lukitas@gmail.com",
-          "encrypted_password": encrypted_password, "session_token": "token", "role": 3}
+atleta = {"name": "lucas", "lastname": "martinez", "age": "20", "mail": "waistenlucas@gmail.com",
+          "encrypted_password": encrypted_password, "session_token": "token", "role": 3, "phone_number":'+5493446570174'}
 
 
 # Mock MongoDB
@@ -31,6 +31,7 @@ def test_succeed_if_credentials_are_correct(mongo_mock):
     credentials = {
         "mail": atleta['mail'],
         "password": password,
+        "phone_number": atleta['phone_number'],
         "role": 3
     }
 
@@ -42,6 +43,7 @@ def test_fail_if_unregistered_user(mongo_mock):
     credentials = {
         "mail": "andy@gmail.com",
         "password": password,
+        "phone_number": atleta['phone_number'],
         "role": 3
     }
 
@@ -53,6 +55,7 @@ def test_fail_if_wrong_password(mongo_mock):
     credentials = {
         "mail": atleta['mail'],
         "password": "wrong_password",
+        "phone_number": atleta['phone_number'],
         "role": 3
     }
 
@@ -64,6 +67,7 @@ def test_fail_if_wrong_role(mongo_mock):
     credentials = {
         "mail": atleta['mail'],
         "password": password,
+        "phone_number": atleta['phone_number'],
         "role": 1
     }
 
