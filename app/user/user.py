@@ -8,7 +8,7 @@ from pydantic import BaseConfig, BaseModel, EmailStr, Field
 import requests
 from app.domain.UserRoles import UserRoles
 from app.settings.config import TRAINING_SERVICE_URL
-from app.user.training_small import TrainingResponse
+from app.user.training_small import TrainingResponseUsers
 from app.user.utils import ObjectIdPydantic
 
 
@@ -47,7 +47,7 @@ class UserResponse(BaseModel):
     mail: EmailStr
     role: Optional[UserRoles]
     image: Optional[str]
-    trainings: Optional[list[TrainingResponse]]
+    trainings: Optional[list[TrainingResponseUsers]]
     blocked: Optional[bool]
 
     class Config(BaseConfig):
@@ -65,7 +65,7 @@ class UserResponse(BaseModel):
             filter(
                 lambda training: training is not None,
                 map(
-                    lambda id_training: TrainingResponse.from_service(
+                    lambda id_training: TrainingResponseUsers.from_service(
                         id_user, id_training
                     ),
                     trainings,

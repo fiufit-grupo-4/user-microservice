@@ -5,7 +5,7 @@ from bson import ObjectId
 from pydantic import BaseConfig, BaseModel
 
 
-class TrainingResponse(BaseModel):
+class TrainingResponseUsers(BaseModel):
     id_training: ObjectIdPydantic
     id_trainer: ObjectIdPydantic
     title: str
@@ -31,7 +31,7 @@ class TrainingResponse(BaseModel):
 
         if training.status_code == 200:
             training = training.json()
-            return TrainingResponse.from_mongo(training)
+            return TrainingResponseUsers.from_mongo(training)
         elif training.status_code == 404:
             users = main.app.database["users"]
             users.update_one({"_id": id_user}, {"$pull": {"trainings": id_training}})

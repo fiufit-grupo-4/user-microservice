@@ -9,7 +9,7 @@ from app.services import ServiceTrainers
 from app.settings.auth_settings import get_user_id
 from app.settings.config import TRAINING_SERVICE_URL, pwd_context
 from app.user.block_user import router as block_user
-from app.user.training_small import TrainingResponse
+from app.user.training_small import TrainingResponseUsers
 
 from app.user.user import (
     QueryParamFilterUser,
@@ -60,7 +60,7 @@ async def get_me(request: Request, user_id: ObjectId = Depends(get_user_id)):
 
 @router.post(
     '/me/trainings/{id_training}',
-    response_model=TrainingResponse,
+    response_model=TrainingResponseUsers,
     status_code=status.HTTP_200_OK,
 )
 async def add_favorite_training(
@@ -87,7 +87,7 @@ async def add_favorite_training(
             )
             if result.modified_count == 1:
                 logger.info(f'User {id_user} added favorite training {id_training}')
-                return TrainingResponse.from_mongo(training)
+                return TrainingResponseUsers.from_mongo(training)
 
         logger.info(f'Failed to add favorite training {id_training} to user {id_user}')
         return JSONResponse(
