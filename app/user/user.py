@@ -88,7 +88,6 @@ class UpdateUserRequest(BaseModel):
     name: Optional[str]
     lastname: Optional[str]
     age: Optional[str]
-    mail: Optional[EmailStr]
     password: Optional[str]
     image: Optional[str]
 
