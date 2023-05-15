@@ -25,23 +25,24 @@ def signup(credentials: UserBasicCredentials, request: Request):
     users = request.app.database["users"]
 
     if users.find_one({"mail": credentials.mail}, {"_id": 0}):
-        request.app.logger.info(f"User {credentials.mail} already exists")
+        msg_user_exist = f"User {credentials.mail} already exists"
+        request.app.logger.info(msg_user_exist)
         return JSONResponse(
-            status_code=status.HTTP_409_CONFLICT,
-            content=f'User {credentials.mail} already exists',
+            status_code=status.HTTP_409_CONFLICT, content=msg_user_exist
         )
     user_id = users.insert_one(jsonable_encoder(user)).inserted_id
-
-    request.app.logger.info(
-        f"User {UserResponse(id=str(user_id), mail=user.mail, phone_number=user.phone_number)} successfully created"
+    response = UserResponse(
+        id=str(user_id), mail=user.mail, phone_number=user.phone_number, name=user.name
     )
+
+    request.app.logger.info(f"User {response} successfully created")
 
     send_whatsapp_validation_code(credentials.phone_number)
 
-    return UserResponse(id=str(user_id), mail=user.mail, phone_number=user.phone_number)
+    return response
 
 
-@router.post("/validate_verification_code")
+@router.post("/validate_code")
 async def validate_verification_code(
     phone_number: str, verification_code: str, request: Request
 ):

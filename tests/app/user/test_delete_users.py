@@ -33,7 +33,6 @@ def mongo_mock(monkeypatch):
 
 
 def test_delete_user(mongo_mock):
-    print("hola")
     id_lucas = client.get("/users/").json()[0].get('id')
     response = client.delete(f"/users/{id_lucas}")
     assert response.status_code == 200

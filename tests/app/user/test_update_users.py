@@ -35,13 +35,24 @@ def mongo_mock(monkeypatch):
 def test_modify_user(mongo_mock):
     credentials = {
         "mail": lucas['mail'],
-        "password": lastname
+        "name": 'Juan',
+        "age": '25'
     }
     id_lucas = client.get("/users/").json()[0].get('id')
 
     response = client.patch(f"/users/{id_lucas}", json=credentials)
     assert response.status_code == 200
     assert response.json() == f"User {id_lucas} updated successfully"
+
+    lucas_update = client.get(f"/users/{id_lucas}").json()
+
+    assert lucas_update["name"] == credentials["name"]
+    assert lucas_update["lastname"] == lucas["lastname"]
+    assert lucas_update["age"] == credentials["age"]
+    assert lucas_update["mail"] == lucas["mail"]
+    assert lucas_update["image"] == lucas["image"]
+    assert lucas_update["blocked"] == lucas["blocked"]
+    assert lucas_update["phone_number"] == lucas["phone_number"]
 
 
 def test_modify_user_error(mongo_mock):
