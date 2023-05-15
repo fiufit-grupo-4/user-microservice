@@ -1,5 +1,4 @@
 import logging
-import requests
 from bson import ObjectId
 from fastapi import APIRouter, Depends, Query, Request
 from starlette import status
@@ -7,7 +6,7 @@ from starlette.responses import JSONResponse
 from typing import List
 from app.services import ServiceTrainers
 from app.settings.auth_settings import get_user_id
-from app.settings.config import TRAINING_SERVICE_URL, pwd_context
+from app.settings.config import pwd_context
 from app.user.block_user import router as block_user
 from app.user.training_small import TrainingResponseUsers
 

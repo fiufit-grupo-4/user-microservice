@@ -10,9 +10,9 @@ from app.main import logger
 client = TestClient(app)
 password = 'titititi'
 
-lucas = {"mail": "lukitas@gmail.com", "password": password}
-pepe = {"mail": "pepon@gmail.com", "password": password}
-juan = {"mail": "juan@gmail.com", "password": password}
+lucas = {"mail": "lukitas@gmail.com", "password": password, "phone_number": "+5493446570174"}
+pepe = {"mail": "pepon@gmail.com", "password": password, "phone_number": "+5493446570174"}
+juan = {"mail": "juan@gmail.com", "password": password, "phone_number": "+5493446570174"}
 
 
 # Mock MongoDB
@@ -31,6 +31,7 @@ def test_succeed_if_correct_credentials(mongo_mock):
     credentials = {
         "mail": lucas['mail'],
         "password": password,
+        "phone_number": lucas['phone_number'],
         "role": UserRoles.ATLETA.value
     }
 
@@ -42,6 +43,7 @@ def test_fail_if_user_already_exists(mongo_mock):
     credentials = {
         "mail": juan['mail'],
         "password": password,
+        "phone_number": juan['phone_number'],
         "role": UserRoles.ATLETA.value
     }
 
