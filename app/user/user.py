@@ -103,16 +103,16 @@ class QueryParamFilterUser(BaseModel):
 
 class User:
     def __init__(
-        self,
-        mail,
-        password,
-        phone_number,
-        role=UserRoles.ATLETA.value,
-        name=None,
-        lastname=None,
-        age=None,
-        image=None,
-        blocked=False,
+            self,
+            mail,
+            password,
+            phone_number,
+            role=UserRoles.ATLETA.value,
+            name=None,
+            lastname=None,
+            age=None,
+            image=None,
+            blocked=False,
     ):
         self.name = name
         self.lastname = lastname
