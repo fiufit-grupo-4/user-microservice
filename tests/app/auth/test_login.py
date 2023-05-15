@@ -11,7 +11,8 @@ password = 'titititi'
 encrypted_password = '$2b$12$T3HXmxRONP1sjTkk3Pqaq.9IYl5KNRhMHyJC4QxZPx0AqJpctDqeO'
 
 atleta = {"name": "lucas", "lastname": "martinez", "age": "20", "mail": "waistenlucas@gmail.com",
-          "encrypted_password": encrypted_password, "session_token": "token", "role": 3, "phone_number":'+5493446570174'}
+          "encrypted_password": encrypted_password, "session_token": "token", "role": 3,
+          "phone_number": '+5493446570174', "image": "image.png", "blocked":  False, "trainings": []}
 
 
 # Mock MongoDB
