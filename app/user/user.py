@@ -3,7 +3,7 @@ from bson import ObjectId
 from fastapi import Query
 from pydantic import BaseConfig, BaseModel, EmailStr, Field
 from app.domain.UserRoles import UserRoles
-from app.user.training_small import TrainingResponse
+from app.user.training_small import TrainingResponseUsers
 from app.user.utils import ObjectIdPydantic
 
 
@@ -44,7 +44,7 @@ class UserResponse(BaseModel):
     role: Optional[UserRoles]
     phone_number: Optional[str]
     image: Optional[str]
-    trainings: Optional[list[TrainingResponse]]
+    trainings: Optional[list[TrainingResponseUsers]]
     blocked: Optional[bool]
 
     class Config(BaseConfig):
@@ -62,7 +62,7 @@ class UserResponse(BaseModel):
             filter(
                 lambda training: training is not None,
                 map(
-                    lambda id_training: TrainingResponse.from_service(
+                    lambda id_training: TrainingResponseUsers.from_service(
                         id_user, id_training
                     ),
                     trainings,
