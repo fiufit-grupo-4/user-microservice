@@ -5,7 +5,7 @@ from fastapi import Request, status
 from fastapi.responses import JSONResponse
 
 from app.settings.config import pwd_context
-from app.user.user import UserBasicCredentials
+from app.user.user import UserLoginCredentials
 from app.settings.auth_settings import generate_token
 from app.auth.password_reset import router as password_router
 from app.auth.google_login import router as google_login_router
@@ -31,7 +31,7 @@ def is_role_valid(credentials_role, user_role):
 
 
 @router.post("/", status_code=status.HTTP_200_OK)
-def login(credentials: UserBasicCredentials, request: Request):
+def login(credentials: UserLoginCredentials, request: Request):
     users = request.app.database["users"]
     user = users.find_one({"mail": credentials.mail})
 

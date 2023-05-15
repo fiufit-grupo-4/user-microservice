@@ -31,7 +31,6 @@ def test_succeed_if_credentials_are_correct(mongo_mock):
     credentials = {
         "mail": atleta['mail'],
         "password": password,
-        "phone_number": atleta['phone_number'],
         "role": 3
     }
 
@@ -43,7 +42,6 @@ def test_fail_if_unregistered_user(mongo_mock):
     credentials = {
         "mail": "andy@gmail.com",
         "password": password,
-        "phone_number": atleta['phone_number'],
         "role": 3
     }
 
@@ -55,7 +53,6 @@ def test_fail_if_wrong_password(mongo_mock):
     credentials = {
         "mail": atleta['mail'],
         "password": "wrong_password",
-        "phone_number": atleta['phone_number'],
         "role": 3
     }
 
@@ -67,7 +64,6 @@ def test_fail_if_wrong_role(mongo_mock):
     credentials = {
         "mail": atleta['mail'],
         "password": password,
-        "phone_number": atleta['phone_number'],
         "role": 1
     }
 
