@@ -19,6 +19,12 @@ class UserBasicCredentials(BaseModel):
     role: int = Field(example=3)
 
 
+class UserLoginCredentials(BaseModel):
+    mail: EmailStr = Field(example="username@mail.com")
+    password: str = Field(example="secure")
+    role: int = Field(example=3)
+
+
 class UserForgotPasswordCredential(BaseModel):
     mail: EmailStr = Field(example="username@mail.com")
 
@@ -97,16 +103,16 @@ class QueryParamFilterUser(BaseModel):
 
 class User:
     def __init__(
-        self,
-        mail,
-        password,
-        phone_number,
-        role=UserRoles.ATLETA.value,
-        name=None,
-        lastname=None,
-        age=None,
-        image=None,
-        blocked=False,
+            self,
+            mail,
+            password,
+            phone_number,
+            role=UserRoles.ATLETA.value,
+            name=None,
+            lastname=None,
+            age=None,
+            image=None,
+            blocked=False,
     ):
         self.name = name
         self.lastname = lastname
