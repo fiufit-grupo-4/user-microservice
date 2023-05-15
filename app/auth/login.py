@@ -1,20 +1,15 @@
 import logging
-from typing import Optional
 
 from dotenv import load_dotenv
 from fastapi import APIRouter
 from fastapi import Request, status
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, EmailStr
 
-from app.domain.UserRoles import UserRoles
 from app.settings.config import pwd_context
-from app.user.training_small import TrainingResponse
 from app.user.user import UserBasicCredentials
 from app.settings.auth_settings import generate_token
 from app.auth.password_reset import router as password_router
 from app.auth.google_login import router as google_login_router
-from app.user.utils import ObjectIdPydantic
 
 load_dotenv()
 logger = logging.getLogger("app")
