@@ -19,6 +19,12 @@ class UserBasicCredentials(BaseModel):
     role: int = Field(example=3)
 
 
+class UserLoginCredentials(BaseModel):
+    mail: EmailStr = Field(example="username@mail.com")
+    password: str = Field(example="secure")
+    role: int = Field(example=3)
+
+
 class UserForgotPasswordCredential(BaseModel):
     mail: EmailStr = Field(example="username@mail.com")
 
