@@ -1,8 +1,11 @@
+from unittest import mock
+
 from fastapi.testclient import TestClient
 import mongomock
 import pytest
 
 from app.domain.UserRoles import UserRoles
+from os import environ as env
 from app.main import app
 from app.main import logger
 
@@ -13,6 +16,12 @@ password = 'titititi'
 lucas = {"mail": "lukitas@gmail.com", "password": password, "phone_number": "+5493446570174"}
 pepe = {"mail": "pepon@gmail.com", "password": password, "phone_number": "+5493446570174"}
 juan = {"mail": "juan@gmail.com", "password": password, "phone_number": "+5493446570174"}
+
+@pytest.fixture()
+def twilio_mock(monkeypatch):
+    client_twilio_mock = mock.Mock()
+    monkeypatch.setattr("app.settings.twilio.client_twilio", client_twilio_mock)
+    return client_twilio_mock
 
 
 # Mock MongoDB
@@ -49,3 +58,24 @@ def test_fail_if_user_already_exists(mongo_mock):
 
     response = client.post("/signup/", json=credentials)
     assert response.status_code == 409
+
+
+def test_validation_code(mongo_mock, twilio_mock):
+    credentials = {
+        "mail": pepe['mail'],
+        "password": password,
+        "phone_number": pepe['phone_number'],
+        "role": UserRoles.ATLETA.value
+    }
+
+    response = client.post("/signup/", json=credentials)
+    twilio_mock.verify.v2.services.return_value.verifications.create.assert_called_once_with(
+        channel_configuration={
+            'template_id': env.get('SENGRID_EMAIL_TEMPLATE_ID'),
+            'from': 'lwaisten@fi.uba.ar',
+            'from_name': 'Lucas Waisten',
+        },
+        to=pepe['phone_number'],
+        channel='whatsapp',
+    )
+
