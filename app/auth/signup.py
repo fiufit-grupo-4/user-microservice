@@ -3,7 +3,7 @@ from fastapi.encoders import jsonable_encoder
 from starlette import status
 from starlette.responses import JSONResponse
 from twilio.rest import Client
-
+from app.auth.google_singup import router as google_signup_router
 from app.domain.UserRoles import UserRoles
 from app.settings.config import pwd_context, account_sid, auth_token
 from app.settings.twilio import send_whatsapp_validation_code, twilio_validation_code
@@ -11,6 +11,12 @@ from app.user.user import User, UserSignUpCredentials, UserResponse
 
 router = APIRouter()
 client_twilio = Client(account_sid, auth_token)
+
+router.include_router(
+    google_signup_router,
+    prefix="",
+    tags=["login"],
+)
 
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
