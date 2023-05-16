@@ -37,10 +37,14 @@ def signup(credentials: UserSignUpCredentials, request: Request):
     response = UserResponse(
         id=str(user_id),
         mail=user.mail,
+        role=user.role,
         phone_number=user.phone_number,
         name=user.name,
         lastname=user.lastname,
         age=user.age,
+        blocked=user.blocked,
+        image=user.image,
+        trainings=user.trainings
     )
 
     request.app.logger.info(f"User {response} successfully created")
