@@ -46,5 +46,4 @@ def signup(credentials: UserBasicCredentials, request: Request):
 async def validate_verification_code(
     phone_number: str, verification_code: str, request: Request
 ):
-    await twilio_validation_code(phone_number, verification_code)
-    return {"detail": "Sign up successfully"}
+    return await twilio_validation_code(phone_number, verification_code)
