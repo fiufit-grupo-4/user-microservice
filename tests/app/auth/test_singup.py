@@ -10,9 +10,24 @@ from app.main import logger
 client = TestClient(app)
 password = 'titititi'
 
-lucas = {"mail": "lukitas@gmail.com", "password": password, "phone_number": "+5493446570174"}
-pepe = {"mail": "pepon@gmail.com", "password": password, "phone_number": "+5493446570174"}
-juan = {"mail": "juan@gmail.com", "password": password, "phone_number": "+5493446570174"}
+lucas = {"mail": "lukitas@gmail.com",
+         "password": password,
+         "phone_number": "+5493446570174",
+         "name": "lucas",
+         "lastname": "martinez",
+         "age": "20",}
+pepe = {"mail": "pepon@gmail.com",
+        "password": password,
+        "phone_number": "+5493446570174",
+        "name": "lucas",
+        "lastname": "martinez",
+        "age": "20",}
+juan = {"mail": "juan@gmail.com",
+        "password": password,
+        "phone_number": "+5493446570174",
+        "name": "lucas",
+        "lastname": "martinez",
+        "age": "20",}
 
 
 # Mock MongoDB
@@ -32,7 +47,10 @@ def test_succeed_if_correct_credentials(mongo_mock):
         "mail": lucas['mail'],
         "password": password,
         "phone_number": lucas['phone_number'],
-        "role": UserRoles.ATLETA.value
+        "role": UserRoles.ATLETA.value,
+        "name": lucas['name'],
+        "lastname": lucas['lastname'],
+        "age": lucas['age'],
     }
 
     response = client.post("/signup/", json=credentials)
@@ -44,7 +62,10 @@ def test_fail_if_user_already_exists(mongo_mock):
         "mail": juan['mail'],
         "password": password,
         "phone_number": juan['phone_number'],
-        "role": UserRoles.ATLETA.value
+        "role": UserRoles.ATLETA.value,
+        "name": juan['name'],
+        "lastname": juan['lastname'],
+        "age": juan['age'],
     }
 
     response = client.post("/signup/", json=credentials)

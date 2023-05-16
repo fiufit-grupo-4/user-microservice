@@ -12,11 +12,14 @@ def create_user(name: str, lastname: str, mail: str, age: str):
     return new_user
 
 
-class UserBasicCredentials(BaseModel):
+class UserSignUpCredentials(BaseModel):
     mail: EmailStr = Field(example="username@mail.com")
     password: str = Field(example="secure")
     phone_number: str = Field(example="+543446570174")
     role: int = Field(example=3)
+    name: str = Field(example='user')
+    lastname: str = Field(example='name')
+    age: str = Field(example='20')
 
 
 class UserLoginCredentials(BaseModel):
