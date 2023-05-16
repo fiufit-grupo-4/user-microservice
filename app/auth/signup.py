@@ -6,20 +6,23 @@ from twilio.rest import Client
 
 from app.settings.config import pwd_context, account_sid, auth_token
 from app.settings.twilio import send_whatsapp_validation_code, twilio_validation_code
-from app.user.user import User, UserBasicCredentials, UserResponse
+from app.user.user import User, UserSignUpCredentials, UserResponse
 
 router = APIRouter()
 client_twilio = Client(account_sid, auth_token)
 
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-def signup(credentials: UserBasicCredentials, request: Request):
+def signup(credentials: UserSignUpCredentials, request: Request):
     hashed_password = pwd_context.hash(credentials.password)
     user = User(
         credentials.mail,
         hashed_password,
         role=credentials.role,
         phone_number=credentials.phone_number,
+        name=credentials.name,
+        lastname=credentials.lastname,
+        age=credentials.age,
     )
 
     users = request.app.database["users"]
@@ -32,11 +35,15 @@ def signup(credentials: UserBasicCredentials, request: Request):
         )
     user_id = users.insert_one(jsonable_encoder(user)).inserted_id
     response = UserResponse(
-        id=str(user_id), mail=user.mail, phone_number=user.phone_number, name=user.name
+        id=str(user_id),
+        mail=user.mail,
+        phone_number=user.phone_number,
+        name=user.name,
+        lastname=user.lastname,
+        age=user.age,
     )
 
     request.app.logger.info(f"User {response} successfully created")
-
     send_whatsapp_validation_code(credentials.phone_number)
 
     return response

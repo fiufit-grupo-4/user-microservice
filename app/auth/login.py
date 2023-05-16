@@ -36,7 +36,7 @@ class LoginResponse:
         blocked,
         trainings,
         access_token,
-        token_type
+        token_type,
     ):
         self.name = name
         self.lastname = lastname
@@ -79,5 +79,16 @@ def login(credentials: UserLoginCredentials, request: Request):
 
     request.app.logger.info(f"User logged in: {credentials.mail} | id: {user['_id']}")
 
-    return LoginResponse(user["mail"], user["phone_number"], user["role"], user["name"], user["lastname"], user["age"], user["image"],
-                         user["blocked"], user["trainings"], access_token, "bearer")
+    return LoginResponse(
+        user["mail"],
+        user["phone_number"],
+        user["role"],
+        user["name"],
+        user["lastname"],
+        user["age"],
+        user["image"],
+        user["blocked"],
+        user["trainings"],
+        access_token,
+        "bearer",
+    )
