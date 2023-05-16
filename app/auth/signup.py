@@ -4,6 +4,7 @@ from starlette import status
 from starlette.responses import JSONResponse
 from twilio.rest import Client
 
+from app.domain.UserRoles import UserRoles
 from app.settings.config import pwd_context, account_sid, auth_token
 from app.settings.twilio import send_whatsapp_validation_code, twilio_validation_code
 from app.user.user import User, UserSignUpCredentials, UserResponse
@@ -44,11 +45,12 @@ def signup(credentials: UserSignUpCredentials, request: Request):
         age=user.age,
         blocked=user.blocked,
         image=user.image,
-        trainings=user.trainings
+        trainings=user.trainings,
     )
 
     request.app.logger.info(f"User {response} successfully created")
-    send_whatsapp_validation_code(credentials.phone_number)
+    if user.role != UserRoles.ADMIN.value:
+        send_whatsapp_validation_code(credentials.phone_number)
 
     return response
 
