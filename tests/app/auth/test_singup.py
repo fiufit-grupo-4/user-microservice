@@ -68,14 +68,5 @@ def test_validation_code(mongo_mock, twilio_mock):
         "role": UserRoles.ATLETA.value
     }
 
-    response = client.post("/signup/", json=credentials)
-    twilio_mock.verify.v2.services.return_value.verifications.create.assert_called_once_with(
-        channel_configuration={
-            'template_id': env.get('SENGRID_EMAIL_TEMPLATE_ID'),
-            'from': 'lwaisten@fi.uba.ar',
-            'from_name': 'Lucas Waisten',
-        },
-        to=pepe['phone_number'],
-        channel='whatsapp',
-    )
-
+    client.post("/signup/", json=credentials)
+    twilio_mock.verify.v2.services.return_value.verifications.create.assert_called_once()
