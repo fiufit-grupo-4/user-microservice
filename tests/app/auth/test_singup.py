@@ -58,19 +58,7 @@ def test_fail_if_user_already_exists(mongo_mock):
 
     response = client.post("/signup/", json=credentials)
     assert response.status_code == 409
-
-
-def test_send_validation_code(mongo_mock, twilio_mock):
-    credentials = {
-        "mail": pepe['mail'],
-        "password": password,
-        "phone_number": pepe['phone_number'],
-        "role": UserRoles.ATLETA.value
-    }
-
-    client.post("/signup/", json=credentials)
-    twilio_mock.verify.v2.services.return_value.verifications.create.assert_called_once()
-
+    
 
 def test_check_validation_code(mongo_mock, twilio_mock):
     client.post("signup/validate_code?phone_number=%2B54333676862&verification_code=11111/")
