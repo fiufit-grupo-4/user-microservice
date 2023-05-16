@@ -13,7 +13,9 @@ def send_password_reset_email(to_email):
             env.get('TWILIO_SERVICES')
         ).verifications.create(
             channel_configuration={
-                'template_id': env.get('SENGRID_EMAIL_TEMPLATE_ID'),
+                'template_id': env.get(
+                    'SENGRID_EMAIL_TEMPLATE_ID', 'd-5f2d12b822f640ff851a142c4907eb4a'
+                ),
                 'from': 'lwaisten@fi.uba.ar',
                 'from_name': 'Lucas Waisten',
             },
