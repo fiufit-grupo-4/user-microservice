@@ -7,7 +7,7 @@ from pydantic import BaseConfig, BaseModel
 
 class TrainingResponseUsers(BaseModel):
     id_training: ObjectIdPydantic
-    id_trainer: ObjectIdPydantic
+    id_trainer: ObjectIdPydantic = None
     title: str
     description: str
     type: str
@@ -22,6 +22,9 @@ class TrainingResponseUsers(BaseModel):
             return training
 
         id_training = training.pop('id', None)
+        trainer = training.pop('trainer', None)
+        if trainer:
+            training["id_trainer"] = trainer["id"]
 
         return cls(**dict(id_training=id_training, **training))
 
