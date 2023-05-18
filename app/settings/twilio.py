@@ -49,13 +49,22 @@ def send_whatsapp_validation_code(to_number):
         )
 
 
-async def twilio_validation_code(credentials, validation_code):
+async def twilio_validation_code(phone_number, validation_code):
     try:
-        client_twilio.verify.v2.services(
+        check = client_twilio.verify.v2.services(
             env.get('TWILIO_SERVICES')
-        ).verification_checks.create(to=credentials, code=validation_code)
-    except Exception as e:
+        ).verification_checks.create(to=phone_number, code=validation_code)
+        if check.status != 'approved':
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content="Error occurred while validating verification code",
+            )
+        return JSONResponse(
+            status_code=status.HTTP_200_OK, content="Verification success"
+        )
+
+    except Exception:
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            content="Error occurred while validating verification code: " + str(e),
+            content="Error occurred while validating verification code",
         )

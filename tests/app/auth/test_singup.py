@@ -1,8 +1,11 @@
+from unittest import mock
+
 from fastapi.testclient import TestClient
 import mongomock
 import pytest
 
 from app.domain.UserRoles import UserRoles
+from os import environ as env
 from app.main import app
 from app.main import logger
 
@@ -28,6 +31,12 @@ juan = {"mail": "juan@gmail.com",
         "name": "lucas",
         "lastname": "martinez",
         "age": "20",}
+
+@pytest.fixture()
+def twilio_mock(monkeypatch):
+    client_twilio_mock = mock.Mock()
+    monkeypatch.setattr("app.settings.twilio.client_twilio", client_twilio_mock)
+    return client_twilio_mock
 
 
 # Mock MongoDB
@@ -70,3 +79,8 @@ def test_fail_if_user_already_exists(mongo_mock):
 
     response = client.post("/signup/", json=credentials)
     assert response.status_code == 409
+    
+
+def test_check_validation_code(mongo_mock, twilio_mock):
+    client.post("signup/validate_code?phone_number=%2B54333676862&verification_code=11111/")
+    twilio_mock.verify.v2.services.return_value.verification_checks.create.assert_called_once()
