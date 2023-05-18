@@ -35,6 +35,7 @@ class LoginResponse:
         image,
         blocked,
         trainings,
+        location,
         access_token,
         token_type,
     ):
@@ -47,6 +48,7 @@ class LoginResponse:
         self.blocked = blocked
         self.phone_number = phone_number
         self.trainings = trainings
+        self.location = location
         self.access_token = access_token
         self.token_type = token_type
 
@@ -89,6 +91,7 @@ def login(credentials: UserLoginCredentials, request: Request):
         user["image"],
         user["blocked"],
         user["trainings"],
+        user["location"],
         access_token,
         "bearer",
     )
