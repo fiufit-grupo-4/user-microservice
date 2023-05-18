@@ -138,7 +138,7 @@ async def add_favorite_training(
             )
 
         training = ServiceTrainers.get(f'/trainings/{id_training}')
-        logger.warning(training)
+
         if training.status_code == 200:
             training = training.json()
             result = users.update_one(
