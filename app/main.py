@@ -2,6 +2,8 @@ import pymongo
 from fastapi import FastAPI
 import logging
 from logging.config import dictConfig
+
+import uvicorn
 from .log_config import logconfig
 from os import environ
 from dotenv import load_dotenv
@@ -42,3 +44,6 @@ async def shutdown_db_client():
 
 
 app.include_router(api_router)
+
+if __name__ == '__main__':
+    uvicorn.run(app, host='0.0.0.0', port=8000)
