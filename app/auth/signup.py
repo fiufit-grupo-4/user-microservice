@@ -30,7 +30,7 @@ def signup(credentials: UserSignUpCredentials, request: Request):
         name=credentials.name,
         lastname=credentials.lastname,
         age=credentials.age,
-        location=credentials.location
+        location=credentials.location,
     )
 
     users = request.app.database["users"]
@@ -53,7 +53,7 @@ def signup(credentials: UserSignUpCredentials, request: Request):
         blocked=user.blocked,
         image=user.image,
         trainings=user.trainings,
-        location=user.location
+        location=user.location,
     )
 
     request.app.logger.info(f"User {response} successfully created")

@@ -14,9 +14,9 @@ def create_user(name: str, lastname: str, mail: str, age: str):
 
 class Location:
     def __init__(
-            self,
-            latitude,
-            longitude,
+        self,
+        latitude,
+        longitude,
     ):
         self.latitude = latitude
         self.longitude = longitude
@@ -24,7 +24,7 @@ class Location:
 
 class LocationResponse(BaseModel):
     latitude: int = Field(example="300")
-    longitude: int= Field(example="350")
+    longitude: int = Field(example="350")
 
 
 class UserSignUpCredentials(BaseModel):
@@ -125,9 +125,9 @@ class QueryParamFilterUser(BaseModel):
 
 class Location:
     def __init__(
-            self,
-            latitude,
-            longitude,
+        self,
+        latitude,
+        longitude,
     ):
         self.latitude = latitude
         self.longitude = longitude
@@ -145,7 +145,7 @@ class User:
         age=None,
         image=None,
         blocked=False,
-        location=None
+        location=None,
     ):
         self.name = name
         self.lastname = lastname
