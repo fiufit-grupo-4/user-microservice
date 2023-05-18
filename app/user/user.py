@@ -113,7 +113,6 @@ class QueryParamFilterUser(BaseModel):
     age: str = Query(None, min_length=1, max_length=3)
 
 
-
 class Location:
     def __init__(
         self,
@@ -123,6 +122,7 @@ class Location:
         self.latitude = latitude
         self.longitude = longitude
 
+
 class VerificationRequest(BaseModel):
     video: str
 
@@ -130,7 +130,6 @@ class VerificationRequest(BaseModel):
 class Verification(BaseModel):
     verified: bool = False
     video: str = None
-
 
 
 class User:
