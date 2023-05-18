@@ -27,9 +27,22 @@ user_1_mock = {
 }
 
 
-
 user_2_id_mock = ObjectId()
 user_2_mock = {
+    "name": "federico",
+    "lastname": "pach",
+    "age": "20",
+    "mail": "fede@gmail.com",
+    "encrypted_password": "$3asd2bLF576mxRONP1sjTkk3PqDKq.9IYl5KDsdaJK94KJasdG2ShdlaseO",
+    "image": "fede.png",
+    "blocked": False,
+    "trainings": [],
+    "verification": {"verified": False, "video": None}
+}
+
+
+user_3_id_mock = ObjectId()
+user_3_mock = {
     "name": "federico",
     "lastname": "pach",
     "age": "20",
@@ -73,19 +86,18 @@ def test_get_verification_request(mongo_mock):
     admin_mock_id = ObjectId()
     access_token_admin = Settings.generate_token(str(admin_mock_id))
 
-    # insert user mock to db
     users = app.database["users"]
-
+    # Sucess
     # update user mock adding video field to Verification (the model field from app.user.user) with some example url
     users.update_one({"_id": user_1_inserted_id}, {"$set": {"verification": {"video": "https//www.media.com/video-user-1", "verified": False}}})
     users.update_one({"_id": user_2_inserted_id}, {"$set": {"verification": {"video": "https//www.media.com/video-user-2", "verified": False}}})
 
-    # use users/verification endpoint from routes_users.py for testing
     response = client.get("/users/verification")
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json()[0].get('id') == str(user_1_inserted_id)
     assert response.json()[1].get('id') == str(user_2_inserted_id)
+
 
 # test all possible cases of upload_verification_video in app/user/routes_users.py
 def test_upload_verification_video(mongo_mock):
@@ -143,3 +155,23 @@ def test_approve_verification(mongo_mock):
     
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == f"User {user_1_inserted_id} already verified"
+
+    # Failure: user not found to verify
+    some_user_id = ObjectId()
+    response = client.patch(
+        f"/users/{some_user_id}/verification/approve"
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == f"User {some_user_id} not found to verify"
+
+    # Failure: user verification not found to verify
+    users.update_one({"_id": user_1_inserted_id}, {"$set": {"verification": None}})
+    response = client.patch(
+        f"/users/{user_1_inserted_id}/verification/approve"
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == f"User {user_1_inserted_id} verification not found to verify"
+
+
