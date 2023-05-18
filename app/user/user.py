@@ -12,16 +12,6 @@ def create_user(name: str, lastname: str, mail: str, age: str):
     return new_user
 
 
-class Location:
-    def __init__(
-        self,
-        latitude,
-        longitude,
-    ):
-        self.latitude = latitude
-        self.longitude = longitude
-
-
 class LocationResponse(BaseModel):
     latitude: int = Field(example="300")
     longitude: int = Field(example="350")
