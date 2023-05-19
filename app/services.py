@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-import requests
+import httpx
 import app.main as main
 from starlette import status
 from app.settings.config import TRAINING_SERVICE_URL
@@ -7,10 +7,11 @@ from app.settings.config import TRAINING_SERVICE_URL
 
 class ServiceTrainers:
     @staticmethod
-    def get(path):
+    async def get(path):
         try:
-            result = requests.get(TRAINING_SERVICE_URL + f'{path}')
-            return result
+            async with httpx.AsyncClient() as client:
+                response = await client.get(TRAINING_SERVICE_URL + path)
+                return response
         except Exception:
             main.logger.error('Training service cannot be accessed')
             raise HTTPException(

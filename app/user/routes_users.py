@@ -3,7 +3,7 @@ from bson import ObjectId
 from fastapi import APIRouter, Depends, Query, Request
 from starlette import status
 from starlette.responses import JSONResponse
-from typing import List
+from typing import List, Optional
 from app.services import ServiceTrainers
 from app.settings.auth_settings import get_user_id
 from app.settings.config import pwd_context
@@ -67,14 +67,14 @@ def approve_verification_request(request: Request, user_id: ObjectIdPydantic):
 @router.get(
     '/verification', response_model=List[UserResponse], status_code=status.HTTP_200_OK
 )
-def get_verification_requests(request: Request):
+async def get_verification_requests(request: Request, map_trainings: Optional[bool] = True):
     users = request.app.database["users"]
     verification_requests = users.find(
         {"verification.video": {"$ne": None}, "verification.verified": False}
     )
     if verification_requests:
         logger.info('Verification requests found successfully')
-        return [UserResponse.from_mongo(user) for user in verification_requests]
+        return [await UserResponse.from_mongo(user, map_trainings) for user in verification_requests]
     else:
         logger.info('No verification requests found')
         return JSONResponse(
@@ -88,12 +88,13 @@ async def get_users(
     request: Request,
     queries: QueryParamFilterUser = Depends(),
     limit: int = Query(128, ge=1, le=1024),
+    map_trainings: Optional[bool] = True
 ):
     users = request.app.database["users"]
 
     user_list = []
     for user in users.find(queries.dict(exclude_none=True)).limit(limit):
-        user_list.append(UserResponse.from_mongo(user))
+        user_list.append(await UserResponse.from_mongo(user, map_trainings))
 
     logger.info(
         f'Return list of {len(user_list)} users, with query params: {queries.dict(exclude_none=True)}'
@@ -102,13 +103,13 @@ async def get_users(
 
 
 @router.get('/me', response_model=UserResponse, status_code=status.HTTP_200_OK)
-async def get_me(request: Request, user_id: ObjectId = Depends(get_user_id)):
+async def get_me(request: Request, user_id: ObjectId = Depends(get_user_id), map_trainings: Optional[bool] = True):
     users = request.app.database["users"]
     user = users.find_one({"_id": user_id})
 
     if user:
         logger.info(f'Get a user {user_id}')
-        return UserResponse.from_mongo(user)
+        return await UserResponse.from_mongo(user, map_trainings)
     else:
         logger.info(f'User {user_id} not found to get')
         return JSONResponse(
@@ -137,7 +138,7 @@ async def add_favorite_training(
                 content=f'Training {id_training} already exists as favorite in user {id_user}',
             )
 
-        training = ServiceTrainers.get(f'/trainings/{id_training}')
+        training = await ServiceTrainers.get(f'/trainings/{id_training}')
 
         if training.status_code == 200:
             training = training.json()
@@ -204,13 +205,13 @@ async def delete_favorite_training(
 
 
 @router.get('/{user_id}', response_model=UserResponse, status_code=status.HTTP_200_OK)
-async def get_user(request: Request, user_id: ObjectIdPydantic):
+async def get_user(request: Request, user_id: ObjectIdPydantic, map_trainings: Optional[bool] = True):
     users = request.app.database["users"]
     user = users.find_one({"_id": user_id})
 
     if user:
         logger.info(f'Get a user {user_id}')
-        return UserResponse.from_mongo(user)
+        return await UserResponse.from_mongo(user, map_trainings)
     else:
         logger.info(f'User {user_id} not found to get')
         return JSONResponse(

@@ -29,8 +29,8 @@ class TrainingResponseUsers(BaseModel):
         return cls(**dict(id_training=id_training, **training))
 
     @classmethod
-    def from_service(cls, id_user, id_training):
-        training = ServiceTrainers.get(f'/trainings/{id_training}')
+    async def from_service(cls, id_user, id_training):
+        training = await ServiceTrainers.get(f'/trainings/{id_training}')
 
         if training.status_code == 200:
             training = training.json()

@@ -18,7 +18,7 @@ lucas = {"name": "lucas", "lastname": "martinez", "age": "20", "mail": "lukitas@
 training_id_mock = str(ObjectId())
 trainer_id_example_mock = "645dc49b047ac6322c28c231"
 
-def mock_get(*args, **kwargs):
+async def mock_get(*args, **kwargs):
     response = Response()
     response.status_code = 200
     response.json = lambda: {"id": training_id_mock, 

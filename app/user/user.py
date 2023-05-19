@@ -67,27 +67,27 @@ class UserResponse(BaseModel):
         json_encoders = {ObjectId: lambda id: str(id)}  # convert ObjectId into str
 
     @classmethod
-    def from_mongo(cls, user: dict):
+    async def from_mongo(cls, user: dict, map_trainings):
         """We must convert _id into "id" and"""
         if not user:
             return user
+
         id_user = user.pop('_id', None)
-
         trainings = user.pop('trainings', None)
-        if trainings is not None:
-            trainings = list(
-                filter(
-                    lambda training: training is not None,
-                    map(
-                        lambda id_training: TrainingResponseUsers.from_service(
-                            id_user, id_training
-                        ),
-                        trainings,
-                    ),
-                )
-            )
 
-        return cls(**dict(user, id=id_user, trainings=trainings))
+        training_responses = []
+        if trainings is not None and map_trainings:
+            for id_training in trainings:
+                if id_training is not None:
+                    training_response = await TrainingResponseUsers.from_service(
+                        id_user, id_training
+                    )
+                    if training_response is not None:
+                        training_responses.append(training_response)
+
+        # Using a dictionary comprehension instead of the dict constructor
+        user_dict = {**user, 'id': id_user, 'trainings': training_responses}
+        return cls(**user_dict)
 
 
 class UpdatePutUserRequest(BaseModel):
