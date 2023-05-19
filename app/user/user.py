@@ -67,7 +67,7 @@ class UserResponse(BaseModel):
         json_encoders = {ObjectId: lambda id: str(id)}  # convert ObjectId into str
 
     @classmethod
-    async def from_mongo(cls, user: dict):
+    async def from_mongo(cls, user: dict, map_trainings):
         """We must convert _id into "id" and"""
         if not user:
             return user
@@ -76,7 +76,7 @@ class UserResponse(BaseModel):
         trainings = user.pop('trainings', None)
 
         training_responses = []
-        if trainings is not None:
+        if trainings is not None and map_trainings:
             for id_training in trainings:
                 if id_training is not None:
                     training_response = await TrainingResponseUsers.from_service(
