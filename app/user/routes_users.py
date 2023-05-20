@@ -64,6 +64,44 @@ def approve_verification_request(request: Request, user_id: ObjectIdPydantic):
     )
 
 
+@router.patch('/{user_id}/verification/reject', status_code=status.HTTP_200_OK)
+def reject_verification_request(request: Request, user_id: ObjectIdPydantic):
+
+    users = request.app.database["users"]
+    user = users.find_one({"_id": user_id})
+
+    if not user:
+        logger.info(f'User {user_id} not found to verify')
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=f'User {user_id} not found to verify',
+        )
+    if not user['verification']:
+        logger.info(f'User {user_id} verification not found to verify')
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=f'User {user_id} verification not found to verify',
+        )
+    if user['verification']['verified']:
+        logger.info(f'User {user_id} already verified')
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=f'User {user_id} already verified',
+        )
+    result_update = users.update_one({"_id": user_id}, {"$set": {"verified": False}})
+    if result_update.modified_count > 0:
+        logger.info(f'User {user_id} verification was rejected')
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=f'User {user_id} verification was rejected',
+        )
+    logger.info(f'User {user_id} verification was not rejected')
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content=f'User {user_id} verification was not rejected',
+    )
+
+
 @router.get(
     '/verification', response_model=List[UserResponse], status_code=status.HTTP_200_OK
 )
