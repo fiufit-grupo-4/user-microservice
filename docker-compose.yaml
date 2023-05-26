@@ -40,6 +40,23 @@ services:
   #     - mongodb
   #   tty: true
 
+  # goals-microservice:
+  #   image: goals-microservice
+  #   build:
+  #     context: ../goals-microservice
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ../goals-microservice/app:/app/app
+  #   env_file:
+  #     - ../goals-microservice/.env
+  #   ports:
+  #     - ${GOALS_SERVICE_PORT}:${GOALS_SERVICE_PORT}
+  #   depends_on:
+  #     - user-microservice
+  #     - training-microservice
+  #     - mongodb
+  #   tty: true
+
   # api-gateway:
   #   build:
   #     context: ../api-gateway
@@ -53,4 +70,5 @@ services:
   #   depends_on:
   #     - user-microservice
   #     - training-microservice
+  #     - goals-microservice
   #   tty: true
