@@ -175,3 +175,41 @@ def test_approve_verification(mongo_mock):
     assert response.json() == f"User {user_1_inserted_id} verification not found to verify"
 
 
+def test_reject_verification(mongo_mock):
+    # Success: admin rejects user verification
+    users = app.database["users"]
+    users.update_one({"_id": user_1_inserted_id}, {"$set": {"verification": {"video": "https//www.media.com/video-user-1", "verified": None}}})
+    response = client.patch(
+        f"/users/{user_1_inserted_id}/verification/reject"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == f"User {user_1_inserted_id} verification was rejected"
+
+    # Failure: admin tries to reject already verified user
+    users.update_one({"_id": user_1_inserted_id}, {"$set": {"verification": {"verified": True}}})
+    response = client.patch(
+        f"/users/{user_1_inserted_id}/verification/reject"
+    )
+    
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == f"User {user_1_inserted_id} already verified"
+
+    # Failure: user not found to verify
+    some_user_id = ObjectId()
+    response = client.patch(
+        f"/users/{some_user_id}/verification/reject"
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == f"User {some_user_id} not found to verify"
+
+    # Failure: user verification not found to verify
+    users.update_one({"_id": user_1_inserted_id}, {"$set": {"verification": None}})
+    response = client.patch(
+        f"/users/{user_1_inserted_id}/verification/reject"
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == f"User {user_1_inserted_id} verification not found to verify"
+

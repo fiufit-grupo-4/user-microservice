@@ -17,6 +17,11 @@ class LocationResponse(BaseModel):
     longitude: float = Field(example="350")
 
 
+class Verification(BaseModel):
+    verified: bool = None
+    video: str = None
+
+
 class UserSignUpCredentials(BaseModel):
     mail: EmailStr = Field(example="username@mail.com")
     password: str = Field(example="secure")
@@ -62,6 +67,7 @@ class UserResponse(BaseModel):
     trainings: Optional[list[TrainingResponseUsers]]
     blocked: Optional[bool]
     location: Optional[LocationResponse]
+    verification: Optional[Verification]
 
     class Config(BaseConfig):
         json_encoders = {ObjectId: lambda id: str(id)}  # convert ObjectId into str
@@ -125,11 +131,6 @@ class Location:
 
 class VerificationRequest(BaseModel):
     video: str
-
-
-class Verification(BaseModel):
-    verified: bool = False
-    video: str = None
 
 
 class User:

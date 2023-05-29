@@ -50,7 +50,11 @@ def approve_verification_request(request: Request, user_id: ObjectIdPydantic):
             status_code=status.HTTP_400_BAD_REQUEST,
             content=f'User {user_id} already verified',
         )
-    result_update = users.update_one({"_id": user_id}, {"$set": {"verified": True}})
+
+    result_update = users.update_one(
+        {"_id": user_id}, {"$set": {"verification.verified": True}}
+    )
+
     if result_update.modified_count > 0:
         logger.info(f'User {user_id} verification was approved')
         return JSONResponse(
@@ -64,17 +68,62 @@ def approve_verification_request(request: Request, user_id: ObjectIdPydantic):
     )
 
 
+@router.patch('/{user_id}/verification/reject', status_code=status.HTTP_200_OK)
+def reject_verification_request(request: Request, user_id: ObjectIdPydantic):
+
+    users = request.app.database["users"]
+    user = users.find_one({"_id": user_id})
+
+    if not user:
+        logger.info(f'User {user_id} not found to verify')
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=f'User {user_id} not found to verify',
+        )
+    if not user['verification']:
+        logger.info(f'User {user_id} verification not found to verify')
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=f'User {user_id} verification not found to verify',
+        )
+    if user['verification']['verified']:
+        logger.info(f'User {user_id} already verified')
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=f'User {user_id} already verified',
+        )
+    result_update = users.update_one(
+        {"_id": user_id}, {"$set": {"verification.verified": False}}
+    )
+    if result_update.modified_count > 0:
+        logger.info(f'User {user_id} verification was rejected')
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=f'User {user_id} verification was rejected',
+        )
+    logger.info(f'User {user_id} verification was not rejected')
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content=f'User {user_id} verification was not rejected',
+    )
+
+
 @router.get(
     '/verification', response_model=List[UserResponse], status_code=status.HTTP_200_OK
 )
-async def get_verification_requests(request: Request, map_trainings: Optional[bool] = True):
+async def get_verification_requests(
+    request: Request, map_trainings: Optional[bool] = True
+):
     users = request.app.database["users"]
     verification_requests = users.find(
         {"verification.video": {"$ne": None}, "verification.verified": False}
     )
     if verification_requests:
         logger.info('Verification requests found successfully')
-        return [await UserResponse.from_mongo(user, map_trainings) for user in verification_requests]
+        return [
+            await UserResponse.from_mongo(user, map_trainings)
+            for user in verification_requests
+        ]
     else:
         logger.info('No verification requests found')
         return JSONResponse(
@@ -88,7 +137,7 @@ async def get_users(
     request: Request,
     queries: QueryParamFilterUser = Depends(),
     limit: int = Query(128, ge=1, le=1024),
-    map_trainings: Optional[bool] = True
+    map_trainings: Optional[bool] = True,
 ):
     users = request.app.database["users"]
 
@@ -103,7 +152,11 @@ async def get_users(
 
 
 @router.get('/me', response_model=UserResponse, status_code=status.HTTP_200_OK)
-async def get_me(request: Request, user_id: ObjectId = Depends(get_user_id), map_trainings: Optional[bool] = True):
+async def get_me(
+    request: Request,
+    user_id: ObjectId = Depends(get_user_id),
+    map_trainings: Optional[bool] = True,
+):
     users = request.app.database["users"]
     user = users.find_one({"_id": user_id})
 
@@ -205,7 +258,9 @@ async def delete_favorite_training(
 
 
 @router.get('/{user_id}', response_model=UserResponse, status_code=status.HTTP_200_OK)
-async def get_user(request: Request, user_id: ObjectIdPydantic, map_trainings: Optional[bool] = True):
+async def get_user(
+    request: Request, user_id: ObjectIdPydantic, map_trainings: Optional[bool] = True
+):
     users = request.app.database["users"]
     user = users.find_one({"_id": user_id})
 
@@ -320,8 +375,10 @@ def upload_verification_video(
             content=f'User {user_id} was already verified',
         )
 
+    # in verification.video
     result_update = users.update_one(
-        {"_id": user_id}, {"$set": {"video": video_upload}}
+        {"_id": user_id},
+        {"$set": {"verification.video": video_upload["video"]}},
     )
     if result_update.matched_count > 0:
         logger.info(f'User {user_id} verification video was uploaded')
