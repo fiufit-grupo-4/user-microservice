@@ -61,11 +61,10 @@ async def unfollow(request: Request, id_user_to_unfollow: ObjectIdPydantic, id_u
         )
 
     user = users.find_one({"_id": id_user})
-
     if user:
-        if id_user_to_unfollow in user['followers']:
-            users.update_one({"_id": id_user_to_unfollow}, {"$pull": {"following": id_user}})
-            result = users.update_one({"_id": id_user}, {"$pull": {"followers": id_user_to_unfollow}})
+        if id_user_to_unfollow in user['following']:
+            users.update_one({"_id": id_user_to_unfollow}, {"$pull": {"followers": id_user}})
+            result = users.update_one({"_id": id_user}, {"$pull": {"following": id_user_to_unfollow}})
             if result.modified_count == 1:
                 logger.info(f'User {id_user} unfollowed {id_user_to_unfollow}')
                 return JSONResponse(

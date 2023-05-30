@@ -82,17 +82,11 @@ class UserResponse(BaseModel):
         following_response = []
         followers_response = []
 
-        print("following: ")
-        print(following)
-
         if following is not None:
             for userid in following: following_response.append(str(userid))
 
         if followers is not None:
             for userid in followers: followers_response.append(str(userid))
-
-        print("following strings: ")
-        print(following_response)
 
         training_responses = []
         if trainings is not None and map_trainings:
