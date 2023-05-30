@@ -158,4 +158,6 @@ class User:
         self.location = location
 
         self.trainings = []
+        self.following = []
+        self.followers = []
         self.verification = Verification()
