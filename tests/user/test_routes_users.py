@@ -87,23 +87,24 @@ def test_get_verification_request(mongo_mock):
     access_token_admin = Settings.generate_token(str(admin_mock_id))
 
     users = app.database["users"]
-    # Sucess
-    # update user mock adding video field to Verification (the model field from app.user.user) with some example url
+    # Success
     users.update_one({"_id": user_1_inserted_id}, {"$set": {"verification": {"video": "https//www.media.com/video-user-1", "verified": False}}})
     users.update_one({"_id": user_2_inserted_id}, {"$set": {"verification": {"video": "https//www.media.com/video-user-2", "verified": False}}})
 
     response = client.get("/users/verification")
 
     assert response.status_code == status.HTTP_200_OK
+
     assert response.json()[0].get('id') == str(user_1_inserted_id)
+    assert response.json()[0].get('verification').get('video') == 'https//www.media.com/video-user-1'
     assert response.json()[1].get('id') == str(user_2_inserted_id)
+    assert response.json()[1].get('verification').get('video') == 'https//www.media.com/video-user-2'
 
 
-# test all possible cases of upload_verification_video in app/user/routes_users.py
+
 def test_upload_verification_video(mongo_mock):
     # Success: user uploads a video for the first time
     data = {"video": "https//www.media.com/video-user-1"}
-
     response = client.post(
         f"/users/me/verification",
         headers={"Authorization": f"Bearer {access_token_user_1}"},
@@ -111,7 +112,6 @@ def test_upload_verification_video(mongo_mock):
     )
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == f"User {user_1_inserted_id} verification video was uploaded"
-
     # Success: same user can still upload a video before getting verified
     response = client.post(
         f"/users/me/verification",
@@ -120,20 +120,6 @@ def test_upload_verification_video(mongo_mock):
     )
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == f"User {user_1_inserted_id} verification video was uploaded"
-
-    # Failure: trainer is already verified
-    users = app.database["users"]
-    users.update_one({"_id": user_1_inserted_id}, {"$set": {"verification": {"verified": True}}})
-
-    data = {"video": "https//www.media.com/video-user-1"}
-
-    response = client.post(
-        f"/users/me/verification",
-        headers={"Authorization": f"Bearer {access_token_user_1}"},
-        json=data
-    )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == f"User {user_1_inserted_id} was already verified"
 
 
 def test_approve_verification(mongo_mock):

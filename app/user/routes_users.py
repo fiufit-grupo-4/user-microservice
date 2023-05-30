@@ -112,24 +112,32 @@ def reject_verification_request(request: Request, user_id: ObjectIdPydantic):
     '/verification', response_model=List[UserResponse], status_code=status.HTTP_200_OK
 )
 async def get_verification_requests(
-    request: Request, map_trainings: Optional[bool] = True
+    request: Request,
+    queries: QueryParamFilterUser = Depends(),
+    limit: int = Query(128, ge=1, le=1024),
+    map_trainings: Optional[bool] = True,
 ):
-    users = request.app.database["users"]
-    verification_requests = users.find(
-        {"verification.video": {"$ne": None}, "verification.verified": False}
-    )
-    if verification_requests:
-        logger.info('Verification requests found successfully')
-        return [
-            await UserResponse.from_mongo(user, map_trainings)
-            for user in verification_requests
+    query = {
+        '$and': [
+            {
+                '$or': [
+                    {'verification.verified': None},
+                    {'verification.verified': False},
+                ]
+            },
+            {'verification.video': {'$ne': None}},
         ]
-    else:
-        logger.info('No verification requests found')
-        return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content='No verification requests found',
-        )
+    }
+
+    users = request.app.database["users"]
+    user_list = []
+    for user in users.find({**query, **queries.dict(exclude_none=True)}).limit(limit):
+        user_list.append(await UserResponse.from_mongo(user, map_trainings))
+
+    logger.info(
+        f'Return list of {len(user_list)} users, with query params: {queries.dict(exclude_none=True)}'
+    )
+    return user_list
 
 
 @router.get('/', response_model=List[UserResponse], status_code=status.HTTP_200_OK)
