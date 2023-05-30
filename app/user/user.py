@@ -83,10 +83,12 @@ class UserResponse(BaseModel):
         followers_response = []
 
         if following is not None:
-            for userid in following: following_response.append(str(userid))
+            for userid in following:
+                following_response.append(str(userid))
 
         if followers is not None:
-            for userid in followers: followers_response.append(str(userid))
+            for userid in followers:
+                followers_response.append(str(userid))
 
         training_responses = []
         if trainings is not None and map_trainings:
@@ -99,8 +101,13 @@ class UserResponse(BaseModel):
                         training_responses.append(training_response)
 
         # Using a dictionary comprehension instead of the dict constructor
-        user_dict = {**user, 'id': id_user, 'trainings': training_responses, 'followers': followers_response,
-                     'following': following_response}
+        user_dict = {
+            **user,
+            'id': id_user,
+            'trainings': training_responses,
+            'followers': followers_response,
+            'following': following_response,
+        }
         return cls(**user_dict)
 
 

@@ -69,14 +69,19 @@ def approve_verification_request(request: Request, user_id: ObjectIdPydantic):
 @router.get(
     '/verification', response_model=List[UserResponse], status_code=status.HTTP_200_OK
 )
-async def get_verification_requests(request: Request, map_trainings: Optional[bool] = True):
+async def get_verification_requests(
+    request: Request, map_trainings: Optional[bool] = True
+):
     users = request.app.database["users"]
     verification_requests = users.find(
         {"verification.video": {"$ne": None}, "verification.verified": False}
     )
     if verification_requests:
         logger.info('Verification requests found successfully')
-        return [await UserResponse.from_mongo(user, map_trainings) for user in verification_requests]
+        return [
+            await UserResponse.from_mongo(user, map_trainings)
+            for user in verification_requests
+        ]
     else:
         logger.info('No verification requests found')
         return JSONResponse(
@@ -90,7 +95,7 @@ async def get_users(
     request: Request,
     queries: QueryParamFilterUser = Depends(),
     limit: int = Query(128, ge=1, le=1024),
-    map_trainings: Optional[bool] = True
+    map_trainings: Optional[bool] = True,
 ):
     users = request.app.database["users"]
 
@@ -105,7 +110,11 @@ async def get_users(
 
 
 @router.get('/me', response_model=UserResponse, status_code=status.HTTP_200_OK)
-async def get_me(request: Request, user_id: ObjectId = Depends(get_user_id), map_trainings: Optional[bool] = True):
+async def get_me(
+    request: Request,
+    user_id: ObjectId = Depends(get_user_id),
+    map_trainings: Optional[bool] = True,
+):
     users = request.app.database["users"]
     user = users.find_one({"_id": user_id})
 
@@ -207,7 +216,9 @@ async def delete_favorite_training(
 
 
 @router.get('/{user_id}', response_model=UserResponse, status_code=status.HTTP_200_OK)
-async def get_user(request: Request, user_id: ObjectIdPydantic, map_trainings: Optional[bool] = True):
+async def get_user(
+    request: Request, user_id: ObjectIdPydantic, map_trainings: Optional[bool] = True
+):
     users = request.app.database["users"]
     user = users.find_one({"_id": user_id})
 

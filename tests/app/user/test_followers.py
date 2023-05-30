@@ -51,6 +51,7 @@ def test_follow_user(mongo_mock):
     id_juan = client.get("/users/").json()[1].get('id')
 
     response = client.post(f"/users/{id_juan}/follow", headers={"Authorization": f"Bearer {access_token_lucas}"})
+    print(response)
     lucas_following = client.get(f"/users/{id_lucas}").json().get('following')
     juan_followers = client.get(f"/users/{id_juan}").json().get('followers')
 
