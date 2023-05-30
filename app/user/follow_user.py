@@ -50,7 +50,7 @@ async def follow(
             )
 
     return JSONResponse(
-        status_code=status.HTTP_400_BAD_REQUEST, content=f'User does not exist'
+        status_code=status.HTTP_400_BAD_REQUEST, content='User does not exist'
     )
 
 
@@ -92,5 +92,5 @@ async def unfollow(
                 )
     else:
         return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST, content=f'User does not exist'
+            status_code=status.HTTP_400_BAD_REQUEST, content='User does not exist'
         )
