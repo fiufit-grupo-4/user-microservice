@@ -88,8 +88,6 @@ def test_get_verification_request(mongo_mock):
 
     users = app.database["users"]
     # Sucess
-    # update user mock adding video field to Verification (the model field from app.user.user) with some example url
-
     users.update_one({"_id": user_1_inserted_id}, {"$set": {"verification": {"video": "https//www.media.com/video-user-1", "verified": False}}})
     users.update_one({"_id": user_2_inserted_id}, {"$set": {"verification": {"video": "https//www.media.com/video-user-2", "verified": False}}})
 
@@ -103,7 +101,7 @@ def test_get_verification_request(mongo_mock):
     assert response.json()[1].get('verification').get('video') == 'https//www.media.com/video-user-2'
 
 
-# test all possible cases of upload_verification_video in app/user/routes_users.py
+
 def test_upload_verification_video(mongo_mock):
     # Success: user uploads a video for the first time
     data = {"video": "https//www.media.com/video-user-1"}
