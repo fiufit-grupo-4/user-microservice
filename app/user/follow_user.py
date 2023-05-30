@@ -31,6 +31,7 @@ async def follow(request: Request, id_user_to_follow: ObjectIdPydantic, id_user:
                 content=f'Already following user {id_user_to_follow}',
             )
 
+        users.update_one({"_id": id_user_to_follow}, {"$push": {"followers": id_user}})
         result = users.update_one({"_id": id_user}, {"$push": {"following": id_user_to_follow}})
         if result.modified_count == 1:
             logger.info(f'User {id_user} followed user {id_user_to_follow}')
@@ -63,9 +64,8 @@ async def unfollow(request: Request, id_user_to_unfollow: ObjectIdPydantic, id_u
 
     if user:
         if id_user_to_unfollow in user['followers']:
-            result = users.update_one(
-                {"_id": id_user}, {"$pull": {"followers": id_user_to_unfollow}}
-            )
+            users.update_one({"_id": id_user_to_unfollow}, {"$pull": {"following": id_user}})
+            result = users.update_one({"_id": id_user}, {"$pull": {"followers": id_user_to_unfollow}})
             if result.modified_count == 1:
                 logger.info(f'User {id_user} unfollowed {id_user_to_unfollow}')
                 return JSONResponse(

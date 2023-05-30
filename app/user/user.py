@@ -62,6 +62,8 @@ class UserResponse(BaseModel):
     trainings: Optional[list[TrainingResponseUsers]]
     blocked: Optional[bool]
     location: Optional[LocationResponse]
+    following: Optional[list[str]]
+    followers: Optional[list[str]]
 
     class Config(BaseConfig):
         json_encoders = {ObjectId: lambda id: str(id)}  # convert ObjectId into str
@@ -74,6 +76,23 @@ class UserResponse(BaseModel):
 
         id_user = user.pop('_id', None)
         trainings = user.pop('trainings', None)
+        following = user.pop('following', None)
+        followers = user.pop('followers', None)
+
+        following_response = []
+        followers_response = []
+
+        print("following: ")
+        print(following)
+
+        if following is not None:
+            for userid in following: following_response.append(str(userid))
+
+        if followers is not None:
+            for userid in followers: followers_response.append(str(userid))
+
+        print("following strings: ")
+        print(following_response)
 
         training_responses = []
         if trainings is not None and map_trainings:
@@ -86,7 +105,8 @@ class UserResponse(BaseModel):
                         training_responses.append(training_response)
 
         # Using a dictionary comprehension instead of the dict constructor
-        user_dict = {**user, 'id': id_user, 'trainings': training_responses}
+        user_dict = {**user, 'id': id_user, 'trainings': training_responses, 'followers': followers_response,
+                     'following': following_response}
         return cls(**user_dict)
 
 
