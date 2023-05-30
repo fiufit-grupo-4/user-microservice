@@ -87,7 +87,7 @@ def test_get_verification_request(mongo_mock):
     access_token_admin = Settings.generate_token(str(admin_mock_id))
 
     users = app.database["users"]
-    # Sucess
+    # Success
     users.update_one({"_id": user_1_inserted_id}, {"$set": {"verification": {"video": "https//www.media.com/video-user-1", "verified": False}}})
     users.update_one({"_id": user_2_inserted_id}, {"$set": {"verification": {"video": "https//www.media.com/video-user-2", "verified": False}}})
 
