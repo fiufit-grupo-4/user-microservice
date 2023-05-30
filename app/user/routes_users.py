@@ -137,6 +137,7 @@ async def get_verification_requests(
 
     logger.info(
         f'Return list of {len(user_list)} users, with query params: {queries.dict(exclude_none=True)}'
+    )
     return user_list
 
 
