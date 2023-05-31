@@ -1,10 +1,14 @@
-from typing import Optional
+import asyncio
+from typing import Optional, Union
 from bson import ObjectId
-from fastapi import Query
+from fastapi import HTTPException, Query
 from pydantic import BaseConfig, BaseModel, EmailStr, Field
 from app.domain.UserRoles import UserRoles
+from app.services import ServiceTrainers
 from app.user.training_small import TrainingResponseUsers
 from app.user.utils import ObjectIdPydantic
+
+import app.main as main
 
 
 def create_user(name: str, lastname: str, mail: str, age: str):
@@ -64,7 +68,7 @@ class UserResponse(BaseModel):
     role: Optional[UserRoles]
     phone_number: Optional[str]
     image: Optional[str]
-    trainings: Optional[list[TrainingResponseUsers]]
+    trainings: Optional[list[Union[TrainingResponseUsers, dict]]]
     blocked: Optional[bool]
     location: Optional[LocationResponse]
     following: Optional[list[str]]
@@ -74,37 +78,110 @@ class UserResponse(BaseModel):
     class Config(BaseConfig):
         json_encoders = {ObjectId: lambda id: str(id)}  # convert ObjectId into str
 
+    @staticmethod
+    async def map_trainings(user_list):
+        """Map "trainigs ids" to "trainings data" for each user in user_list"""
+
+        trainings_tasks = UserResponse.prepare_training_tasks(user_list)
+
+        main.app.logger.info(
+            f'Waiting for {len(trainings_tasks)} \"GET /trainings/{{id_training}}\" requests'
+        )
+
+        # Wati in parallel for all requests to finish
+        training_responses = await asyncio.gather(*trainings_tasks.values())
+
+        trainings = UserResponse.reorganize_trainings(
+            trainings_tasks, training_responses
+        )
+
+        UserResponse.convert_all_types_ids(user_list, trainings)
+
+    @staticmethod
+    def convert_all_types_ids(user_list, trainings):
+        """With the trainings data, map all the ids trainings of each user in the list."""
+
+        for user in user_list:
+            new_list_trainings = []
+            for old_training in user.trainings:
+                new_training = trainings[old_training["id_training"]]
+                if new_training:
+                    new_list_trainings.append(
+                        TrainingResponseUsers.from_mongo(new_training.copy())
+                    )
+                else:
+                    main.app.logger.warning(
+                        f'DELETING TRAINING OLD {old_training["id_training"]} FROM USER {user.id}'
+                    )
+                    users = main.app.database["users"]
+                    users.update_one(
+                        {"_id": user.id},
+                        {"$pull": {"trainings": ObjectId(old_training["id_training"])}},
+                    )
+
+            user.trainings = new_list_trainings
+
+    @staticmethod
+    def reorganize_trainings(trainings_tasks, res):
+        """Reorganize the trainings in a dict with the id as key, and the training (obtained in
+        the request) as value. If the training does not exist, the value assigned is None"""
+
+        trainings = {}
+        for id_training, training in zip(trainings_tasks.keys(), res):
+            if training.status_code == 200:
+                trainings[id_training] = training.json()
+            elif training.status_code == 404:
+                main.app.logger.warning(f'Training with id {training} not found')
+                trainings[id_training] = None
+            else:
+                main.app.logger.error(
+                    f'Error getting training: {training.status_code} {training.json()}'
+                )
+                raise HTTPException(
+                    status_code=training.status_code,
+                    detail='Error getting training for any user',
+                )
+
+        main.app.logger.info(
+            f'Finished waiting for {len(trainings_tasks)} \"GET /trainings/{{id_training}}\" requests'
+        )
+
+        return trainings
+
+    @staticmethod
+    def prepare_training_tasks(user_list):
+        """Prepare the tasks (small threads) to get all uniques trainigs of each user in the list.
+        The tasks are stored in a dictionary where the key is the id of the training,
+        All the tasks are created at the same time, but they are not executed until
+        the "await" is called. Thanks to this, the requests are executed in parallel,
+        and the time to get all the trainings is reduced."""
+
+        trainings_tasks = {}
+        for user in user_list:
+            for old_training in user.trainings:
+                if old_training["id_training"] not in trainings_tasks:
+                    trainings_tasks[old_training["id_training"]] = asyncio.create_task(
+                        ServiceTrainers.get(
+                            f'/trainings/{old_training["id_training"]}'
+                            + '?map_users=false'
+                        )
+                    )
+
+        return trainings_tasks
+
     @classmethod
-    async def from_mongo(cls, user: dict, map_trainings):
-        """We must convert _id into "id" and"""
+    def from_mongo(cls, user: dict):
         if not user:
             return user
 
-        id_user = user.pop('_id', None)
-        trainings = user.pop('trainings', None)
-        following = user.pop('following', None)
-        followers = user.pop('followers', None)
+        id_user = str(user.pop('_id', None))
+        trainings = user.pop('trainings', [])
+        following = user.pop('following', [])
+        followers = user.pop('followers', [])
 
-        following_response = []
-        followers_response = []
-
-        if following is not None:
-            for userid in following:
-                following_response.append(str(userid))
-
-        if followers is not None:
-            for userid in followers:
-                followers_response.append(str(userid))
-
-        training_responses = []
-        if trainings is not None and map_trainings:
-            for id_training in trainings:
-                if id_training is not None:
-                    training_response = await TrainingResponseUsers.from_service(
-                        id_user, id_training
-                    )
-                    if training_response is not None:
-                        training_responses.append(training_response)
+        following_response = [str(f_id) for f_id in following]
+        followers_response = [str(f_id) for f_id in followers]
+        training_responses = [{"id_training": str(t_id)} for t_id in trainings]
 
         # Using a dictionary comprehension instead of the dict constructor
         user_dict = {

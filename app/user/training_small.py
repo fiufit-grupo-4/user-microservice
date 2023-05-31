@@ -27,16 +27,3 @@ class TrainingResponseUsers(BaseModel):
             training["id_trainer"] = trainer["id"]
 
         return cls(**dict(id_training=id_training, **training))
-
-    @classmethod
-    async def from_service(cls, id_user, id_training):
-        training = await ServiceTrainers.get(f'/trainings/{id_training}')
-
-        if training.status_code == 200:
-            training = training.json()
-            return TrainingResponseUsers.from_mongo(training)
-        elif training.status_code == 404:
-            users = main.app.database["users"]
-            users.update_one({"_id": id_user}, {"$pull": {"trainings": id_training}})
-        else:
-            return None

@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from bson import ObjectId
 from fastapi import APIRouter, Depends, Query, Request
@@ -117,7 +118,6 @@ async def get_verification_requests(
     request: Request,
     queries: QueryParamFilterUser = Depends(),
     limit: int = Query(128, ge=1, le=1024),
-    map_trainings: Optional[bool] = True,
 ):
     query = {
         '$and': [
@@ -133,7 +133,7 @@ async def get_verification_requests(
     users = request.app.database["users"]
     user_list = []
     for user in users.find({**query, **queries.dict(exclude_none=True)}).limit(limit):
-        user_list.append(await UserResponse.from_mongo(user, map_trainings))
+        user_list.append(UserResponse.from_mongo(user))
 
     logger.info(
         f'Return list of {len(user_list)} users, with query params: {queries.dict(exclude_none=True)}'
@@ -146,13 +146,16 @@ async def get_users(
     request: Request,
     queries: QueryParamFilterUser = Depends(),
     limit: int = Query(128, ge=1, le=1024),
-    map_trainings: Optional[bool] = True,
+    map_trainings: Optional[bool] = False,
 ):
     users = request.app.database["users"]
 
     user_list = []
     for user in users.find(queries.dict(exclude_none=True)).limit(limit):
-        user_list.append(await UserResponse.from_mongo(user, map_trainings))
+        user_list.append(UserResponse.from_mongo(user))
+
+    if map_trainings:
+        await UserResponse.map_trainings(user_list)
 
     logger.info(
         f'Return list of {len(user_list)} users, with query params: {queries.dict(exclude_none=True)}'
@@ -166,18 +169,7 @@ async def get_me(
     user_id: ObjectId = Depends(get_user_id),
     map_trainings: Optional[bool] = True,
 ):
-    users = request.app.database["users"]
-    user = users.find_one({"_id": user_id})
-
-    if user:
-        logger.info(f'Get a user {user_id}')
-        return await UserResponse.from_mongo(user, map_trainings)
-    else:
-        logger.info(f'User {user_id} not found to get')
-        return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content=f'User {user_id} not found to get',
-        )
+    return await get_user(request, user_id, map_trainings)
 
 
 @router.post(
@@ -200,7 +192,9 @@ async def add_favorite_training(
                 content=f'Training {id_training} already exists as favorite in user {id_user}',
             )
 
-        training = await ServiceTrainers.get(f'/trainings/{id_training}')
+        training = await ServiceTrainers.get(
+            f'/trainings/{id_training}' + '?map_users=false'
+        )
 
         if training.status_code == 200:
             training = training.json()
@@ -275,7 +269,11 @@ async def get_user(
 
     if user:
         logger.info(f'Get a user {user_id}')
-        return await UserResponse.from_mongo(user, map_trainings)
+        res = UserResponse.from_mongo(user)
+        if map_trainings:
+            await UserResponse.map_trainings([res])
+
+        return res
     else:
         logger.info(f'User {user_id} not found to get')
         return JSONResponse(
