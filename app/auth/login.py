@@ -26,6 +26,7 @@ router.include_router(
 class LoginResponse:
     def __init__(
         self,
+        id,
         mail,
         phone_number,
         role,
@@ -38,6 +39,7 @@ class LoginResponse:
         access_token,
         token_type,
     ):
+        self.id = str(id)
         self.name = name
         self.lastname = lastname
         self.age = age
@@ -80,6 +82,7 @@ def login(credentials: UserLoginCredentials, request: Request):
     request.app.logger.info(f"User logged in: {credentials.mail} | id: {user['_id']}")
 
     return LoginResponse(
+        user["_id"],
         user["mail"],
         user["phone_number"],
         user["role"],
