@@ -7,6 +7,8 @@ from fastapi import Request, Response
 # fiajrse bien qué metricas pedian para enviar por la queue!
 def MesseageQueueFrom(request: Request, response: Response):
     return {
+        "microservice" : "user-service",
+        "path": f'{request.url.path}',
         "url": f'{request.url}',
         "method": f'{request.method}',
         "status_code": f'{response.status_code}',
