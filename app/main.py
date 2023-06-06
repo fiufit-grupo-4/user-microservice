@@ -1,5 +1,5 @@
 import pymongo
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 import logging
 from logging.config import dictConfig
 
@@ -19,7 +19,8 @@ logger = logging.getLogger("app")
 
 
 @app.get("/", tags=["Home"])
-def get_root() -> dict:
+def get_root(request: Request) -> dict:
+    app.logger.warning(f"GET {request.url} | PATH {request.url.path} | FROM {request.client} | HEADERS {request.headers} | COOKIES {request.cookies}")
     return {"message": "OK"}
 
 
