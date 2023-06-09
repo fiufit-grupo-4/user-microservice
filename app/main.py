@@ -1,7 +1,7 @@
 import asyncio
 import os
 import pymongo
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 import logging
 from logging.config import dictConfig
 
@@ -45,6 +45,7 @@ async def startup_db_client():
 @app.on_event("shutdown")
 async def shutdown_db_client():
     app.mongodb_client.close()
+    app.task_publisher_manager.cancel()
     logger.info("Shutdown APP")
 
 

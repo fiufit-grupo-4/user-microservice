@@ -8,6 +8,15 @@ from pika.adapters.asyncio_connection import AsyncioConnection
 
 from app.publisher.queue_settings import EXCHANGE, EXCHANGE_TYPE, QUEUE, ROUTING_KEY
 
+# Este codigo fue extraido de los ejemplos de la documentacion de pika, 
+# pero se lo adapto para que funcione con el resto del codigo de la aplicacion
+# de forma asincronica
+# REFERENCIAS:
+# - https://pika.readthedocs.io/en/stable/intro.html
+# - https://pika.readthedocs.io/en/stable/examples.html
+# - https://github.com/pika/pika/blob/main/examples/asynchronous_publisher_example.py
+# - https://github.com/pika/pika/blob/main/examples/asyncio_consumer_example.py
+
 class PublisherQueue:
     """This is an example publisher that will handle unexpected interactions
     with RabbitMQ such as channel and connection closures.
