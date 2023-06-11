@@ -1,15 +1,29 @@
 from fastapi import Request, Response
+import datetime
+import logging
 
-# !TODO hay que definir QUE Enviar por la Queue! De tal forma que del otro lado guarden eso que le enviaremos
-# es decir, debemos este protoloco de comunicacion...
-# ACA habria que definir QUE REQUESTS en enviar por las queues como metrica!!!
-# o sea....... vale la pena enviar todas las requests? capaz el GET /users no vale la pena enviarlo
-# fiajrse bien qué metricas pedian para enviar por la queue!
-def MesseageQueueFrom(request: Request, response: Response):
+
+def MessageQueueFrom(request: Request, response: Response, timestamp: float, response_time: float):
+
+    date_time = datetime.datetime.fromtimestamp(timestamp)
+    formatted_datetime = date_time.strftime("%Y-%m-%d %H:%M:%S.%f") # datetime obj to ISO 8601 format
+
+    ip = request.client.host
+    country = None
+    city = None
+
+
+    logging.warning(f"REQUEST: {request}")
+
     return {
-        "microservice" : "user-service",
+        "service" : "user-service",
         "path": f'{request.url.path}',
         "url": f'{request.url}',
         "method": f'{request.method}',
         "status_code": f'{response.status_code}',
+        "datetime": f'{formatted_datetime}',
+        "response_time": f'{response_time}',
+        "ip": f'{ip}',
+        "country": f'{country}',
+        "city": f'{city}'
     }

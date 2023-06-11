@@ -63,6 +63,7 @@ def is_role_valid(credentials_role, user_role):
 
 @router.post("/", status_code=status.HTTP_200_OK)
 def login(credentials: UserLoginCredentials, request: Request):
+    request.state.metrics_allowed = True
     users = request.app.database["users"]
     user = users.find_one({"mail": credentials.mail})
 

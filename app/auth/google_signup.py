@@ -11,6 +11,7 @@ router = APIRouter()
 
 @router.post("/google", status_code=status.HTTP_201_CREATED)
 def signup_with_google(token: str, request: Request):
+    request.state.metrics_allowed = True
     users = request.app.database["users"]
 
     try:

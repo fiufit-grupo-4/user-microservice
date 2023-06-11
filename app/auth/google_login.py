@@ -18,6 +18,7 @@ class GoogleLoginRequest(BaseModel):
 
 @router.post("/google")
 def login_google(request: GoogleLoginRequest):
+    request.state.metrics_allowed = True
     try:
         # Verificar el token de acceso con Firebase Admin
         decoded_token = auth.verify_id_token(request.id_token)

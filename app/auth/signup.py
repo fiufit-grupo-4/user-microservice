@@ -3,7 +3,7 @@ from fastapi.encoders import jsonable_encoder
 from starlette import status
 from starlette.responses import JSONResponse
 from twilio.rest import Client
-from app.auth.google_singup import router as google_signup_router
+from app.auth.google_signup import router as google_signup_router
 from app.domain.UserRoles import UserRoles
 from app.settings.config import pwd_context, account_sid, auth_token
 from app.settings.twilio import send_whatsapp_validation_code, twilio_validation_code
@@ -21,6 +21,7 @@ router.include_router(
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def signup(credentials: UserSignUpCredentials, request: Request):
+    request.state.metrics_allowed = True
     hashed_password = pwd_context.hash(credentials.password)
     user = User(
         credentials.mail,
@@ -32,7 +33,6 @@ def signup(credentials: UserSignUpCredentials, request: Request):
         age=credentials.age,
         location=credentials.location,
     )
-
     users = request.app.database["users"]
 
     if users.find_one({"mail": credentials.mail}, {"_id": 0}):

@@ -14,6 +14,7 @@ async def forgot_password(
     background_tasks: BackgroundTasks,
     request: Request,
 ):
+    request.state.metrics_allowed = True
     users = request.app.database["users"]
     user = users.find_one({"mail": credentials.mail})
 

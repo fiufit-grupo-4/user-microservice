@@ -89,18 +89,18 @@ services:
   #   tty: true
 
   
-  # metrics-microservice:
-  #   image: metrics-microservice
-  #   build:
-  #     context: ../metrics-microservice
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ../metrics-microservice/app:/app/app
-  #   env_file:
-  #     - ../metrics-microservice/.env
-  #   ports:
-  #     - ${METRICS_SERVICE_PORT}:${METRICS_SERVICE_PORT}
-  #   depends_on:
-  #     # - api-gateway
-  #     - user-microservice
-  #   tty: true
+  metrics-microservice:
+    image: metrics-microservice
+    build:
+      context: ../metrics-microservice
+      dockerfile: Dockerfile
+    volumes:
+      - ../metrics-microservice/app:/app/app
+    env_file:
+      - ../metrics-microservice/.env
+    ports:
+      - ${METRICS_SERVICE_PORT}:${METRICS_SERVICE_PORT}
+    depends_on:
+      # - api-gateway
+      - user-microservice
+    tty: true
