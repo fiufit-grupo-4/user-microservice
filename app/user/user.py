@@ -244,6 +244,7 @@ class User:
         image=None,
         blocked=False,
         location=None,
+        first_login=True,
     ):
         self.name = name
         self.lastname = lastname
@@ -255,6 +256,7 @@ class User:
         self.blocked = blocked
         self.phone_number = phone_number
         self.location = location
+        self.first_login = first_login
 
         self.trainings = []
         self.following = []
