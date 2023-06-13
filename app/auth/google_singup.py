@@ -14,7 +14,6 @@ router = APIRouter()
 @router.post("/google", status_code=status.HTTP_201_CREATED)
 def signup_with_google(credentials: UserSignUpCredentials, request: Request):
     users = request.app.database["users"]
-    user = users.find_one({"mail": credentials.mail})
 
     if users.find_one({"mail": credentials.mail}, {"_id": 0}):
         msg_user_exist = f"User {credentials.mail} already exists"
@@ -25,6 +24,7 @@ def signup_with_google(credentials: UserSignUpCredentials, request: Request):
 
     signup(credentials, request)
 
+    user = users.find_one({"mail": credentials.mail})
     access_token = generate_token(str(user["_id"]), user["role"])
 
     return LoginResponse(
