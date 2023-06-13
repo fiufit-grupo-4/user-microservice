@@ -1,5 +1,5 @@
 import logging
-from fastapi import APIRouter, HTTPException, status, Request
+from fastapi import APIRouter, status, Request
 from pydantic import BaseModel
 from starlette.responses import JSONResponse
 
@@ -19,9 +19,7 @@ def login_google(request: Request, mail: GoogleLoginRequest):
     users = request.app.database["users"]
     user = users.find_one({"mail": mail.mail})
     if not user:
-        return JSONResponse(
-            status_code=status.HTTP_206_PARTIAL_CONTENT
-        )
+        return JSONResponse(status_code=status.HTTP_206_PARTIAL_CONTENT)
 
     if user["first_login"]:
         users.update_one({"mail": user.mail}, {"$set": {"first_login": False}})
@@ -45,4 +43,3 @@ def login_google(request: Request, mail: GoogleLoginRequest):
         "bearer",
         user["first_login"],
     )
-
