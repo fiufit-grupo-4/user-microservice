@@ -35,6 +35,7 @@ class UserSignUpCredentials(BaseModel):
     lastname: str = Field(example='name')
     age: str = Field(example='20')
     location: Optional[LocationResponse]
+    image: Optional[str] = None
 
 
 class UserLoginCredentials(BaseModel):
@@ -70,6 +71,7 @@ class UserResponse(BaseModel):
     image: Optional[str]
     trainings: Optional[list[Union[TrainingResponseUsers, dict]]]
     blocked: Optional[bool]
+    first_login: Optional[bool]
     location: Optional[LocationResponse]
     following: Optional[list[str]]
     followers: Optional[list[str]]
