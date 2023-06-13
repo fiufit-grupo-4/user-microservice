@@ -35,6 +35,7 @@ class UserSignUpCredentials(BaseModel):
     lastname: str = Field(example='name')
     age: str = Field(example='20')
     location: Optional[LocationResponse]
+    image: Optional[str] = None
 
 
 class UserLoginCredentials(BaseModel):

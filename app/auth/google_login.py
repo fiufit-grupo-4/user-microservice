@@ -1,6 +1,6 @@
 import logging
 from fastapi import APIRouter, status, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
 from starlette.responses import JSONResponse
 
 from app.auth.login import LoginResponse
@@ -11,7 +11,7 @@ logger = logging.getLogger("app")
 
 
 class GoogleLoginRequest(BaseModel):
-    mail: str
+    mail: EmailStr = Field(example="username@mail.com")
 
 
 @router.post("/google")
@@ -20,13 +20,11 @@ def login_google(request: Request, mail: GoogleLoginRequest):
     user = users.find_one({"mail": mail.mail})
     if not user:
         return JSONResponse(status_code=status.HTTP_206_PARTIAL_CONTENT)
-
+    logger.info(f"User logged in: {user}")
     if user["first_login"]:
         users.update_one({"mail": user.mail}, {"$set": {"first_login": False}})
 
     access_token = generate_token(str(user["_id"]), user["role"])
-
-    request.app.logger.info(f"User logged in: {user.mail} | id: {user['_id']}")
 
     return LoginResponse(
         user["_id"],
