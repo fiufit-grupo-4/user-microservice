@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from fastapi import APIRouter, Request, status
+from starlette.responses import JSONResponse
 
 from app.auth.login import LoginResponse
 from app.auth.signup import signup
@@ -12,10 +13,17 @@ router = APIRouter()
 
 @router.post("/google", status_code=status.HTTP_201_CREATED)
 def signup_with_google(credentials: UserSignUpCredentials, request: Request):
-    signup(credentials, request)
-
     users = request.app.database["users"]
     user = users.find_one({"mail": credentials.mail})
+
+    if users.find_one({"mail": credentials.mail}, {"_id": 0}):
+        msg_user_exist = f"User {credentials.mail} already exists"
+        request.app.logger.info(msg_user_exist)
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT, content=msg_user_exist
+        )
+
+    signup(credentials, request)
 
     access_token = generate_token(str(user["_id"]), user["role"])
 

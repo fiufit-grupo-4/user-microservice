@@ -71,6 +71,7 @@ class UserResponse(BaseModel):
     image: Optional[str]
     trainings: Optional[list[Union[TrainingResponseUsers, dict]]]
     blocked: Optional[bool]
+    first_login: Optional[bool]
     location: Optional[LocationResponse]
     following: Optional[list[str]]
     followers: Optional[list[str]]
