@@ -38,7 +38,7 @@ class LoginResponse:
         location,
         access_token,
         token_type,
-        first_login=False,
+        first_login
     ):
         self.id = str(id)
         self.name = name
@@ -67,7 +67,7 @@ def is_role_valid(credentials_role, user_role):
 def login(credentials: UserLoginCredentials, request: Request):
     users = request.app.database["users"]
     user = users.find_one({"mail": credentials.mail})
-
+    logger.info(user)
     if (
         not user
         or not is_password_valid(credentials.password, user['encrypted_password'])
@@ -78,7 +78,7 @@ def login(credentials: UserLoginCredentials, request: Request):
             status_code=status.HTTP_401_UNAUTHORIZED,
             content="Invalid credentials",
         )
-    if user.first_login:
+    if user["first_login"]:
         users.update_one({"mail": credentials.mail}, {"$set": {"first_login": False}})
 
     access_token = generate_token(str(user["_id"]), user["role"])
@@ -96,7 +96,7 @@ def login(credentials: UserLoginCredentials, request: Request):
         user["image"],
         user["blocked"],
         user["location"],
-        user["first_login"],
         access_token,
         "bearer",
+        user["first_login"],
     )
