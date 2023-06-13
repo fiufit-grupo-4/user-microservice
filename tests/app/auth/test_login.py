@@ -13,12 +13,12 @@ encrypted_password = '$2b$12$T3HXmxRONP1sjTkk3Pqaq.9IYl5KNRhMHyJC4QxZPx0AqJpctDq
 atleta = {"name": "lucas", "lastname": "martinez", "age": "20", "mail": "waistenlucas@gmail.com",
           "encrypted_password": encrypted_password, "session_token": "token", "role": 3,
           "phone_number": '+5493446570174', "image": "image.png", "blocked": False, "trainings": [],
-          "location": {"longitude": float(300), "latitude": float(400)}, "id" : "1234"}
+          "location": {"longitude": float(300), "latitude": float(400)}, "id" : "1234", "first_login": True}
 
 blocked_user = {"name": "lucas", "lastname": "lopez", "age": "20", "mail": "lopezlucas@gmail.com",
                 "encrypted_password": encrypted_password, "session_token": "token", "role": 3,
                 "phone_number": '+5493446570174', "image": "image.png", "blocked": True, "trainings": [],
-                "location": {"longitude": float(300), "latitude": float(400)}}
+                "location": {"longitude": float(300), "latitude": float(400)}, "first_login": True}
 
 
 # Mock MongoDB
