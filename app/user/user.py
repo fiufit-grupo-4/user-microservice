@@ -209,6 +209,7 @@ class UpdateUserRequest(BaseModel):
     password: Optional[str]
     image: Optional[str]
     location: Optional[LocationResponse]
+    device_token: Optional[str]
 
 
 class QueryParamFilterUser(BaseModel):
@@ -260,3 +261,4 @@ class User:
         self.following = []
         self.followers = []
         self.verification = Verification()
+        self.device_token = None
