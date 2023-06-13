@@ -38,7 +38,7 @@ class LoginResponse:
         location,
         access_token,
         token_type,
-        first_login
+        first_login,
     ):
         self.id = str(id)
         self.name = name
