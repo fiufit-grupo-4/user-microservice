@@ -10,6 +10,7 @@ from app.settings.auth_settings import get_user_id
 from app.settings.config import pwd_context
 from app.user.block_user import router as block_user
 from app.user.follow_user import router as follow_user
+from app.user.interest_user import router_interest
 from app.user.training_small import TrainingResponseUsers
 
 from app.user.user import (
@@ -20,18 +21,16 @@ from app.user.user import (
 )
 from app.user.utils import ObjectIdPydantic
 
-
 logger = logging.getLogger('app')
 router = APIRouter()
 
-
 router.include_router(block_user, tags=["users"], prefix="")
 router.include_router(follow_user, tags=["users"], prefix="")
+router.include_router(router_interest, tags=["users"], prefix="")
 
 
 @router.patch('/{user_id}/verification/approve', status_code=status.HTTP_200_OK)
 def approve_verification_request(request: Request, user_id: ObjectIdPydantic):
-
     users = request.app.database["users"]
     user = users.find_one({"_id": user_id})
 
@@ -73,7 +72,6 @@ def approve_verification_request(request: Request, user_id: ObjectIdPydantic):
 
 @router.patch('/{user_id}/verification/reject', status_code=status.HTTP_200_OK)
 def reject_verification_request(request: Request, user_id: ObjectIdPydantic):
-
     users = request.app.database["users"]
     user = users.find_one({"_id": user_id})
 
