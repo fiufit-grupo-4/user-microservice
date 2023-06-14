@@ -76,6 +76,7 @@ class UserResponse(BaseModel):
     following: Optional[list[str]]
     followers: Optional[list[str]]
     verification: Optional[Verification]
+    interest: Optional[list[str]]
 
     class Config(BaseConfig):
         json_encoders = {ObjectId: lambda id: str(id)}  # convert ObjectId into str
@@ -180,6 +181,7 @@ class UserResponse(BaseModel):
         trainings = user.pop('trainings', [])
         following = user.pop('following', [])
         followers = user.pop('followers', [])
+        interest = user.pop('interest', [])
 
         following_response = [str(f_id) for f_id in following]
         followers_response = [str(f_id) for f_id in followers]
@@ -192,6 +194,7 @@ class UserResponse(BaseModel):
             'trainings': training_responses,
             'followers': followers_response,
             'following': following_response,
+            'interest': interest,
         }
         return cls(**user_dict)
 
@@ -263,5 +266,5 @@ class User:
         self.trainings = []
         self.following = []
         self.followers = []
-        self.interests = []
+        self.interest = []
         self.verification = Verification()
