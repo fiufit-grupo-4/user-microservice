@@ -1,3 +1,4 @@
+
 import asyncio
 from typing import Optional, Union
 from bson import ObjectId
@@ -35,6 +36,7 @@ class UserSignUpCredentials(BaseModel):
     lastname: str = Field(example='name')
     age: str = Field(example='20')
     location: Optional[LocationResponse]
+    image: Optional[str] = None
 
 
 class UserLoginCredentials(BaseModel):
@@ -70,11 +72,13 @@ class UserResponse(BaseModel):
     image: Optional[str]
     trainings: Optional[list[Union[TrainingResponseUsers, dict]]]
     blocked: Optional[bool]
+    first_login: Optional[bool]
     location: Optional[LocationResponse]
     following: Optional[list[str]]
     followers: Optional[list[str]]
     verification: Optional[Verification]
     device_token: Optional[str]
+    interest: Optional[list[str]]
 
     class Config(BaseConfig):
         json_encoders = {ObjectId: lambda id: str(id)}  # convert ObjectId into str
@@ -179,6 +183,7 @@ class UserResponse(BaseModel):
         trainings = user.pop('trainings', [])
         following = user.pop('following', [])
         followers = user.pop('followers', [])
+        interest = user.pop('interest', [])
 
         following_response = [str(f_id) for f_id in following]
         followers_response = [str(f_id) for f_id in followers]
@@ -191,6 +196,7 @@ class UserResponse(BaseModel):
             'trainings': training_responses,
             'followers': followers_response,
             'following': following_response,
+            'interest': interest,
         }
         return cls(**user_dict)
 
@@ -246,6 +252,7 @@ class User:
         image=None,
         blocked=False,
         location=None,
+        first_login=True,
     ):
         self.name = name
         self.lastname = lastname
@@ -257,9 +264,11 @@ class User:
         self.blocked = blocked
         self.phone_number = phone_number
         self.location = location
+        self.first_login = first_login
 
         self.trainings = []
         self.following = []
         self.followers = []
+        self.interest = []
         self.verification = Verification()
         self.device_token = None

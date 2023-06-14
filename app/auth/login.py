@@ -9,18 +9,12 @@ from app.settings.config import pwd_context
 from app.user.user import UserLoginCredentials
 from app.settings.auth_settings import generate_token
 from app.auth.password_reset import router as password_router
-from app.auth.google_login import router as google_login_router
 
 load_dotenv()
 logger = logging.getLogger("app")
 router = APIRouter()
 
 router.include_router(password_router, tags=["login"], prefix="")
-router.include_router(
-    google_login_router,
-    prefix="",
-    tags=["login"],
-)
 
 
 class LoginResponse:
@@ -38,6 +32,7 @@ class LoginResponse:
         location,
         access_token,
         token_type,
+        first_login,
     ):
         self.id = str(id)
         self.name = name
@@ -51,6 +46,7 @@ class LoginResponse:
         self.location = location
         self.access_token = access_token
         self.token_type = token_type
+        self.first_login = first_login
 
 
 def is_password_valid(plain_password, hashed_password):
@@ -65,7 +61,7 @@ def is_role_valid(credentials_role, user_role):
 def login(credentials: UserLoginCredentials, request: Request):
     users = request.app.database["users"]
     user = users.find_one({"mail": credentials.mail})
-
+    logger.info(user)
     if (
         not user
         or not is_password_valid(credentials.password, user['encrypted_password'])
@@ -76,6 +72,8 @@ def login(credentials: UserLoginCredentials, request: Request):
             status_code=status.HTTP_401_UNAUTHORIZED,
             content="Invalid credentials",
         )
+    if user["first_login"]:
+        users.update_one({"mail": credentials.mail}, {"$set": {"first_login": False}})
 
     access_token = generate_token(str(user["_id"]), user["role"])
 
@@ -94,4 +92,5 @@ def login(credentials: UserLoginCredentials, request: Request):
         user["location"],
         access_token,
         "bearer",
+        user["first_login"],
     )
