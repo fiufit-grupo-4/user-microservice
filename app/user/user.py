@@ -74,6 +74,7 @@ class UserResponse(BaseModel):
     following: Optional[list[str]]
     followers: Optional[list[str]]
     verification: Optional[Verification]
+    device_token: Optional[str]
 
     class Config(BaseConfig):
         json_encoders = {ObjectId: lambda id: str(id)}  # convert ObjectId into str
@@ -88,7 +89,7 @@ class UserResponse(BaseModel):
             f'Waiting for {len(trainings_tasks)} \"GET /trainings/{{id_training}}\" requests'
         )
 
-        # Wati in parallel for all requests to finish
+        # Wait in parallel for all requests to finish
         training_responses = await asyncio.gather(*trainings_tasks.values())
 
         trainings = UserResponse.reorganize_trainings(
