@@ -263,4 +263,5 @@ class User:
         self.trainings = []
         self.following = []
         self.followers = []
+        self.interests = []
         self.verification = Verification()
