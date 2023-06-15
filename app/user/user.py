@@ -1,3 +1,4 @@
+
 import asyncio
 from typing import Optional, Union
 from bson import ObjectId
@@ -76,6 +77,7 @@ class UserResponse(BaseModel):
     following: Optional[list[str]]
     followers: Optional[list[str]]
     verification: Optional[Verification]
+    device_token: Optional[str]
     interest: Optional[list[str]]
 
     class Config(BaseConfig):
@@ -91,7 +93,7 @@ class UserResponse(BaseModel):
             f'Waiting for {len(trainings_tasks)} \"GET /trainings/{{id_training}}\" requests'
         )
 
-        # Wati in parallel for all requests to finish
+        # Wait in parallel for all requests to finish
         training_responses = await asyncio.gather(*trainings_tasks.values())
 
         trainings = UserResponse.reorganize_trainings(
@@ -214,6 +216,7 @@ class UpdateUserRequest(BaseModel):
     password: Optional[str]
     image: Optional[str]
     location: Optional[LocationResponse]
+    device_token: Optional[str]
 
 
 class QueryParamFilterUser(BaseModel):
@@ -268,3 +271,4 @@ class User:
         self.followers = []
         self.interest = []
         self.verification = Verification()
+        self.device_token = None
