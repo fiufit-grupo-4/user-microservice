@@ -3,7 +3,7 @@ from fastapi import APIRouter, status, Request
 from pydantic import BaseModel, EmailStr, Field
 from starlette.responses import JSONResponse
 
-from app.auth.login import LoginResponse
+from app.auth.login import LoginResponse, is_role_valid
 from app.settings.auth_settings import generate_token
 
 router = APIRouter()
@@ -21,18 +21,24 @@ def login_google(request: Request, credentials: GoogleLoginRequest):
     if not user:
         return JSONResponse(status_code=status.HTTP_206_PARTIAL_CONTENT)
 
+    if not is_role_valid(credentials.role, user["role"]):
+        logger.info(
+            f"User {user} as role {user['role']} tried to log in as {credentials.role}"
+        )
+        return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED)
+
     logger.info(f"User logged in: {user}")
 
     if user["first_login"]:
         users.update_one({"mail": credentials.mail}, {"$set": {"first_login": False}})
 
-    access_token = generate_token(str(user["_id"]), user["role"])
+    access_token = generate_token(str(user["_id"]), credentials.role)
 
     return LoginResponse(
         user["_id"],
         user["mail"],
         user["phone_number"],
-        user["role"],
+        credentials.role,
         user["name"],
         user["lastname"],
         user["age"],
