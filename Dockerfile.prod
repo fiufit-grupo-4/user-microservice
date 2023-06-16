@@ -6,7 +6,7 @@ FROM python:3.9.16-slim-buster
 RUN apt-get update \
  && apt-get install -y gnupg apt-transport-https gpg-agent curl ca-certificates
 
-COPY entrypoint.sh /
+COPY entrypoint-heroku.sh /
 COPY datadog-config/ /etc/datadog-agent/
 
 # Add Datadog repository and signing keys
@@ -50,4 +50,4 @@ EXPOSE ${PORT}
 ADD app/ app/
 
 # command to start and run FastAPI app container
-CMD ["/entrypoint.sh"]
+CMD ["/entrypoint-heroku.sh"]

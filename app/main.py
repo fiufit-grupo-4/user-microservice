@@ -19,6 +19,7 @@ from .urls import api_router
 #     status="0",
 #     message="Application is OK",
 # )
+
 load_dotenv()
 
 MONGODB_URI = environ["MONGODB_URI"]
@@ -26,6 +27,14 @@ MONGODB_URI = environ["MONGODB_URI"]
 dictConfig(logconfig)
 app = FastAPI()
 logger = logging.getLogger("app")
+
+
+@app.get("/", tags=["Home"])
+def get_root(request: Request) -> dict:
+    logger.warning(
+        f"GET {request.url} | PATH {request.url.path} | FROM {request.client} | HEADERS {request.headers} | COOKIES {request.cookies}"
+    )
+    return {"message": "OK"}
 
 
 @app.on_event("startup")

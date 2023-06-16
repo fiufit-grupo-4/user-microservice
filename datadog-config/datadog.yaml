@@ -1,19 +1,26 @@
 hostname: user-service-fiufit-v2
+
 logs_enabled: true
+
 apm_config:
     enabled: true
+
 logs_config:
     container_collect_all: true
+
 listeners:
   - name: docker
+
 config_providers:
   - name: docker
     polling: true
     poll_interval: 1s
+
 process_config:
     enabled: 'true'
 
 use_dogstatsd: true
+
 dogstatsd_port: 8125
 
 python_version: 3
