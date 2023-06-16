@@ -75,7 +75,7 @@ def login(credentials: UserLoginCredentials, request: Request):
     if user["first_login"]:
         users.update_one({"mail": credentials.mail}, {"$set": {"first_login": False}})
 
-    access_token = generate_token(str(user["_id"]), user["role"])
+    access_token = generate_token(str(user["_id"]), credentials.role)
 
     request.app.logger.info(f"User logged in: {credentials.mail} | id: {user['_id']}")
 
@@ -83,7 +83,7 @@ def login(credentials: UserLoginCredentials, request: Request):
         user["_id"],
         user["mail"],
         user["phone_number"],
-        user["role"],
+        credentials.role,
         user["name"],
         user["lastname"],
         user["age"],

@@ -3,7 +3,7 @@ from fastapi import APIRouter, status, Request
 from pydantic import BaseModel, EmailStr, Field
 from starlette.responses import JSONResponse
 
-from app.auth.login import LoginResponse
+from app.auth.login import LoginResponse, is_role_valid
 from app.settings.auth_settings import generate_token
 
 router = APIRouter()

@@ -168,7 +168,7 @@ class UserResponse(BaseModel):
                     trainings_tasks[old_training["id_training"]] = asyncio.create_task(
                         ServiceTrainers.get(
                             f'/trainings/{old_training["id_training"]}'
-                            + '?map_users=false'
+                            + '?map_users=false&map_states=false'
                         )
                     )
 

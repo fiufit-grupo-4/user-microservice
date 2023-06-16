@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "fast-api-example"
+name = "user-service"
 version = "0.1.0"
-description = "Basic FastAPI service"
+description = "Users FastAPI service"
 authors = ["Federico Pacheco <fpacheco@fi.uba.ar>", "Martina Panetta <mpanetta@fi.uba.ar>"]
 
 [tool.poetry.dependencies]

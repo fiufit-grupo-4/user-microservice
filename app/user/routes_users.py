@@ -191,7 +191,7 @@ async def add_favorite_training(
             )
 
         training = await ServiceTrainers.get(
-            f'/trainings/{id_training}' + '?map_users=false'
+            f'/trainings/{id_training}' + '?map_users=false&map_states=false'
         )
 
         if training.status_code == 200:
