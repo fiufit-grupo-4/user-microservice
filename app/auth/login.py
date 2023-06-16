@@ -68,9 +68,6 @@ def login(credentials: UserLoginCredentials, request: Request):
         or not is_role_valid(credentials.role, user["role"])
     ):
         request.app.logger.info(f"User failed to login: {credentials.mail}")
-        logger.info(
-            f"User {user} as role {user['role']} tried to log in as {credentials.role}"
-        )
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
             content="Invalid credentials",
