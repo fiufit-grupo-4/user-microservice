@@ -19,6 +19,7 @@ EXPOSE ${PORT}
 
 # copy app from host to container
 ADD app/ app/
+COPY entrypoint.sh /
 
 # command to start and run FastAPI app container
-CMD exec poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port ${PORT}
+CMD ["/entrypoint.sh"]
