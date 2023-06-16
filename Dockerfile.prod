@@ -1,0 +1,53 @@
+# set py 3.9.16 as base image to Docker Engine! 
+# Slim-buster is a lightweight version for server deployment
+FROM python:3.9.16-slim-buster
+
+# Install GPG dependencies
+RUN apt-get update \
+ && apt-get install -y gnupg apt-transport-https gpg-agent curl ca-certificates
+
+COPY entrypoint-heroku.sh /
+COPY datadog-config/ /etc/datadog-agent/
+
+# Add Datadog repository and signing keys
+ENV DATADOG_APT_KEYRING="/usr/share/keyrings/datadog-archive-keyring.gpg"
+ENV DATADOG_APT_KEYS_URL="https://keys.datadoghq.com"
+RUN sh -c "echo 'deb [signed-by=${DATADOG_APT_KEYRING}] https://apt.datadoghq.com/ stable 7' > /etc/apt/sources.list.d/datadog.list"
+RUN touch ${DATADOG_APT_KEYRING}
+RUN curl -o /tmp/DATADOG_APT_KEY_CURRENT.public "${DATADOG_APT_KEYS_URL}/DATADOG_APT_KEY_CURRENT.public" && \
+    gpg --ignore-time-conflict --no-default-keyring --keyring ${DATADOG_APT_KEYRING} --import /tmp/DATADOG_APT_KEY_CURRENT.public
+RUN curl -o /tmp/DATADOG_APT_KEY_F14F620E.public "${DATADOG_APT_KEYS_URL}/DATADOG_APT_KEY_F14F620E.public" && \
+    gpg --ignore-time-conflict --no-default-keyring --keyring ${DATADOG_APT_KEYRING} --import /tmp/DATADOG_APT_KEY_F14F620E.public
+RUN curl -o /tmp/DATADOG_APT_KEY_382E94DE.public "${DATADOG_APT_KEYS_URL}/DATADOG_APT_KEY_382E94DE.public" && \
+    gpg --ignore-time-conflict --no-default-keyring --keyring ${DATADOG_APT_KEYRING} --import /tmp/DATADOG_APT_KEY_382E94DE.public
+
+
+# Install the Datadog Agent
+RUN apt-get update && apt-get -y --force-yes install --reinstall datadog-agent
+
+RUN chown -R dd-agent:dd-agent /etc/datadog-agent/auth_token
+RUN chown -R dd-agent:dd-agent /var/log/datadog/
+
+# Expose DogStatsD and trace-agent ports
+EXPOSE 8125/udp 8126/tcp
+
+# create working dir for image
+WORKDIR /app
+
+RUN pip install poetry
+
+# copy dependancies from host to container
+COPY poetry.lock pyproject.toml ./
+
+# install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
+ENV POETRY_VIRTUALENVS_IN_PROJECT true
+RUN poetry install
+
+# expose FastAPI app on specific port inside the container
+EXPOSE ${PORT}
+
+# copy app from host to container
+ADD app/ app/
+
+# command to start and run FastAPI app container
+CMD ["/entrypoint-heroku.sh"]
