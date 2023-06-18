@@ -18,8 +18,8 @@ from app.user.user import (
     UserResponse,
     VerificationRequest,
 )
-from app.user.utils import USER_EDIT, ObjectIdPydantic
-
+from app.user.utils import ObjectIdPydantic
+from app.definitions import USER_EDIT
 
 logger = logging.getLogger('app')
 router = APIRouter()
@@ -315,16 +315,10 @@ async def update_users(
         request.state.location_edit = False
         logger.info(f'Updating user {user_id} a values of {list(to_change.keys())}')
         location = to_change.get('location')
-        logger.critical(type(location))
-        logger.critical(location)
         if location:
             request.state.metrics_allowed = True
             request.state.location = location
             request.state.location_edit = True
-        image = to_change.get('image')
-        if image:
-            request.state.metrics_allowed = True
-            request.state.image_edit = True
         request.state.action = USER_EDIT
         request.state.user_id = user_id
         return JSONResponse(

@@ -4,7 +4,8 @@ import logging
 import json
 from geopy.geocoders import Nominatim
 
-from app.user.utils import BLOCK, GOOGLE_SIGNUP, USER_EDIT, SIGNUP, UNBLOCK
+from app.definitions import BLOCK, GOOGLE_SIGNUP, USER_EDIT, SIGNUP, UNBLOCK
+
 
 logger = logging.getLogger('app')
 
@@ -18,11 +19,9 @@ def MessageQueueFrom(
         "%Y-%m-%d %H:%M:%S.%f"
     )  # datetime obj to ISO 8601 format
 
-    user_id = request.state.user_id
     action = ""
-    ip = request.client.host
     country = ""
-    logger.critical("MessageQueueFrom")
+
     try:
         action = request.state.action
         geolocator = Nominatim(user_agent="app")
@@ -40,7 +39,6 @@ def MessageQueueFrom(
                 [coordinates['latitude'], coordinates['longitude']]
             )
             country = location.raw['address']['country']
-        # elif request.state.image_edit:
 
     except Exception as e:
         logger.critical(e)
@@ -54,8 +52,8 @@ def MessageQueueFrom(
         "status_code": f'{response.status_code}',
         "datetime": f'{formatted_datetime}',
         "response_time": f'{response_time}',
-        "user_id": f'{user_id}',
-        "ip": f'{ip}',
+        "user_id": f'{request.state.user_id}',
+        "ip": f'{request.client.host}',
         "country": f'{country}',
         "action": f'{action}',
     }

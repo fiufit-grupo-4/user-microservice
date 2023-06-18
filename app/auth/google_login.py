@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from starlette.responses import JSONResponse
 
 from app.settings.auth_settings import generate_token
-from app.user.utils import GOOGLE_LOGIN
+from app.definitions import GOOGLE_LOGIN
 
 router = APIRouter()
 logger = logging.getLogger("app")

@@ -5,7 +5,9 @@ from fastapi import Request
 from starlette.responses import JSONResponse
 from app.domain.UserRoles import UserRoles
 from app.settings.auth_settings import get_user_id
-from app.user.utils import BLOCK, UNBLOCK, ObjectIdPydantic
+from app.user.utils import ObjectIdPydantic
+from app.definitions import BLOCK, UNBLOCK
+
 
 logger = logging.getLogger("app")
 router = APIRouter()

@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from firebase_admin import auth
 
 from app.user.user import UserResponse
-from app.user.utils import GOOGLE_SIGNUP
+from app.definitions import GOOGLE_SIGNUP
 
 load_dotenv()
 router = APIRouter()

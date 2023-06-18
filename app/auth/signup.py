@@ -8,7 +8,7 @@ from app.domain.UserRoles import UserRoles
 from app.settings.config import pwd_context, account_sid, auth_token
 from app.settings.twilio import send_whatsapp_validation_code, twilio_validation_code
 from app.user.user import User, UserSignUpCredentials, UserResponse
-from app.user.utils import SIGNUP
+from app.definitions import SIGNUP
 
 router = APIRouter()
 client_twilio = Client(account_sid, auth_token)

@@ -10,7 +10,7 @@ from app.user.user import UserLoginCredentials
 from app.settings.auth_settings import generate_token
 from app.auth.password_reset import router as password_router
 from app.auth.google_login import router as google_login_router
-from app.user.utils import LOGIN
+from app.definitions import LOGIN
 
 load_dotenv()
 logger = logging.getLogger("app")
