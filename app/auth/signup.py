@@ -8,6 +8,7 @@ from app.domain.UserRoles import UserRoles
 from app.settings.config import pwd_context, account_sid, auth_token
 from app.settings.twilio import send_whatsapp_validation_code, twilio_validation_code
 from app.user.user import User, UserSignUpCredentials, UserResponse
+from app.user.utils import SIGNUP
 
 router = APIRouter()
 client_twilio = Client(account_sid, auth_token)
@@ -21,7 +22,6 @@ router.include_router(
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def signup(credentials: UserSignUpCredentials, request: Request):
-    request.state.metrics_allowed = True
     hashed_password = pwd_context.hash(credentials.password)
     user = User(
         credentials.mail,
@@ -60,6 +60,10 @@ def signup(credentials: UserSignUpCredentials, request: Request):
     if user.role != UserRoles.ADMIN.value:
         send_whatsapp_validation_code(credentials.phone_number)
 
+    request.state.metrics_allowed = True
+    request.state.location = user.location
+    request.state.user_id = user_id
+    request.state.action = SIGNUP
     return response
 
 

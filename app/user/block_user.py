@@ -5,7 +5,7 @@ from fastapi import Request
 from starlette.responses import JSONResponse
 from app.domain.UserRoles import UserRoles
 from app.settings.auth_settings import get_user_id
-from app.user.utils import ObjectIdPydantic
+from app.user.utils import BLOCK, UNBLOCK, ObjectIdPydantic
 
 logger = logging.getLogger("app")
 router = APIRouter()
@@ -49,6 +49,11 @@ def update_user_block_status(
     users.update_one({"_id": user_id}, {"$set": {"blocked": block}})
 
     logger.info(f"User {'blocked' if block else 'unblocked'}: {user_id}")
+
+    request.state.metrics_allowed = True
+    request.state.user_id = user_id
+    request.state.action = BLOCK if block else UNBLOCK
+
     return {"message": content}
 
 

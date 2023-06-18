@@ -10,6 +10,7 @@ from app.user.user import UserLoginCredentials
 from app.settings.auth_settings import generate_token
 from app.auth.password_reset import router as password_router
 from app.auth.google_login import router as google_login_router
+from app.user.utils import LOGIN
 
 load_dotenv()
 logger = logging.getLogger("app")
@@ -63,7 +64,7 @@ def is_role_valid(credentials_role, user_role):
 
 @router.post("/", status_code=status.HTTP_200_OK)
 def login(credentials: UserLoginCredentials, request: Request):
-    request.state.metrics_allowed = True
+
     users = request.app.database["users"]
     user = users.find_one({"mail": credentials.mail})
 
@@ -81,6 +82,10 @@ def login(credentials: UserLoginCredentials, request: Request):
     access_token = generate_token(str(user["_id"]), user["role"])
 
     request.app.logger.info(f"User logged in: {credentials.mail} | id: {user['_id']}")
+
+    request.state.metrics_allowed = True
+    request.state.user_id = user['_id']
+    request.state.action = LOGIN
 
     return LoginResponse(
         user["_id"],

@@ -8,7 +8,7 @@ from pika.adapters.asyncio_connection import AsyncioConnection
 
 from app.publisher.queue_settings import EXCHANGE, EXCHANGE_TYPE, QUEUE, ROUTING_KEY
 
-# Este codigo fue extraido de los ejemplos de la documentacion de pika, 
+# Este codigo fue extraido de los ejemplos de la documentacion de pika,
 # pero se lo adapto para que funcione con el resto del codigo de la aplicacion
 # de forma asincronica
 # REFERENCIAS:
@@ -16,6 +16,7 @@ from app.publisher.queue_settings import EXCHANGE, EXCHANGE_TYPE, QUEUE, ROUTING
 # - https://pika.readthedocs.io/en/stable/examples.html
 # - https://github.com/pika/pika/blob/main/examples/asynchronous_publisher_example.py
 # - https://github.com/pika/pika/blob/main/examples/asyncio_consumer_example.py
+
 
 class PublisherQueue:
     """This is an example publisher that will handle unexpected interactions
@@ -30,8 +31,9 @@ class PublisherQueue:
     messages that have been sent and if they've been confirmed by RabbitMQ.
 
     """
-    instance = None # For Singleton pattern!
-    
+
+    instance = None  # For Singleton pattern!
+
     def __new__(cls, amqp_url):
         """Setup the example publisher object, passing in the URL we will use
         to connect to RabbitMQ.
@@ -51,7 +53,7 @@ class PublisherQueue:
 
             cls.instance._stopping = False
             cls.instance._url = amqp_url
-        
+
         return cls.instance
 
     def connect(cls):
@@ -67,7 +69,8 @@ class PublisherQueue:
             pika.URLParameters(cls.instance._url),
             on_open_callback=cls.instance.on_connection_open,
             on_open_error_callback=cls.instance.on_connection_open_error,
-            on_close_callback=cls.instance.on_connection_closed)
+            on_close_callback=cls.instance.on_connection_closed,
+        )
 
     def on_connection_open(cls, _unused_connection):
         """This method is called by pika once the connection to RabbitMQ has
@@ -89,7 +92,9 @@ class PublisherQueue:
 
         """
         main.logger.error('Connection open failed, reopening in 5 seconds: %s', err)
-        cls.instance._connection.ioloop.call_later(5, cls.instance._connection.ioloop.stop)
+        cls.instance._connection.ioloop.call_later(
+            5, cls.instance._connection.ioloop.stop
+        )
 
     def on_connection_closed(cls, _unused_connection, reason):
         """This method is invoked by pika when the connection to RabbitMQ is
@@ -105,9 +110,10 @@ class PublisherQueue:
         if cls.instance._stopping:
             cls.instance._connection.ioloop.stop()
         else:
-            main.logger.warning('Connection closed, reopening in 5 seconds: %s',
-                           reason)
-            cls.instance._connection.ioloop.call_later(5, cls.instance._connection.ioloop.stop)
+            main.logger.warning('Connection closed, reopening in 5 seconds: %s', reason)
+            cls.instance._connection.ioloop.call_later(
+                5, cls.instance._connection.ioloop.stop
+            )
 
     def open_channel(cls):
         """This method will open a new channel with RabbitMQ by issuing the
@@ -168,11 +174,12 @@ class PublisherQueue:
         main.logger.info('Declaring exchange %s', exchange_name)
         # Note: using functools.partial is not required, it is demonstrating
         # how arbitrary data can be passed to the callback when it is called
-        cb = functools.partial(cls.instance.on_exchange_declareok,
-                               userdata=exchange_name)
-        cls.instance._channel.exchange_declare(exchange=exchange_name,
-                                       exchange_type=EXCHANGE_TYPE,
-                                       callback=cb)
+        cb = functools.partial(
+            cls.instance.on_exchange_declareok, userdata=exchange_name
+        )
+        cls.instance._channel.exchange_declare(
+            exchange=exchange_name, exchange_type=EXCHANGE_TYPE, callback=cb
+        )
 
     def on_exchange_declareok(cls, _unused_frame, userdata):
         """Invoked by pika when RabbitMQ has finished the Exchange.Declare RPC
@@ -194,8 +201,9 @@ class PublisherQueue:
 
         """
         main.logger.info('Declaring queue %s', queue_name)
-        cls.instance._channel.queue_declare(queue=queue_name,
-                                    callback=cls.instance.on_queue_declareok)
+        cls.instance._channel.queue_declare(
+            queue=queue_name, callback=cls.instance.on_queue_declareok
+        )
 
     def on_queue_declareok(cls, _unused_frame):
         """Method invoked by pika when the Queue.Declare RPC call made in
@@ -207,12 +215,10 @@ class PublisherQueue:
         :param pika.frame.Method method_frame: The Queue.DeclareOk frame
 
         """
-        main.logger.info('Binding %s to %s with %s', EXCHANGE, QUEUE,
-                    ROUTING_KEY)
-        cls.instance._channel.queue_bind(QUEUE,
-                                 EXCHANGE,
-                                 routing_key=ROUTING_KEY,
-                                 callback=cls.instance.on_bindok)
+        main.logger.info('Binding %s to %s with %s', EXCHANGE, QUEUE, ROUTING_KEY)
+        cls.instance._channel.queue_bind(
+            QUEUE, EXCHANGE, routing_key=ROUTING_KEY, callback=cls.instance.on_bindok
+        )
 
     def on_bindok(cls, _unused_frame):
         """This method is invoked by pika when it receives the Queue.BindOk
@@ -260,8 +266,12 @@ class PublisherQueue:
         ack_multiple = method_frame.method.multiple
         delivery_tag = method_frame.method.delivery_tag
 
-        main.logger.info('Received %s for delivery tag: %i (multiple: %s)',
-                    confirmation_type, delivery_tag, ack_multiple)
+        main.logger.info(
+            'Received %s for delivery tag: %i (multiple: %s)',
+            confirmation_type,
+            delivery_tag,
+            ack_multiple,
+        )
 
         if confirmation_type == 'ack':
             cls.instance._acked += 1
@@ -282,27 +292,27 @@ class PublisherQueue:
 
         main.logger.info(
             'Published %i messages, %i have yet to be confirmed, '
-            '%i were acked and %i were nacked', cls.instance._message_number,
-            len(cls.instance._deliveries), cls.instance._acked, cls.instance._nacked)
+            '%i were acked and %i were nacked',
+            cls.instance._message_number,
+            len(cls.instance._deliveries),
+            cls.instance._acked,
+            cls.instance._nacked,
+        )
 
     def publish_message(cls, message):
         if cls.instance._channel is None or not cls.instance._channel.is_open:
-            return # !TODO 
-            
+            return  # !TODO
+
         cls.instance._channel.basic_publish(
-          exchange=EXCHANGE,
-          routing_key=ROUTING_KEY,
-          body=json.dumps(message))
-        
+            exchange=EXCHANGE, routing_key=ROUTING_KEY, body=json.dumps(message)
+        )
+
         cls.instance._message_number += 1
         cls.instance._deliveries[cls.instance._message_number] = True
         main.logger.info('Publishing message %s', message)
 
-
     def run(cls):
-        """Run the example code by connecting and then starting the IOLoop.
-
-        """
+        """Run the example code by connecting and then starting the IOLoop."""
         while not cls.instance._stopping:
             cls.instance._connection = None
             cls.instance._deliveries = {}
@@ -315,8 +325,10 @@ class PublisherQueue:
                 cls.instance._connection.ioloop.run_forever()
             except KeyboardInterrupt:
                 cls.instance.stop()
-                if (cls.instance._connection is not None and
-                        not cls.instance._connection.is_closed):
+                if (
+                    cls.instance._connection is not None
+                    and not cls.instance._connection.is_closed
+                ):
                     cls.instance._connection.ioloop.run_forever()
 
         main.logger.info('Stopped')
@@ -353,6 +365,7 @@ class PublisherQueue:
 
 def getPublisherQueue() -> PublisherQueue:
     return PublisherQueue(os.environ["CLOUDAMQP_URL"])
+
 
 async def runPublisherManager():
     getPublisherQueue().run()
