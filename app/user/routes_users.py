@@ -19,7 +19,7 @@ from app.user.user import (
     VerificationRequest,
 )
 from app.user.utils import ObjectIdPydantic
-from app.definitions import USER_EDIT
+from app.definitions import ADD_TRAINING_TO_FAVS, REMOVE_TRAINING_FROM_FAVS, USER_EDIT
 
 logger = logging.getLogger('app')
 router = APIRouter()
@@ -203,6 +203,10 @@ async def add_favorite_training(
             )
             if result.modified_count == 1:
                 logger.info(f'User {id_user} added favorite training {id_training}')
+                request.state.metrics_allowed = True
+                request.state.action = ADD_TRAINING_TO_FAVS
+                request.state.user_id = id_user
+                request.state.training_id = id_training
                 return TrainingResponseUsers.from_mongo(training)
 
         logger.info(f'Failed to add favorite training {id_training} to user {id_user}')
@@ -234,6 +238,10 @@ async def delete_favorite_training(
             )
             if result.modified_count == 1:
                 logger.info(f'User {id_user} deleted favorite training {id_training}')
+                request.state.metrics_allowed = True
+                request.state.action = REMOVE_TRAINING_FROM_FAVS
+                request.state.user_id = id_user
+                request.state.training_id = id_training
                 return JSONResponse(
                     status_code=status.HTTP_200_OK,
                     content=f'User {id_user} deleted favorite training {id_training}',

@@ -1,10 +1,17 @@
 from fastapi import Request, Response
 import datetime
 import logging
-import json
 from geopy.geocoders import Nominatim
 
-from app.definitions import BLOCK, GOOGLE_SIGNUP, USER_EDIT, SIGNUP, UNBLOCK
+from app.definitions import (
+    ADD_TRAINING_TO_FAVS,
+    BLOCK,
+    GOOGLE_SIGNUP,
+    REMOVE_TRAINING_FROM_FAVS,
+    USER_EDIT,
+    SIGNUP,
+    UNBLOCK,
+)
 
 
 logger = logging.getLogger('app')
@@ -21,19 +28,23 @@ def MessageQueueFrom(
 
     action = ""
     country = ""
+    training_id = ""
+    user_id = ""
 
     try:
+        user_id = request.state.user_id
         action = request.state.action
         geolocator = Nominatim(user_agent="app")
+
         if action in (SIGNUP, GOOGLE_SIGNUP):
             coordinates = request.state.location.__dict__
             location = geolocator.reverse(
                 [coordinates['latitude'], coordinates['longitude']]
             )
             country = location.raw['address']['country']
-            logger.critical(country)
+        elif action in (ADD_TRAINING_TO_FAVS, REMOVE_TRAINING_FROM_FAVS):
+            training_id = request.state.training_id
         elif request.state.location_edit:
-            logger.critical(country)
             coordinates = request.state.location
             location = geolocator.reverse(
                 [coordinates['latitude'], coordinates['longitude']]
@@ -41,7 +52,7 @@ def MessageQueueFrom(
             country = location.raw['address']['country']
 
     except Exception as e:
-        logger.critical(e)
+        logger.info(e)
         pass
 
     return {
@@ -52,10 +63,10 @@ def MessageQueueFrom(
         "status_code": f'{response.status_code}',
         "datetime": f'{formatted_datetime}',
         "response_time": f'{response_time}',
-        "user_id": f'{request.state.user_id}',
+        "user_id": f'{user_id}',
         "ip": f'{request.client.host}',
         "country": f'{country}',
         "action": f'{action}',
-        "training_id": "",
+        "training_id": f'{training_id}',
         "training_type": "",
     }
