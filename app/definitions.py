@@ -1,4 +1,4 @@
-########################## METRICS ACTIONS ##############################
+# METRICS ACTIONS
 
 USER_EDIT = "user_edit"
 SIGNUP = "signup"
