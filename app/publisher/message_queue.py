@@ -56,4 +56,6 @@ def MessageQueueFrom(
         "ip": f'{request.client.host}',
         "country": f'{country}',
         "action": f'{action}',
+        "training_id": "",
+        "training_type": "",
     }
