@@ -44,6 +44,11 @@ def MessageQueueFrom(
             country = location.raw['address']['country']
         elif action in (ADD_TRAINING_TO_FAVS, REMOVE_TRAINING_FROM_FAVS):
             training_id = request.state.training_id
+            coordinates = request.state.location
+            location = geolocator.reverse(
+                [coordinates['latitude'], coordinates['longitude']]
+            )
+            country = location.raw['address']['country']
         elif request.state.location_edit:
             coordinates = request.state.location
             location = geolocator.reverse(

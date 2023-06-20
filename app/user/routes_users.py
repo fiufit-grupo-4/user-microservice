@@ -207,6 +207,8 @@ async def add_favorite_training(
                 request.state.action = ADD_TRAINING_TO_FAVS
                 request.state.user_id = id_user
                 request.state.training_id = id_training
+                request.state.location = user['location']
+                logger.critical(user['location'])
                 return TrainingResponseUsers.from_mongo(training)
 
         logger.info(f'Failed to add favorite training {id_training} to user {id_user}')
@@ -242,6 +244,7 @@ async def delete_favorite_training(
                 request.state.action = REMOVE_TRAINING_FROM_FAVS
                 request.state.user_id = id_user
                 request.state.training_id = id_training
+                request.state.location = user['location']
                 return JSONResponse(
                     status_code=status.HTTP_200_OK,
                     content=f'User {id_user} deleted favorite training {id_training}',
