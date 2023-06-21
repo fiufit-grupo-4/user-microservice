@@ -17,8 +17,10 @@ lucas = {
     'phone_number': '+5493446570174',
     'trainings': [],
     'following': [],
-    'followers': []
+    'followers': [],
+    'device_token': None,
 }
+
 juan = {
     "name": "juan",
     "lastname": "perez",
@@ -30,7 +32,8 @@ juan = {
     'phone_number': '+5493446578175',
     'trainings': [],
     'following': [],
-    'followers': []
+    'followers': [],
+    'device_token': None,
 }
 
 

@@ -8,6 +8,9 @@ from .log_config import logconfig
 from os import environ
 from dotenv import load_dotenv
 from .urls import api_router
+import firebase_admin
+from firebase_admin import credentials
+from app.credentials import firebase_credentials
 
 # from datadog import initialize, statsd
 
@@ -21,11 +24,12 @@ from .urls import api_router
 # )
 
 load_dotenv()
-
 MONGODB_URI = environ["MONGODB_URI"]
 
 dictConfig(logconfig)
 app = FastAPI()
+cred = credentials.Certificate(firebase_credentials)
+firebase_admin.initialize_app(cred)
 logger = logging.getLogger("app")
 
 
