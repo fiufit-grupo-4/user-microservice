@@ -17,8 +17,8 @@ def create_user(name: str, lastname: str, mail: str, age: str):
 
 
 class LocationResponse(BaseModel):
-    latitude: float = Field(example="400")
-    longitude: float = Field(example="350")
+    latitude: float = Field(example="-64")
+    longitude: float = Field(example="-34")
 
 
 class Verification(BaseModel):
