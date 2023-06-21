@@ -15,7 +15,10 @@ router = APIRouter()
 
 def send_push_notification(device_token, title, body):
     if device_token is not None:
-        message = messaging.Message(notification=messaging.Notification(title=title, body=body), token=device_token)
+        message = messaging.Message(
+            notification=messaging.Notification(title=title, body=body),
+            token=device_token,
+        )
         messaging.send(message)
 
 
@@ -48,7 +51,11 @@ async def follow(
         )
         if result.modified_count == 1:
             logger.info(f'User {id_user} followed user {id_user_to_follow}')
-            send_push_notification(device_token=user['device_token'], title='¡Nuevo seguidor!', body=f'El usuario {id_user} a comenzado a seguirte')
+            send_push_notification(
+                device_token=user['device_token'],
+                title='¡Nuevo seguidor!',
+                body=f'El usuario {id_user} a comenzado a seguirte',
+            )
             return JSONResponse(status_code=status.HTTP_200_OK)
         else:
             logger.info(f'Failed to unfollow {id_user_to_follow}')
