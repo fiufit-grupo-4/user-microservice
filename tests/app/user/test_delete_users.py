@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+load_dotenv()
 import mongomock
 import pytest
 from fastapi.testclient import TestClient
