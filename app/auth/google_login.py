@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from starlette.responses import JSONResponse
 
 from app.settings.auth_settings import generate_token
+from app.definitions import GOOGLE_LOGIN
 
 router = APIRouter()
 logger = logging.getLogger("app")
@@ -18,6 +19,7 @@ class GoogleLoginRequest(BaseModel):
 
 @router.post("/google")
 def login_google(request: GoogleLoginRequest):
+
     try:
         # Verificar el token de acceso con Firebase Admin
         decoded_token = auth.verify_id_token(request.id_token)
@@ -29,6 +31,10 @@ def login_google(request: GoogleLoginRequest):
         # Puedes generar el token de acceso utilizando JWT o cualquier otro método de autenticación personalizado
         # Generar el token de acceso
         access_token = generate_token(str(user_id), "TODO")
+
+        request.state.metrics_allowed = True
+        request.state.user_id = user_id
+        request.state.action = GOOGLE_LOGIN
 
         # Ejemplo de respuesta exitosa
         return {"access_token": access_token, "token_type": "bearer"}

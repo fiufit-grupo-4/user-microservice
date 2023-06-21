@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from firebase_admin import auth
 
 from app.user.user import UserResponse
+from app.definitions import GOOGLE_SIGNUP
 
 load_dotenv()
 router = APIRouter()
@@ -11,6 +12,7 @@ router = APIRouter()
 
 @router.post("/google", status_code=status.HTTP_201_CREATED)
 def signup_with_google(token: str, request: Request):
+
     users = request.app.database["users"]
 
     try:
@@ -38,6 +40,13 @@ def signup_with_google(token: str, request: Request):
         request.app.logger.info(
             f"User {UserResponse(id=str(user_id), mail=google_email)} successfully created"
         )
+
+        request.state.metrics_allowed = True
+        request.state.user_id = user_id
+        request.state.action = GOOGLE_SIGNUP
+        # request.state.location = user.location
+        # TODO
+
         return UserResponse(id=str(user_id), mail=google_email)
 
     except Exception as e:

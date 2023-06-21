@@ -4,6 +4,7 @@ from starlette.background import BackgroundTasks
 from app.settings.config import pwd_context
 from app.settings.twilio import send_password_reset_email, twilio_validation_code
 from app.user.user import UserForgotPasswordCredential, UserResetPasswordCredential
+from app.definitions import PASSWORD_EDIT
 
 router = APIRouter()
 
@@ -25,6 +26,10 @@ async def forgot_password(
         )
 
     background_tasks.add_task(send_password_reset_email, to_email=user["mail"])
+
+    request.state.metrics_allowed = True
+    request.state.user_id = user['_id']  # TODO: CHECK OR REMOVE _
+    request.state.action = PASSWORD_EDIT
 
     request.app.logger.info(f"Password reset link sent to: {user['mail']}")
     return {"detail": "Password reset link sent"}
@@ -62,5 +67,6 @@ async def reset_password(
     )
     request.app.logger.info(users.find_one({"mail": credentials.mail}))
     request.app.logger.info(f"Password reset for user: {user['mail']}")
-
+    # request.state.metrics_allowed = True
+    # #TODO
     return {"detail": "Password reset successfully"}
