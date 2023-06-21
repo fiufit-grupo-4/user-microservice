@@ -3,7 +3,7 @@ from app.user.routes_users import router as user_router
 from app.auth.login import router as login_router
 from app.auth.signup import router as signup_router
 from app.auth.google_login import router as google_login_router
-from app.auth.google_singup import router as google_signup_router
+from app.auth.google_signup import router as google_signup_router
 
 api_router = APIRouter()
 

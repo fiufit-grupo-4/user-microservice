@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+load_dotenv()
 import pytest
 from fastapi import status
 from unittest.mock import MagicMock, patch

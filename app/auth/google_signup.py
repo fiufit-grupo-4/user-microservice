@@ -9,6 +9,11 @@ from app.user.user import UserSignUpCredentials, UserResponse
 from app.definitions import GOOGLE_SIGNUP
 
 
+load_dotenv()
+router = APIRouter()
+
+
+@router.post("/google", status_code=status.HTTP_201_CREATED)
 def signup_with_google(credentials: UserSignUpCredentials, request: Request):
     users = request.app.database["users"]
 
