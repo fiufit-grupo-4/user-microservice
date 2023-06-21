@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+load_dotenv()
 from bson import ObjectId
 import mongomock
 import pytest

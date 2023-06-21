@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+load_dotenv()
 from unittest import mock
 
 from fastapi.testclient import TestClient

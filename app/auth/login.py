@@ -9,6 +9,8 @@ from app.settings.config import pwd_context
 from app.user.user import UserLoginCredentials
 from app.settings.auth_settings import generate_token
 from app.auth.password_reset import router as password_router
+from app.definitions import LOGIN
+
 
 load_dotenv()
 logger = logging.getLogger("app")
@@ -59,6 +61,7 @@ def is_role_valid(credentials_role, user_role):
 
 @router.post("/", status_code=status.HTTP_200_OK)
 def login(credentials: UserLoginCredentials, request: Request):
+
     users = request.app.database["users"]
     user = users.find_one({"mail": credentials.mail})
     logger.info(user)
@@ -78,6 +81,10 @@ def login(credentials: UserLoginCredentials, request: Request):
     access_token = generate_token(str(user["_id"]), credentials.role)
 
     request.app.logger.info(f"User logged in: {credentials.mail} | id: {user['_id']}")
+
+    request.state.metrics_allowed = True
+    request.state.user_id = str(user['_id'])
+    request.state.action = LOGIN
 
     return LoginResponse(
         user["_id"],

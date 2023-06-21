@@ -20,6 +20,8 @@ from app.user.user import (
     VerificationRequest,
 )
 from app.user.utils import ObjectIdPydantic
+from app.definitions import ADD_TRAINING_TO_FAVS, REMOVE_TRAINING_FROM_FAVS, USER_EDIT
+
 
 logger = logging.getLogger('app')
 router = APIRouter()
@@ -201,6 +203,11 @@ async def add_favorite_training(
             )
             if result.modified_count == 1:
                 logger.info(f'User {id_user} added favorite training {id_training}')
+                request.state.metrics_allowed = True
+                request.state.action = ADD_TRAINING_TO_FAVS
+                request.state.user_id = id_user
+                request.state.training_id = id_training
+                request.state.location = user.get('location')
                 return TrainingResponseUsers.from_mongo(training)
 
         logger.info(f'Failed to add favorite training {id_training} to user {id_user}')
@@ -232,6 +239,11 @@ async def delete_favorite_training(
             )
             if result.modified_count == 1:
                 logger.info(f'User {id_user} deleted favorite training {id_training}')
+                request.state.metrics_allowed = True
+                request.state.action = REMOVE_TRAINING_FROM_FAVS
+                request.state.user_id = id_user
+                request.state.training_id = id_training
+                request.state.location = user.get('location')
                 return JSONResponse(
                     status_code=status.HTTP_200_OK,
                     content=f'User {id_user} deleted favorite training {id_training}',
@@ -309,7 +321,16 @@ async def update_users(
     result_update = users.update_one({"_id": user_id}, {"$set": to_change})
 
     if result_update.modified_count > 0:
+        request.state.image_edit = False
+        request.state.location_edit = False
         logger.info(f'Updating user {user_id} a values of {list(to_change.keys())}')
+        location = to_change.get('location')
+        if location:
+            request.state.metrics_allowed = True
+            request.state.location = location
+            request.state.location_edit = True
+        request.state.action = USER_EDIT
+        request.state.user_id = user_id
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content=f'User {user_id} updated successfully',

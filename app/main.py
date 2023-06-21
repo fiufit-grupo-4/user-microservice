@@ -1,9 +1,13 @@
+import asyncio
+import os
 import pymongo
 from fastapi import FastAPI, Request
 import logging
 from logging.config import dictConfig
 
 import uvicorn
+from app.publisher.publisher_queue import runPublisherManager
+from app.publisher.publisher_queue_middleware import PublisherQueueEventMiddleware
 from .log_config import logconfig
 from os import environ
 from dotenv import load_dotenv
@@ -32,6 +36,7 @@ cred = credentials.Certificate(firebase_credentials)
 firebase_admin.initialize_app(cred)
 logger = logging.getLogger("app")
 
+app.add_middleware(PublisherQueueEventMiddleware)
 
 @app.get("/", tags=["Home"])
 def get_root(request: Request) -> dict:
@@ -53,12 +58,16 @@ async def startup_db_client():
 
     app.logger = logger
     app.database = app.mongodb_client["user_microservice"]
+
+    app.task_publisher_manager = asyncio.create_task(runPublisherManager())
+
     # app.database.users.delete_many({})
 
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
     app.mongodb_client.close()
+    app.task_publisher_manager.cancel()
     logger.info("Shutdown APP")
 
 
