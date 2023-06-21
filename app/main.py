@@ -38,6 +38,7 @@ logger = logging.getLogger("app")
 
 app.add_middleware(PublisherQueueEventMiddleware)
 
+
 @app.get("/", tags=["Home"])
 def get_root(request: Request) -> dict:
     logger.warning(

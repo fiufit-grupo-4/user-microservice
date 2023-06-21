@@ -16,16 +16,13 @@ class GoogleLoginRequest(BaseModel):
 
 
 @router.post("/google")
-
 def login_google(request: Request, credentials: GoogleLoginRequest):
     users = request.app.database["users"]
     user = users.find_one({"mail": credentials.mail})
     if not user:
         return JSONResponse(status_code=status.HTTP_206_PARTIAL_CONTENT)
 
-
     logger.info(f"User logged in: {user}")
-
 
     if user["first_login"]:
         users.update_one({"mail": credentials.mail}, {"$set": {"first_login": False}})

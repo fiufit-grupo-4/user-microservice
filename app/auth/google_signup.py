@@ -8,6 +8,7 @@ from app.settings.auth_settings import generate_token
 from app.user.user import UserSignUpCredentials, UserResponse
 from app.definitions import GOOGLE_SIGNUP
 
+
 def signup_with_google(credentials: UserSignUpCredentials, request: Request):
     users = request.app.database["users"]
 
