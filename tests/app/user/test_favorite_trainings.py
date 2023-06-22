@@ -27,7 +27,7 @@ async def mock_get(*args, **kwargs):
                              "id_trainer": trainer_id_example_mock,
                              "title": "A",
                              "description": "string",
-                             "type": "Caminata",
+                             "type": "Walking",
                              "difficulty": "Fácil"
                             }
     return response
@@ -59,7 +59,7 @@ def test_post_training(mongo_mock):
     assert response.json().get("id_training") == training_id_mock
     assert response.json().get("id_trainer") == trainer_id_example_mock
     assert response.json().get("title") == "A"
-    assert response.json().get("type") == "Caminata"
+    assert response.json().get("type") == "Walking"
     assert response.json().get("difficulty") == "Fácil"
     
     response = client.get(f"/users/{id_lucas}")
@@ -77,7 +77,7 @@ def test_post_training_two_times_retuns_409(mongo_mock):
     assert response.json().get("id_training") == training_id_mock
     assert response.json().get("id_trainer") == trainer_id_example_mock
     assert response.json().get("title") == "A"
-    assert response.json().get("type") == "Caminata"
+    assert response.json().get("type") == "Walking"
     assert response.json().get("difficulty") == "Fácil"
     
     response = client.post(f"/users/me/trainings/{training_id_mock}", headers={"Authorization": f"Bearer {access_token_lucas}"})
@@ -93,7 +93,7 @@ def test_delete_training(mongo_mock):
     assert response.json().get("id_training") == training_id_mock
     assert response.json().get("id_trainer") == trainer_id_example_mock
     assert response.json().get("title") == "A"
-    assert response.json().get("type") == "Caminata"
+    assert response.json().get("type") == "Walking"
     assert response.json().get("difficulty") == "Fácil"
     
     response = client.get(f"/users/{id_lucas}")
