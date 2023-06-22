@@ -23,6 +23,11 @@ juan = {"name": "lucas", "lastname": "lopez", "age": "20", "mail": "lopezlucas@g
         "phone_number": '+5493446570174', "image": "image.png", "blocked": False, "trainings": [],
         "location": {"longitude": float(300), "latitude": float(400)}, "first_login": True}
 
+blocked = {"name": "lucas", "lastname": "lopez", "age": "20", "mail": "fede@gmail.com",
+        "encrypted_password": encrypted_password, "session_token": "token", "role": 3,
+        "phone_number": '+5493446570174', "image": "image.png", "blocked": True, "trainings": [],
+        "location": {"longitude": float(300), "latitude": float(400)}, "first_login": True}
+
 
 # Mock MongoDB
 @pytest.fixture()
@@ -31,6 +36,7 @@ def mongo_mock(monkeypatch):
     db = mongo_client.get_database("user_microservice")
     col = db.get_collection("users")
     col.insert_one(lucas)
+    col.insert_one(blocked)
 
     app.database = db
     app.logger = logger
@@ -53,6 +59,14 @@ def test_fail_if_unregistered_user(mongo_mock):
 
     response = client.post("/login/google", json=credentials)
     assert response.status_code == 206
+
+def test_fail_if_blocked_user(mongo_mock):
+    credentials = {
+        "mail": "fede@gmail.com",
+    }
+
+    response = client.post("/login/google", json=credentials)
+    assert response.status_code == 401
 
 
 def test_succeed_if_correct_credentials(mongo_mock):

@@ -22,6 +22,9 @@ def login_google(request: Request, credentials: GoogleLoginRequest):
     if not user:
         return JSONResponse(status_code=status.HTTP_206_PARTIAL_CONTENT)
 
+    if user["blocked"]:
+        return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED)
+
     logger.info(f"User logged in: {user}")
 
     if user["first_login"]:

@@ -75,6 +75,10 @@ def login(credentials: UserLoginCredentials, request: Request):
             status_code=status.HTTP_401_UNAUTHORIZED,
             content="Invalid credentials",
         )
+
+    if user["blocked"]:
+        return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED)
+
     if user["first_login"]:
         users.update_one({"mail": credentials.mail}, {"$set": {"first_login": False}})
 

@@ -30,6 +30,7 @@ def mongo_mock(monkeypatch):
     db = mongo_client.get_database("user_microservice")
     col = db.get_collection("users")
     col.insert_one(atleta)
+    col.insert_one(blocked_user)
 
     app.database = db
     app.logger = logger
@@ -85,7 +86,6 @@ def test_fail_if_blocked(mongo_mock):
     credentials = {
         "mail": blocked_user['mail'],
         "password": password,
-        "phone_number": blocked_user['phone_number'],
         "role": 3
     }
 
