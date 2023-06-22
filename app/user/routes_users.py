@@ -152,7 +152,8 @@ async def get_users(
 
     user_list = []
     for user in users.find(queries.dict(exclude_none=True)).limit(limit):
-        user_list.append(UserResponse.from_mongo(user))
+        if not user["blocked"]:
+            user_list.append(UserResponse.from_mongo(user))
 
     if map_trainings:
         await UserResponse.map_trainings(user_list)

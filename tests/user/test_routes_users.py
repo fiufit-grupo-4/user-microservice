@@ -5,6 +5,7 @@ from fastapi import status
 from fastapi.testclient import TestClient
 from app.settings.auth_settings import Settings
 from app.user.utils import ObjectIdPydantic
+from unittest.mock import MagicMock
 from app.main import app,logger
 
 
@@ -54,6 +55,19 @@ user_3_mock = {
     "verification": {"verified": False, "video": None}
 }
 
+user_4_id_mock = ObjectId()
+user_4_mock = {
+    "name": "federico",
+    "lastname": "pach",
+    "age": "20",
+    "mail": "fede@gmail.com",
+    "encrypted_password": "$3asd2bLF576mxRONP1sjTkk3PqDKq.9IYl5KDsdaJK94KJasdG2ShdlaseO",
+    "image": "fede.png",
+    "blocked": True,
+    "trainings": [],
+    "verification": {"verified": False, "video": None}
+}
+
 
 #################################################################################################
 
@@ -74,6 +88,12 @@ def mongo_mock(monkeypatch):
     user_2_inserted_id = result_2.inserted_id
     global access_token_user_2
     access_token_user_2 = Settings.generate_token(str(user_2_inserted_id))
+
+    result_4 = col.insert_one(user_4_mock)
+    global user_4_inserted_id
+    user_4_inserted_id = result_4.inserted_id
+    global access_token_user_4
+    access_token_user_4 = Settings.generate_token(str(user_4_inserted_id))
 
     app.database = db
     app.logger = logger
@@ -199,3 +219,15 @@ def test_reject_verification(mongo_mock):
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json() == f"User {user_1_inserted_id} verification not found to verify"
 
+
+def test_get_users(mongo_mock):
+
+    response = client.get("/users/")
+
+    assert response.status_code == status.HTTP_200_OK
+
+    assert len(response.json()) == 2
+    assert response.json()[0].get('id') == str(user_1_inserted_id)
+    assert response.json()[0]["name"] == "lucas"
+    assert response.json()[1].get('id') == str(user_2_inserted_id)
+    assert response.json()[1]["name"] == "federico"
