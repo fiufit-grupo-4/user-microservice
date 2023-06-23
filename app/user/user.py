@@ -78,6 +78,7 @@ class UserResponse(BaseModel):
     verification: Optional[Verification]
     device_token: Optional[str]
     interest: Optional[list[str]]
+    notifications: Optional[list[dict]]
 
     class Config(BaseConfig):
         json_encoders = {ObjectId: lambda id: str(id)}  # convert ObjectId into str
