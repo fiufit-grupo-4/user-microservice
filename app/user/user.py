@@ -271,3 +271,4 @@ class User:
         self.interest = []
         self.verification = Verification()
         self.device_token = None
+        self.notifications = []

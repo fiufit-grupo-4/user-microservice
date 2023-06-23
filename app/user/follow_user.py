@@ -51,6 +51,7 @@ async def follow(
         )
         if result.modified_count == 1:
             logger.info(f'User {id_user} followed user {id_user_to_follow}')
+            users.update_one({"_id": id_user_to_follow}, {"$push": {"notifications": {"title":'¡Nuevo seguidor!', "body": f'El usuario {id_user} a comenzado a seguirte'}}})
             send_push_notification(
                 device_token=user_to_follow['device_token'],
                 title='¡Nuevo seguidor!',

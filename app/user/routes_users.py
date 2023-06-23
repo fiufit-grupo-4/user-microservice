@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from bson import ObjectId
 from fastapi import APIRouter, Depends, Query, Request
