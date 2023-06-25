@@ -56,7 +56,7 @@ async def follow(
                 {
                     "$push": {
                         "notifications": {
-                            "title": '¡Nuevo seguidor!',
+                            "title": 'New follower',
                             "body": f'El usuario {id_user} a comenzado a seguirte',
                         }
                     }
