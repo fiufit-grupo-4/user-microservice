@@ -21,7 +21,6 @@ from app.user.user import (
 from app.user.utils import ObjectIdPydantic
 from app.definitions import ADD_TRAINING_TO_FAVS, REMOVE_TRAINING_FROM_FAVS, USER_EDIT
 
-
 logger = logging.getLogger('app')
 router = APIRouter()
 
@@ -317,7 +316,15 @@ async def update_users(
         to_change['encrypted_password'] = pwd_context.hash(to_change['password'])
         to_change.pop('password')
 
-    result_update = users.update_one({"_id": user_id}, {"$set": to_change})
+    if 'notifications' in to_change:
+        notification = to_change.pop('notifications')
+        result_update = users.update_one(
+            {"_id": user_id},
+            {"$set": to_change, "$push": {"notifications": notification}},
+        )
+
+    else:
+        result_update = users.update_one({"_id": user_id}, {"$set": to_change})
 
     if result_update.modified_count > 0:
         request.state.image_edit = False

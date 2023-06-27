@@ -217,6 +217,7 @@ class UpdateUserRequest(BaseModel):
     image: Optional[str]
     location: Optional[LocationResponse]
     device_token: Optional[str]
+    notifications: Optional[dict]
 
 
 class QueryParamFilterUser(BaseModel):
