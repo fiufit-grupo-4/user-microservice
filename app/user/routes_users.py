@@ -113,9 +113,9 @@ def reject_verification_request(request: Request, user_id: ObjectIdPydantic):
     '/verification', response_model=List[UserResponse], status_code=status.HTTP_200_OK
 )
 async def get_verification_requests(
-        request: Request,
-        queries: QueryParamFilterUser = Depends(),
-        limit: int = Query(128, ge=1, le=1024),
+    request: Request,
+    queries: QueryParamFilterUser = Depends(),
+    limit: int = Query(128, ge=1, le=1024),
 ):
     query = {
         '$and': [
@@ -141,10 +141,10 @@ async def get_verification_requests(
 
 @router.get('/', response_model=List[UserResponse], status_code=status.HTTP_200_OK)
 async def get_users(
-        request: Request,
-        queries: QueryParamFilterUser = Depends(),
-        limit: int = Query(128, ge=1, le=1024),
-        map_trainings: Optional[bool] = False,
+    request: Request,
+    queries: QueryParamFilterUser = Depends(),
+    limit: int = Query(128, ge=1, le=1024),
+    map_trainings: Optional[bool] = False,
 ):
     users = request.app.database["users"]
 
@@ -163,9 +163,9 @@ async def get_users(
 
 @router.get('/me', response_model=UserResponse, status_code=status.HTTP_200_OK)
 async def get_me(
-        request: Request,
-        user_id: ObjectId = Depends(get_user_id),
-        map_trainings: Optional[bool] = True,
+    request: Request,
+    user_id: ObjectId = Depends(get_user_id),
+    map_trainings: Optional[bool] = True,
 ):
     return await get_user(request, user_id, map_trainings)
 
@@ -176,9 +176,9 @@ async def get_me(
     status_code=status.HTTP_200_OK,
 )
 async def add_favorite_training(
-        request: Request,
-        id_training: ObjectIdPydantic,
-        id_user: ObjectId = Depends(get_user_id),
+    request: Request,
+    id_training: ObjectIdPydantic,
+    id_user: ObjectId = Depends(get_user_id),
 ):
     users = request.app.database["users"]
     user = users.find_one({"_id": id_user})
@@ -223,9 +223,9 @@ async def add_favorite_training(
 
 @router.delete('/me/trainings/{id_training}', status_code=status.HTTP_200_OK)
 async def delete_favorite_training(
-        request: Request,
-        id_training: ObjectIdPydantic,
-        id_user: ObjectId = Depends(get_user_id),
+    request: Request,
+    id_training: ObjectIdPydantic,
+    id_user: ObjectId = Depends(get_user_id),
 ):
     users = request.app.database["users"]
     user = users.find_one({"_id": id_user})
@@ -270,7 +270,7 @@ async def delete_favorite_training(
 
 @router.get('/{user_id}', response_model=UserResponse, status_code=status.HTTP_200_OK)
 async def get_user(
-        request: Request, user_id: ObjectIdPydantic, map_trainings: Optional[bool] = True
+    request: Request, user_id: ObjectIdPydantic, map_trainings: Optional[bool] = True
 ):
     users = request.app.database["users"]
     user = users.find_one({"_id": user_id})
@@ -292,7 +292,7 @@ async def get_user(
 
 @router.patch('/{user_id}', status_code=status.HTTP_200_OK)
 async def update_users(
-        request: Request, user_id: ObjectIdPydantic, update_user_request: UpdateUserRequest
+    request: Request, user_id: ObjectIdPydantic, update_user_request: UpdateUserRequest
 ):
     to_change = update_user_request.dict(exclude_none=True)
 
@@ -318,10 +318,10 @@ async def update_users(
 
     if 'notifications' in to_change:
         notification = to_change.pop('notifications')
-        result_update = users.update_one({"_id": user_id}, {
-            "$set": to_change,
-            "$push": {"notifications": notification}
-        })
+        result_update = users.update_one(
+            {"_id": user_id},
+            {"$set": to_change, "$push": {"notifications": notification}},
+        )
 
     else:
         result_update = users.update_one({"_id": user_id}, {"$set": to_change})
@@ -370,9 +370,9 @@ def delete_user(request: Request, user_id: ObjectIdPydantic):
 
 @router.post('/me/verification', status_code=status.HTTP_200_OK)
 def upload_verification_video(
-        request: Request,
-        request_body: VerificationRequest,
-        user_id: ObjectId = Depends(get_user_id),
+    request: Request,
+    request_body: VerificationRequest,
+    user_id: ObjectId = Depends(get_user_id),
 ):
     video_upload = request_body.dict(exclude_none=True)
 
