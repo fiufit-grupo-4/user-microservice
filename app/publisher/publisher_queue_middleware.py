@@ -26,8 +26,7 @@ class PublisherQueueEventMiddleware(BaseHTTPMiddleware):
                     )
                 )
             return response
-        except AttributeError as e:  # 'State' object has no attribute 'metrics_allowed'
-            main.logger.info(e)
+        except AttributeError:  # 'State' object has no attribute 'metrics_allowed'
             return response
         except Exception as e:
             main.logger.error(e)
