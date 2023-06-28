@@ -2,7 +2,7 @@ import logging
 from fastapi import APIRouter, Request
 from starlette import status
 from starlette.responses import JSONResponse
-from app.user.follow_user import router as send_push_notification
+from app.user.follow_user import send_push_notification
 
 from app.user.user import GoalCompletedNotification, MessageNotification
 
