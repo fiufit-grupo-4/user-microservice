@@ -16,6 +16,17 @@ def create_user(name: str, lastname: str, mail: str, age: str):
     return new_user
 
 
+class GoalCompletedNotification(BaseModel):
+    id_receiver: ObjectIdPydantic = Field(example="5f9d3b9b9d3b9d9b9d3b9d9b")
+    title_goal: str = Field(example="The best goal")
+
+
+class MessageNotification(BaseModel):
+    id_sender: ObjectIdPydantic = Field(example="5f9d3b9b9d3b9d9b9d3b9d9b")
+    id_receiver: ObjectIdPydantic = Field(example="5f9d3b9b9d3b9d9b9d3b9d9c")
+    message: str = Field(example="Hello, how are you?")
+
+
 class LocationResponse(BaseModel):
     latitude: float = Field(example="-34")
     longitude: float = Field(example="-64")
