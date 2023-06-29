@@ -38,11 +38,13 @@ class Settings(BaseSettings):
     TWILIO_ACCOUNT_SID: str = environ.get('TWILIO_ACCOUNT_SID', 'todo-me')
     TWILIO_AUTH_TOKEN = environ.get('TWILIO_AUTH_TOKEN', 'todo-me')
     TWILIO_SERVICES = environ.get('TWILIO_SERVICES', 'todo-me')
-    FIREBASE_PROJECT_ID: str = environ.get("FIREBASE_PROJECT_ID", 'todo-me')
-    FIREBASE_PRIVATE_KEY_ID: str = environ.get("FIREBASE_PRIVATE_KEY_ID", 'todo-me')
-    FIREBASE_PRIVATE_KEY: str = environ.get("FIREBASE_PRIVATE_KEY", 'todo-me')
-    FIREBASE_CLIENT_EMAIL: str = environ.get("FIREBASE_CLIENT_EMAIL", 'todo-me')
-    FIREBASE_CLIENT_ID: str = environ.get("FIREBASE_CLIENT_ID", 'todo-me')
+    FIREBASE_PROJECT_ID: str = str(environ.get("FIREBASE_PROJECT_ID", 'todo-me'))
+    FIREBASE_PRIVATE_KEY_ID: str = str(environ.get("FIREBASE_PRIVATE_KEY_ID", 'todo-me'))
+    FIREBASE_PRIVATE_KEY: str = str(environ.get("FIREBASE_PRIVATE_KEY", 'todo-me')).replace(
+        '\\n', '\n'
+    )
+    FIREBASE_CLIENT_EMAIL: str = str(environ.get("FIREBASE_CLIENT_EMAIL", 'todo-me'))
+    FIREBASE_CLIENT_ID: str = str(environ.get("FIREBASE_CLIENT_ID", 'todo-me'))
 
     class Config:
         env_file = ".env"

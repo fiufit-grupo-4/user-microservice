@@ -18,9 +18,9 @@ from app.config.credentials import firebase_credentials
 dictConfig(logconfig)
 app = FastAPI()
 app_settings = Settings()
+logger = logging.getLogger("app")
 cred = credentials.Certificate(firebase_credentials)
 firebase_admin.initialize_app(cred)
-logger = logging.getLogger("app")
 
 app.add_middleware(PublisherQueueEventMiddleware)
 
