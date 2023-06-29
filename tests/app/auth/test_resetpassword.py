@@ -1,16 +1,14 @@
-from dotenv import load_dotenv
-load_dotenv()
 from unittest import mock
 from fastapi.testclient import TestClient
 import mongomock
 import pytest
-from os import environ as env
+from app.config.config import Settings
 from app.main import app
 from app.main import logger
 
 # TEST
+app_settings = Settings()
 client = TestClient(app)
-
 password = 'titititi'
 lucas = {"mail": "lukitas@gmail.com", "password": password, "phone_number": "+5493446570174"}
 pepe = {"mail": "pepon@gmail.com", "password": password, "phone_number": "+5493446570174"}
@@ -32,7 +30,7 @@ def mongo_mock(monkeypatch):
 @pytest.fixture()
 def twilio_mock(monkeypatch):
     client_twilio_mock = mock.Mock()
-    monkeypatch.setattr("app.settings.twilio.client_twilio", client_twilio_mock)
+    monkeypatch.setattr("app.config.twilio.client_twilio", client_twilio_mock)
     return client_twilio_mock
 
 
@@ -58,7 +56,7 @@ def test_forgot_password_success(mongo_mock, twilio_mock):
     # Verificar que se haya llamado a la función de envío de correo electrónico de Twilio
     twilio_mock.verify.v2.services.return_value.verifications.create.assert_called_once_with(
         channel_configuration={
-            'template_id': env.get('SENGRID_EMAIL_TEMPLATE_ID'),
+            'template_id': app_settings.SENGRID_EMAIL_TEMPLATE_ID,
             'from': 'lwaisten@fi.uba.ar',
             'from_name': 'Lucas Waisten',
         },

@@ -1,9 +1,12 @@
 # app/auth/auth_bearer.py
 
+import jwt
+
 from fastapi import Request, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-import jwt
-from app.settings.config import JWT_SECRET, JWT_ALGORITHM
+from app.config.config import Settings
+
+app_settings = Settings()
 
 
 class JWTBearer(HTTPBearer):
@@ -31,7 +34,9 @@ class JWTBearer(HTTPBearer):
         isTokenValid: bool = False
 
         try:
-            payload = jwt.decode(jwtoken, JWT_SECRET, algorithms=JWT_ALGORITHM)
+            payload = jwt.decode(
+                jwtoken, app_settings.JWT_SECRET, algorithms=app_settings.JWT_ALGORITHM
+            )
         except Exception:
             payload = None
         if payload:

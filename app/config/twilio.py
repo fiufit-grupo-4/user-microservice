@@ -2,20 +2,19 @@ from os import environ as env
 from starlette import status
 from starlette.responses import JSONResponse
 from twilio.rest import Client
-from app.settings.config import account_sid, auth_token
+from app.config.config import Settings
 
-client_twilio = Client(account_sid, auth_token)
+app_settings = Settings()
+client_twilio = Client(app_settings.TWILIO_ACCOUNT_SID, app_settings.TWILIO_AUTH_TOKEN)
 
 
 def send_password_reset_email(to_email):
     try:
         client_twilio.verify.v2.services(
-            env.get('TWILIO_SERVICES')
+            app_settings.TWILIO_SERVICES
         ).verifications.create(
             channel_configuration={
-                'template_id': env.get(
-                    'SENGRID_EMAIL_TEMPLATE_ID', 'd-5f2d12b822f640ff851a142c4907eb4a'
-                ),
+                'template_id': app_settings.SENGRID_EMAIL_TEMPLATE_ID,
                 'from': 'lwaisten@fi.uba.ar',
                 'from_name': 'Lucas Waisten',
             },
@@ -32,10 +31,10 @@ def send_password_reset_email(to_email):
 def send_whatsapp_validation_code(to_number):
     try:
         client_twilio.verify.v2.services(
-            env.get('TWILIO_SERVICES')
+            app_settings.TWILIO_SERVICES
         ).verifications.create(
             channel_configuration={
-                'template_id': env.get('SENGRID_EMAIL_TEMPLATE_ID'),
+                'template_id': app_settings.SENGRID_EMAIL_TEMPLATE_ID,  # TODO
                 'from': 'lwaisten@fi.uba.ar',
                 'from_name': 'Lucas Waisten',
             },
@@ -52,7 +51,7 @@ def send_whatsapp_validation_code(to_number):
 async def twilio_validation_code(phone_number, validation_code):
     try:
         check = client_twilio.verify.v2.services(
-            env.get('TWILIO_SERVICES')
+            app_settings.TWILIO_SERVICES
         ).verification_checks.create(to=phone_number, code=validation_code)
         if check.status != 'approved':
             return JSONResponse(

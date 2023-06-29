@@ -2,7 +2,7 @@ from bson import ObjectId
 from fastapi import APIRouter, status, Depends, Request
 from pydantic import BaseModel
 from starlette.responses import JSONResponse
-from app.settings.auth_settings import get_user_id
+from app.config.auth_settings import get_user_id
 import logging
 
 router_interest = APIRouter()

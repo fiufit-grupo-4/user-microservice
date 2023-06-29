@@ -3,7 +3,7 @@ import mongomock
 import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
-from app.settings.auth_settings import Settings
+from app.config.auth_settings import SettingsAuth
 from app.user.utils import ObjectIdPydantic
 from unittest.mock import MagicMock
 from app.main import app,logger
@@ -81,19 +81,19 @@ def mongo_mock(monkeypatch):
     global user_1_inserted_id
     user_1_inserted_id = result_1.inserted_id
     global access_token_user_1
-    access_token_user_1 = Settings.generate_token(str(user_1_inserted_id))
+    access_token_user_1 = SettingsAuth.generate_token(str(user_1_inserted_id))
 
     result_2 = col.insert_one(user_2_mock)
     global user_2_inserted_id
     user_2_inserted_id = result_2.inserted_id
     global access_token_user_2
-    access_token_user_2 = Settings.generate_token(str(user_2_inserted_id))
+    access_token_user_2 = SettingsAuth.generate_token(str(user_2_inserted_id))
 
     result_4 = col.insert_one(user_4_mock)
     global user_4_inserted_id
     user_4_inserted_id = result_4.inserted_id
     global access_token_user_4
-    access_token_user_4 = Settings.generate_token(str(user_4_inserted_id))
+    access_token_user_4 = SettingsAuth.generate_token(str(user_4_inserted_id))
 
     app.database = db
     app.logger = logger
@@ -104,7 +104,7 @@ def mongo_mock(monkeypatch):
 
 def test_get_verification_request(mongo_mock):
     admin_mock_id = ObjectId()
-    access_token_admin = Settings.generate_token(str(admin_mock_id))
+    access_token_admin = SettingsAuth.generate_token(str(admin_mock_id))
 
     users = app.database["users"]
     # Success

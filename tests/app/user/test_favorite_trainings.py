@@ -6,7 +6,7 @@ import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 from app.main import logger
-from app.settings.auth_settings import Settings
+from app.config.auth_settings import SettingsAuth
 from requests.models import Response
 
 # TEST
@@ -52,7 +52,7 @@ def mongo_mock(monkeypatch):
 def test_post_training(mongo_mock):
     # get id lucas
     id_lucas = client.get("/users/").json()[0].get('id')
-    access_token_lucas = Settings.generate_token(id_lucas)
+    access_token_lucas = SettingsAuth.generate_token(id_lucas)
     
     response = client.post(f"/users/me/trainings/{training_id_mock}", headers={"Authorization": f"Bearer {access_token_lucas}"})
     assert response.status_code == 200
@@ -70,7 +70,7 @@ def test_post_training(mongo_mock):
 # post dos veces del mismo trnainig no es posible
 def test_post_training_two_times_retuns_409(mongo_mock):
     id_lucas = client.get("/users/").json()[0].get('id')
-    access_token_lucas = Settings.generate_token(id_lucas)
+    access_token_lucas = SettingsAuth.generate_token(id_lucas)
     
     response = client.post(f"/users/me/trainings/{training_id_mock}", headers={"Authorization": f"Bearer {access_token_lucas}"})
     assert response.status_code == 200
@@ -86,7 +86,7 @@ def test_post_training_two_times_retuns_409(mongo_mock):
 def test_delete_training(mongo_mock):
     # get id lucas
     id_lucas = client.get("/users/").json()[0].get('id')
-    access_token_lucas = Settings.generate_token(id_lucas)
+    access_token_lucas = SettingsAuth.generate_token(id_lucas)
     
     response = client.post(f"/users/me/trainings/{training_id_mock}", headers={"Authorization": f"Bearer {access_token_lucas}"})
     assert response.status_code == 200

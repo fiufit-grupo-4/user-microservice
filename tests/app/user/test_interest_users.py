@@ -6,7 +6,7 @@ import mongomock
 import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
-from app.settings.auth_settings import Settings
+from app.config.auth_settings import SettingsAuth
 from app.main import app, logger
 
 client = TestClient(app)
@@ -70,13 +70,13 @@ def mongo_mock(monkeypatch):
     global user_1_inserted_id
     user_1_inserted_id = result_1.inserted_id
     global access_token_user_1
-    access_token_user_1 = Settings.generate_token(str(user_1_inserted_id))
+    access_token_user_1 = SettingsAuth.generate_token(str(user_1_inserted_id))
 
     result_2 = col.insert_one(user_2_mock)
     global user_2_inserted_id
     user_2_inserted_id = result_2.inserted_id
     global access_token_user_2
-    access_token_user_2 = Settings.generate_token(str(user_2_inserted_id))
+    access_token_user_2 = SettingsAuth.generate_token(str(user_2_inserted_id))
 
     app.database = db
     app.logger = logger

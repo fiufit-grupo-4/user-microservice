@@ -5,9 +5,9 @@ from fastapi import APIRouter
 from fastapi import Request, status
 from fastapi.responses import JSONResponse
 
-from app.settings.config import pwd_context
+from app.config.config import pwd_context
 from app.user.user import UserLoginCredentials
-from app.settings.auth_settings import generate_token
+from app.config.auth_settings import generate_token
 from app.auth.password_reset import router as password_router
 from app.definitions import LOGIN
 

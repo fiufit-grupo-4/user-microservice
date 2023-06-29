@@ -1,8 +1,8 @@
 from fastapi import Request, status, APIRouter
 from fastapi.responses import JSONResponse
 from starlette.background import BackgroundTasks
-from app.settings.config import pwd_context
-from app.settings.twilio import send_password_reset_email, twilio_validation_code
+from app.config.config import pwd_context
+from app.config.twilio import send_password_reset_email, twilio_validation_code
 from app.user.user import UserForgotPasswordCredential, UserResetPasswordCredential
 from app.definitions import PASSWORD_EDIT
 

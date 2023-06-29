@@ -39,68 +39,68 @@ services:
 # Si se quiere levantar junto a los otros microservicios, descomentar y tener en cuenta
 # que se debe clonar el proyecto de cada microservicio en la carpeta ../
 
-#  training-microservice:
-#    image: training-microservice
-#    build:
-#      context: ../training-microservice
-#      dockerfile: Dockerfile
-#    volumes:
-#      - ../training-microservice/app:/app/app
-#    env_file:
-#      - ../training-microservice/.env
-#    ports:
-#      - ${TRAINING_SERVICE_PORT}:${TRAINING_SERVICE_PORT}
-#    depends_on:
-#      - user-microservice
-#      - mongodb
-#    tty: true
-#
-#  goals-microservice:
-#    image: goals-microservice
-#    build:
-#      context: ../goals-microservice
-#      dockerfile: Dockerfile
-#    volumes:
-#      - ../goals-microservice/app:/app/app
-#    env_file:
-#      - ../goals-microservice/.env
-#    ports:
-#      - ${GOALS_SERVICE_PORT}:${GOALS_SERVICE_PORT}
-#    depends_on:
-#      - user-microservice
-#      - training-microservice
-#      - mongodb
-#    tty: true
-#
-#  api-gateway:
-#    build:
-#      context: ../api-gateway
-#      dockerfile: Dockerfile
-#    volumes:
-#      - ../api-gateway/app:/app/app
-#    env_file:
-#      - ../api-gateway/.env
-#    ports:
-#      - ${API_GATEWAY_PORT}:${API_GATEWAY_PORT}
-#    depends_on:
-#      - user-microservice
-#      - training-microservice
-#      - goals-microservice
-#      - metrics-microservice
-#    tty: true
-#
-#
-#  metrics-microservice:
-#    image: metrics-microservice
-#    build:
-#      context: ../metrics-microservice
-#      dockerfile: Dockerfile
-#    volumes:
-#      - ../metrics-microservice/app:/app/app
-#    env_file:
-#      - ../metrics-microservice/.env
-#    ports:
-#      - ${METRICS_SERVICE_PORT}:${METRICS_SERVICE_PORT}
-#    depends_on:
-#      - user-microservice
-#    tty: true
+  training-microservice:
+    image: training-microservice
+    build:
+      context: ../training-microservice
+      dockerfile: Dockerfile
+    volumes:
+      - ../training-microservice/app:/app/app
+    env_file:
+      - ../training-microservice/.env
+    ports:
+      - ${TRAINING_SERVICE_PORT}:${TRAINING_SERVICE_PORT}
+    depends_on:
+      - user-microservice
+      - mongodb
+    tty: true
+
+  goals-microservice:
+    image: goals-microservice
+    build:
+      context: ../goals-microservice
+      dockerfile: Dockerfile
+    volumes:
+      - ../goals-microservice/app:/app/app
+    env_file:
+      - ../goals-microservice/.env
+    ports:
+      - ${GOALS_SERVICE_PORT}:${GOALS_SERVICE_PORT}
+    depends_on:
+      - user-microservice
+      - training-microservice
+      - mongodb
+    tty: true
+
+  api-gateway:
+    build:
+      context: ../api-gateway
+      dockerfile: Dockerfile
+    volumes:
+      - ../api-gateway/app:/app/app
+    env_file:
+      - ../api-gateway/.env
+    ports:
+      - ${API_GATEWAY_PORT}:${API_GATEWAY_PORT}
+    depends_on:
+      - user-microservice
+      - training-microservice
+      - goals-microservice
+      - metrics-microservice
+    tty: true
+
+
+  metrics-microservice:
+    image: metrics-microservice
+    build:
+      context: ../metrics-microservice
+      dockerfile: Dockerfile
+    volumes:
+      - ../metrics-microservice/app:/app/app
+    env_file:
+      - ../metrics-microservice/.env
+    ports:
+      - ${METRICS_SERVICE_PORT}:${METRICS_SERVICE_PORT}
+    depends_on:
+      - user-microservice
+    tty: true

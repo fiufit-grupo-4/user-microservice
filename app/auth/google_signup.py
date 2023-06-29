@@ -4,7 +4,7 @@ from starlette.responses import JSONResponse
 
 from app.auth.login import LoginResponse
 from app.auth.signup import signup
-from app.settings.auth_settings import generate_token
+from app.config.auth_settings import generate_token
 from app.user.user import UserSignUpCredentials, UserResponse
 from app.definitions import GOOGLE_SIGNUP
 

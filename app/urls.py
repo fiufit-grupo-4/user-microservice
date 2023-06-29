@@ -14,5 +14,7 @@ api_router.include_router(google_login_router, tags=["login"], prefix="/login")
 api_router.include_router(signup_router, tags=["signup"], prefix="/signup")
 api_router.include_router(google_signup_router, tags=["signup"], prefix="/signup")
 api_router.include_router(
-    router_notifications, tags=["Notifications System"], prefix="/notifications"
+    router_notifications,
+    tags=["Notifications System - User microservice"],
+    prefix="/notifications",
 )

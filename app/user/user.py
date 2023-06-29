@@ -65,10 +65,10 @@ class UserResetPasswordCredential(BaseModel):
 
 
 class UserRequest(BaseModel):
-    name: str
-    lastname: str
+    name: str = Field(None, min_length=1, max_length=256)
+    lastname: str = Field(None, min_length=1, max_length=256)
     mail: Optional[EmailStr]
-    age: str
+    age: str = Field(None, min_length=1, max_length=256)
 
 
 class UserResponse(BaseModel):
@@ -213,18 +213,18 @@ class UserResponse(BaseModel):
 
 
 class UpdatePutUserRequest(BaseModel):
-    name: Optional[str]
-    lastname: Optional[str]
-    age: Optional[str]
+    name: Optional[str] = Field(None, min_length=1, max_length=256)
+    lastname: Optional[str] = Field(None, min_length=1, max_length=256)
+    age: Optional[str] = Field(None, min_length=1, max_length=3)
     mail: Optional[EmailStr]
-    password: str
+    password: str = Field(None, min_length=8, max_length=256)
 
 
 class UpdateUserRequest(BaseModel):
-    name: Optional[str]
-    lastname: Optional[str]
-    age: Optional[str]
-    password: Optional[str]
+    name: Optional[str] = Field(None, min_length=1, max_length=256)
+    lastname: Optional[str] = Field(None, min_length=1, max_length=256)
+    age: Optional[str] = Field(None, min_length=1, max_length=3)
+    password: str = Field(None, min_length=8, max_length=256)
     image: Optional[str]
     location: Optional[LocationResponse]
     device_token: Optional[str]

@@ -37,7 +37,7 @@ juan = {"mail": "juan@gmail.com",
 @pytest.fixture()
 def twilio_mock(monkeypatch):
     client_twilio_mock = mock.Mock()
-    monkeypatch.setattr("app.settings.twilio.client_twilio", client_twilio_mock)
+    monkeypatch.setattr("app.config.twilio.client_twilio", client_twilio_mock)
     return client_twilio_mock
 
 

@@ -5,7 +5,7 @@ import mongomock
 from fastapi.testclient import TestClient
 from app.main import app
 from app.main import logger
-from app.settings.auth_settings import Settings
+from app.config.auth_settings import SettingsAuth
 
 client = TestClient(app)
 lucas = {
@@ -52,7 +52,7 @@ def mongo_mock(monkeypatch):
 
 def test_follow_user(mongo_mock):
     id_lucas = client.get("/users/").json()[0].get('id')
-    access_token_lucas = Settings.generate_token(id_lucas)
+    access_token_lucas = SettingsAuth.generate_token(id_lucas)
     id_juan = client.get("/users/").json()[1].get('id')
 
     response = client.post(f"/users/{id_juan}/follow", headers={"Authorization": f"Bearer {access_token_lucas}"})
@@ -68,7 +68,7 @@ def test_follow_user(mongo_mock):
 def test_unfollow_user(mongo_mock):
     id_lucas = client.get("/users/").json()[0].get('id')
     id_juan = client.get("/users/").json()[1].get('id')
-    access_token_juan = Settings.generate_token(id_juan)
+    access_token_juan = SettingsAuth.generate_token(id_juan)
     client.post(f"/users/{id_lucas}/follow", headers={"Authorization": f"Bearer {access_token_juan}"})
 
     response = client.post(f"/users/{id_lucas}/unfollow", headers={"Authorization": f"Bearer {access_token_juan}"})

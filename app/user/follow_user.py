@@ -6,7 +6,7 @@ from starlette import status
 from starlette.responses import JSONResponse
 from firebase_admin import messaging
 
-from app.settings.auth_settings import get_user_id
+from app.config.auth_settings import get_user_id
 from app.user.utils import ObjectIdPydantic
 
 logger = logging.getLogger('app')
