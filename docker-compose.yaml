@@ -22,20 +22,6 @@ services:
       - mongodb
     tty: true
 
-  # datadog-agent:
-  #   image: datadog/agent:latest
-  #   container_name: datadog-agent
-  #   environment:
-  #     DD_SITE: "datadoghq.com"
-  #     DD_API_KEY: "6e6a3c8c48658e208f8209637f2426e7"
-  #     DD_DOGSTATSD_NON_LOCAL_TRAFFIC: "true"
-  #   ports:
-  #     - 8125:8125/udp
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock:ro
-  #     - /proc/:/host/proc/:ro
-  #     - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
-
 # Si se quiere levantar junto a los otros microservicios, descomentar y tener en cuenta
 # que se debe clonar el proyecto de cada microservicio en la carpeta ../
 
