@@ -62,11 +62,12 @@ async def follow(
                     }
                 },
             )
-            send_push_notification(
-                device_token=user_to_follow['device_token'],
-                title='New follower',
-                body=f'El usuario {id_user} a comenzado a seguirte',
-            )
+            if user_to_follow['device_token'] is not None:
+                send_push_notification(
+                    device_token=user_to_follow['device_token'],
+                    title='New follower',
+                    body=f'El usuario {id_user} a comenzado a seguirte',
+                )
             return JSONResponse(status_code=status.HTTP_200_OK)
         else:
             logger.info(f'Failed to unfollow {id_user_to_follow}')
